@@ -24,9 +24,6 @@ if (!$usuario) {
     exit;
 }
 
-$loggedId = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 0;
-$isSelf = ($loggedId === $idParam);
-
 $pageTitle = 'Visualizar Usuário';
 $backUrl = './usuarios_listar.php';
 
@@ -58,20 +55,24 @@ ob_start();
     font-size: 0.95rem;
     margin-bottom: 0.85rem;
 }
-.badge-status {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
 .badge-info-flag {
     text-transform: uppercase;
     font-size: 0.7rem;
     letter-spacing: 0.08em;
 }
+.card-header-contrast {
+    background: linear-gradient(135deg, #4f46e5, #6366f1 60%, #2563eb);
+    color: #fff;
+}
+.card-header-contrast h5,
+.card-header-contrast i {
+    color: #fff;
+}
 </style>
 
 <div class="card mb-3 shadow-sm">
-    <div class="card-header bg-white border-bottom-0">
-        <h5 class="mb-0 text-secondary"><i class="bi bi-person-plus me-2"></i>Dados Básicos</h5>
+    <div class="card-header card-header-contrast border-bottom-0">
+        <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>Dados Básicos</h5>
     </div>
     <div class="card-body border-top">
         <div class="row g-4">
@@ -81,51 +82,35 @@ ob_start();
                 <div class="info-label">CPF</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['cpf'] ?? ''); ?></div>
                 <div class="info-label">RG</div>
-                <div class="info-value">
-                    <?php
-                    if (!empty($usuario['rg_igual_cpf'])) {
-                        echo format_usuario_valor($usuario['cpf'] ?? '') . ' <span class="badge badge-info-flag bg-info text-dark">IGUAL AO CPF</span>';
-                    } else {
-                        echo format_usuario_valor($usuario['rg'] ?? '');
-                    }
-                    ?>
-                </div>
+                <div class="info-value"><?php echo format_usuario_valor($usuario['rg'] ?? ''); ?></div>
             </div>
             <div class="col-md-6">
                 <div class="info-label">Telefone</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['telefone'] ?? ''); ?></div>
                 <div class="info-label">Email</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['email']); ?></div>
-                <div class="info-label">Status</div>
-                <div class="info-value">
-                    <span class="badge badge-status bg-<?php echo $usuario['ativo'] ? 'success' : 'secondary'; ?> px-3 py-2 fs-6">
-                        <?php echo $usuario['ativo'] ? 'ATIVO' : 'INATIVO'; ?>
-                    </span>
-                </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="card mb-3 shadow-sm">
-    <div class="card-header bg-white border-bottom-0">
-        <h5 class="mb-0 text-secondary"><i class="bi bi-person-hearts me-2"></i>Estado Civil</h5>
-    </div>
-    <div class="card-body border-top">
-        <div class="info-value">
-            <?php if (!empty($usuario['casado'])): ?>
-                <span class="badge badge-status bg-success px-3 py-2">CASADO(A)</span>
-            <?php else: ?>
-                <span class="badge badge-status bg-secondary px-3 py-2">NÃO INFORMADO / SOLTEIRO(A)</span>
-            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <?php if (!empty($usuario['casado'])): ?>
 <div class="card mb-3 shadow-sm">
-    <div class="card-header bg-white border-bottom-0">
-        <h5 class="mb-0 text-secondary"><i class="bi bi-people-fill me-2"></i>Dados do Cônjuge</h5>
+    <div class="card-header card-header-contrast border-bottom-0">
+        <h5 class="mb-0"><i class="bi bi-person-hearts me-2"></i>Estado Civil</h5>
+    </div>
+    <div class="card-body border-top">
+        <div class="info-value">
+            <span class="badge bg-success text-uppercase px-3 py-2">CASADO(A)</span>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($usuario['casado'])): ?>
+<div class="card mb-3 shadow-sm">
+    <div class="card-header card-header-contrast border-bottom-0">
+        <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Dados do Cônjuge</h5>
     </div>
     <div class="card-body border-top">
         <div class="row g-3">
@@ -137,15 +122,7 @@ ob_start();
             </div>
             <div class="col-md-6">
                 <div class="info-label">RG</div>
-                <div class="info-value">
-                    <?php
-                    if (!empty($usuario['rg_conjuge_igual_cpf'])) {
-                        echo format_usuario_valor($usuario['cpf_conjuge'] ?? '') . ' <span class="badge badge-info-flag bg-info text-dark">IGUAL AO CPF</span>';
-                    } else {
-                        echo format_usuario_valor($usuario['rg_conjuge'] ?? '');
-                    }
-                    ?>
-                </div>
+                <div class="info-value"><?php echo format_usuario_valor($usuario['rg_conjuge'] ?? ''); ?></div>
                 <div class="info-label">Telefone</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['telefone_conjuge'] ?? ''); ?></div>
             </div>
@@ -155,8 +132,8 @@ ob_start();
 <?php endif; ?>
 
 <div class="card mb-3 shadow-sm">
-    <div class="card-header bg-white border-bottom-0">
-        <h5 class="mb-0 text-secondary"><i class="bi bi-geo-alt me-2"></i>Endereço</h5>
+    <div class="card-header card-header-contrast border-bottom-0">
+        <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Endereço</h5>
     </div>
     <div class="card-body border-top">
         <div class="row g-3">
