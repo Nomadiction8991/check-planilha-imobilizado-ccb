@@ -8,7 +8,7 @@ use voku\helper\UTF8;
 
 /**
  * Converte um campo para UPPERCASE com suporte completo a UTF-8 e acentos
- * 
+ *
  * @param string $value O valor a ser convertido
  * @return string O valor em UPPERCASE
  */
@@ -16,7 +16,7 @@ function to_uppercase($value) {
     if (empty($value) || !is_string($value)) {
         return $value;
     }
-    
+
     // Usa a biblioteca voku/portable-utf8 para conversão robusta
     return UTF8::strtoupper($value);
 }
@@ -30,8 +30,8 @@ function uppercase($value) {
 
 /**
  * Converte múltiplos campos de um array para UPPERCASE
- * 
- * @param array $data Array com dados
+ *
+ * @param array $data Array com dados (passado por referência)
  * @param array $fields_to_convert Lista de campos que devem ser convertidos
  * @return array Array com campos convertidos
  */
@@ -46,7 +46,7 @@ function uppercase_fields(&$data, $fields_to_convert = []) {
 
 /**
  * Normaliza um texto (remove acentos opcionalmente e converte para uppercase)
- * 
+ *
  * @param string $text Texto a normalizar
  * @param bool $remove_accents Se deve remover acentos
  * @return string Texto normalizado
@@ -55,18 +55,18 @@ function normalize_text($text, $remove_accents = false) {
     if (empty($text)) {
         return $text;
     }
-    
+
     if ($remove_accents) {
         // Remove acentos e converte para uppercase
         $text = UTF8::remove_accents($text);
     }
-    
+
     return to_uppercase($text);
 }
 
 /**
  * Converte para lowercase mantendo suporte UTF-8
- * 
+ *
  * @param string $value O valor a ser convertido
  * @return string O valor em lowercase
  */
@@ -74,13 +74,13 @@ function to_lowercase($value) {
     if (empty($value) || !is_string($value)) {
         return $value;
     }
-    
+
     return UTF8::strtolower($value);
 }
 
 /**
  * Remove acentos de uma string
- * 
+ *
  * @param string $text Texto com possíveis acentos
  * @return string Texto sem acentos
  */
@@ -88,15 +88,8 @@ function remove_accents($text) {
     if (empty($text)) {
         return $text;
     }
-    
-    return UTF8::remove_accents($text);
-}
-?>
 
-            $data[$field] = to_uppercase($data[$field]);
-        }
-    }
-    return $data;
+    return UTF8::remove_accents($text);
 }
 
 /**
@@ -136,11 +129,11 @@ function get_uppercase_fields($table = null) {
             'especificacoes'
         ]
     ];
-    
+
     if ($table && isset($fields_by_table[$table])) {
         return $fields_by_table[$table];
     }
-    
+
     // Retornar todos se não especificar tabela
     $all = [];
     foreach ($fields_by_table as $fields) {
@@ -149,4 +142,4 @@ function get_uppercase_fields($table = null) {
     return $all;
 }
 
-?>
+// Nota: intencionalmente sem tag de fechamento PHP para evitar saída acidental
