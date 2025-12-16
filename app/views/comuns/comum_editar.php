@@ -20,7 +20,7 @@ if (!$comum) {
     exit;
 }
 
-$pageTitle = 'EDITAR Comum';
+$pageTitle = 'EDITAR COMUM';
 // Preserve filters when returning to the list (if present)
 $backQs = [];
 if (!empty($_GET['busca'])) { $backQs['busca'] = $_GET['busca']; }
@@ -209,28 +209,31 @@ ob_start();
                 <input type="hidden" name="pagina" value="<?php echo htmlspecialchars($_GET['pagina'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 
                 <div class="mb-3">
-                    <label class="form-label">CÓDIGO</label>
-                    <input type="text" class="form-control text-uppercase" value="<?php echo htmlspecialchars($comum['codigo']); ?>" disabled>
+                    <label class="form-label"><?php echo htmlspecialchars(to_uppercase('CÓDIGO'), ENT_QUOTES, 'UTF-8'); ?></label>
+                    <input type="text" class="form-control text-uppercase w-100" value="<?php echo htmlspecialchars($comum['codigo']); ?>" disabled>
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="descricao" class="form-label">DESCRIÇÃO <span class="text-danger">*</span></label>
-                        <input type="text" id="descricao" name="descricao" class="form-control text-uppercase" required
+                    <div class="col-12">
+                        <label for="descricao" class="form-label"><?php echo htmlspecialchars(to_uppercase('Descrição'), ENT_QUOTES, 'UTF-8'); ?> <span class="text-danger">*</span></label>
+                        <input type="text" id="descricao" name="descricao" class="form-control text-uppercase w-100" required
                                value="<?php echo htmlspecialchars($comumDescricao); ?>">
                     </div>
-                    <div class="col-md-6">
-                        <label for="cnpj" class="form-label">CNPJ <span class="text-danger">*</span></label>
-                        <input type="text" id="cnpj" name="cnpj" class="form-control text-uppercase" required
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-12">
+                        <label for="cnpj" class="form-label"><?php echo htmlspecialchars(to_uppercase('CNPJ'), ENT_QUOTES, 'UTF-8'); ?> <span class="text-danger">*</span></label>
+                        <input type="text" id="cnpj" name="cnpj" class="form-control text-uppercase w-100" required
                                value="<?php echo htmlspecialchars($comum['cnpj']); ?>" placeholder="00.000.000/0000-00">
                     </div>
                 </div>
 
                 <div class="row g-3 mt-1">
-                    <div class="col-md-6">
-                        <label for="administracao" class="form-label">Administração <span class="text-danger">*</span></label>
-                        <select id="administracao" name="administracao" class="form-select text-uppercase" required>
-                            <option value="">Selecione</option>
+                    <div class="col-12">
+                        <label for="administracao" class="form-label"><?php echo htmlspecialchars(to_uppercase('Administração'), ENT_QUOTES, 'UTF-8'); ?> <span class="text-danger">*</span></label>
+                        <select id="administracao" name="administracao" class="form-select text-uppercase w-100" required>
+                            <option value=""><?php echo htmlspecialchars(to_uppercase('Selecione'), ENT_QUOTES, 'UTF-8'); ?></option>
                             <?php foreach ($mt_cidades as $op): ?>
                                 <option value="<?php echo htmlspecialchars($op); ?>" <?php echo $comumAdm === $op ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars(to_uppercase($op), ENT_QUOTES, 'UTF-8'); ?>
@@ -238,10 +241,13 @@ ob_start();
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label for="cidade" class="form-label">CIDADE <span class="text-danger">*</span></label>
-                        <select id="cidade" name="cidade" class="form-select text-uppercase" required>
-                            <option value="">Selecione</option>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-12">
+                        <label for="cidade" class="form-label"><?php echo htmlspecialchars(to_uppercase('CIDADE'), ENT_QUOTES, 'UTF-8'); ?> <span class="text-danger">*</span></label>
+                        <select id="cidade" name="cidade" class="form-select text-uppercase w-100" required>
+                            <option value=""><?php echo htmlspecialchars(to_uppercase('Selecione'), ENT_QUOTES, 'UTF-8'); ?></option>
                             <?php foreach ($mt_cidades as $op): ?>
                                 <option value="<?php echo htmlspecialchars($op); ?>" <?php echo $comumCIDADE === $op ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars(to_uppercase($op), ENT_QUOTES, 'UTF-8'); ?>
@@ -252,16 +258,16 @@ ob_start();
                 </div>
 
                 <div class="row g-3 mt-1">
-                    <div class="col-md-6">
-                        <label for="setor" class="form-label">Setor (opcional)</label>
-                        <input type="text" id="setor" name="setor" class="form-control text-uppercase"
+                    <div class="col-12">
+                        <label for="setor" class="form-label"><?php echo htmlspecialchars(to_uppercase('Setor (opcional)'), ENT_QUOTES, 'UTF-8'); ?></label>
+                        <input type="text" id="setor" name="setor" class="form-control text-uppercase w-100"
                                value="<?php echo htmlspecialchars($comumSetor); ?>">
                     </div>
                 </div>
 
-                <div class="mt-4 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save me-2"></i>SALVAR
+                <div class="mt-4 d-grid gap-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-save me-2"></i><?php echo htmlspecialchars(to_uppercase('Salvar'), ENT_QUOTES, 'UTF-8'); ?>
                     </button>
                 </div>
             </form>

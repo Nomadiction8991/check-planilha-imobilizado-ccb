@@ -65,6 +65,11 @@ $customCss = '
 
 $busca = trim($_GET['busca'] ?? '');
 $buscaDisplay = mb_strtoupper($busca, 'UTF-8');
+// Build query string for preserving filters when linking to edit/create
+$qsArr = [];
+if ($busca !== '') { $qsArr['busca'] = $busca; }
+if (!empty($pagina) && $pagina > 1) { $qsArr['pagina'] = $pagina; }
+$qs = http_build_query($qsArr);
 
 // Paginação: 10 por página
 $pagina = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
@@ -102,8 +107,11 @@ if (isset($_GET['ajax'])) {
             $rowsHtml .= '<td class="text-uppercase">' . htmlspecialchars($comum['descricao']) . '</td>';
             $rowsHtml .= '<td>';
             $rowsHtml .= '<div class="btn-group btn-group-sm" role="group">';
-            $rowsHtml .= '<a class="btn btn-outline-primary" href="app/views/comuns/comum_editar.php?id=' . (int) $comum['id'] . '" title="Editar"><i class="bi bi-pencil"></i></a>';
-            $rowsHtml .= '<a class="btn btn-outline-secondary btn-view-planilha" href="app/views/planilhas/planilha_visualizar.php?comum_id=' . (int) $comum['id'] . '" data-cadastro-ok="' . ($cadastro_ok ? '1' : '0') . '" data-edit-url="app/views/comuns/comum_editar.php?id=' . (int) $comum['id'] . '" title="Visualizar planilha"><i class="bi bi-eye"></i></a>';
+            // preserve current busca/page when building edit links for AJAX rows
+            $editHref = 'app/views/comuns/comum_editar.php?id=' . (int) $comum['id'] . ($busca !== '' || $pagina_ajax > 1 ? ('?' . http_build_query(['busca' => $busca, 'pagina' => $pagina_ajax])) : '');
+            $viewHref = 'app/views/planilhas/planilha_visualizar.php?comum_id=' . (int) $comum['id'];
+            $rowsHtml .= '<a class="btn btn-outline-primary" href="' . $editHref . '" title="Editar"><i class="bi bi-pencil"></i></a>';
+            $rowsHtml .= '<a class="btn btn-outline-secondary btn-view-planilha" href="' . $viewHref . '" data-cadastro-ok="' . ($cadastro_ok ? '1' : '0') . '" data-edit-url="' . $editHref . '" title="Visualizar planilha"><i class="bi bi-eye"></i></a>';
             $rowsHtml .= '</div>';
             $rowsHtml .= '</td>';
             $rowsHtml .= '</tr>';
@@ -215,7 +223,7 @@ ob_start();
                             </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a class="btn btn-outline-primary" href="app/views/comuns/comum_editar.php?id=<?php echo (int) $comum['id']; ?>" title="Editar">
+                                        <a class="btn btn-outline-primary" href="app/views/comuns/comum_editar.php?id=<?php echo (int) $comum['id']; ?><?php echo ($qs ? ('?' . $qs) : ''); ?>" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <a class="btn btn-outline-secondary btn-view-planilha"

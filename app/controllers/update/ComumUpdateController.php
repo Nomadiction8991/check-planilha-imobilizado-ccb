@@ -74,7 +74,8 @@ try {
     if (!empty($_REQUEST['busca'])) { $retQ['busca'] = $_REQUEST['busca']; }
     if (!empty($_REQUEST['pagina'])) { $retQ['pagina'] = $_REQUEST['pagina']; }
     $retQ['success'] = 1;
-    header('Location: ../../views/comuns/comuns_listar.php?' . http_build_query($retQ));
+    // Redirect back to the main Comuns index which supports search filters (index.php)
+    header('Location: ../../index.php?' . http_build_query($retQ));
     exit;
 } catch (Throwable $e) {
     $_SESSION['mensagem'] = 'Erro ao salvar: ' . $e->getMessage();
