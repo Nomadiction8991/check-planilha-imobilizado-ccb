@@ -61,13 +61,27 @@ ob_start();
     letter-spacing: 0.08em;
 }
 .card-header-contrast {
-    /* Use same gradient as the main app header for visual consistency */
+    /* Use same gradient and sizing as the list card header for visual consistency */
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
+    padding: 12px 16px;
+    border-radius: 12px 12px 0 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
 }
 .card-header-contrast h5,
 .card-header-contrast i {
     color: #fff;
+}
+.card-header-contrast h5 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1;
+}
+.card-header-contrast i {
+    font-size: 1.1rem;
 }
 </style>
 
