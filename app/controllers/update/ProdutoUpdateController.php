@@ -98,8 +98,8 @@ try {
 // Processar o formulÃ¡rio quando enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $novo_tipo_bem_id = trim($_POST['novo_tipo_bem_id'] ?? '');
-    $novo_bem = strtoupper(trim($_POST['novo_bem'] ?? ''));
-    $novo_complemento = strtoupper(trim($_POST['novo_complemento'] ?? ''));
+    $novo_bem = mb_strtoupper(trim($_POST['novo_bem'] ?? ''), 'UTF-8');
+    $novo_complemento = mb_strtoupper(trim($_POST['novo_complemento'] ?? ''), 'UTF-8');
     $nova_dependencia_id = trim($_POST['nova_dependencia_id'] ?? '');
     
     // Receber filtros do POST tambÃ©m

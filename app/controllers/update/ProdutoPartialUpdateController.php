@@ -100,10 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_atualizar = $conexao->prepare($sql_atualizar);
             $stmt_atualizar->bindValue(':codigo', !empty($codigo) ? $codigo : null);
             $stmt_atualizar->bindValue(':tipo_bem_id', $id_tipo_ben);
-            $stmt_atualizar->bindValue(':bem', $tipo_ben);
-            $stmt_atualizar->bindValue(':complemento', $complemento);
+            $stmt_atualizar->bindValue(':bem', mb_strtoupper($tipo_ben, 'UTF-8'));
+            $stmt_atualizar->bindValue(':complemento', mb_strtoupper($complemento, 'UTF-8'));
             $stmt_atualizar->bindValue(':dependencia_id', $id_dependencia);
-            $stmt_atualizar->bindValue(':descricao_completa', $descricao_completa);
+            $stmt_atualizar->bindValue(':descricao_completa', mb_strtoupper($descricao_completa, 'UTF-8'));
             $stmt_atualizar->bindValue(':imprimir_14_1', $imprimir_14_1);
             $stmt_atualizar->bindValue(':id', $id_produto);
             $stmt_atualizar->bindValue(':id_planilha', $id_planilha);

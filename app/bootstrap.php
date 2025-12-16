@@ -8,4 +8,5 @@ require_once __DIR__ . '/../config/app_config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/helpers/auth_helper.php';
 require_once __DIR__ . '/helpers/comum_helper.php';
+require_once __DIR__ . '/helpers/uppercase_helper.php';
 

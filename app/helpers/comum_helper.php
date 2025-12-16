@@ -97,9 +97,9 @@ function garantir_comum_por_codigo($conexao, $codigo, $dados = []) {
 
     // Inserir novo registro com campos vazios
     $cnpj_final = null;
-    $descricao = $dados['descricao'] ?? '';
-    $administracao = $dados['administracao'] ?? '';
-    $cidade = $dados['cidade'] ?? '';
+    $descricao = mb_strtoupper($dados['descricao'] ?? '', 'UTF-8');
+    $administracao = mb_strtoupper($dados['administracao'] ?? '', 'UTF-8');
+    $cidade = mb_strtoupper($dados['cidade'] ?? '', 'UTF-8');
     $setor = $dados['setor'] ?? null;
 
     $sql_insert = "INSERT INTO comums (codigo, cnpj, descricao, administracao, cidade, setor)
@@ -229,11 +229,11 @@ function processar_comum($conexao, $comum_text, $dados = []) {
                 }
                 if (!empty($administracao)) {
                     $updates[] = "administracao = :administracao";
-                    $params[':administracao'] = $administracao;
+                    $params[':administracao'] = mb_strtoupper($administracao, 'UTF-8');
                 }
                 if (!empty($cidade)) {
                     $updates[] = "cidade = :cidade";
-                    $params[':cidade'] = $cidade;
+                    $params[':cidade'] = mb_strtoupper($cidade, 'UTF-8');
                 }
                 if (isset($dados['setor'])) {
                     $updates[] = "setor = :setor";

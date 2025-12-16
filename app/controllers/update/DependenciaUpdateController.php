@@ -56,13 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($codigo === '') {
             $sql = 'UPDATE dependencias SET codigo = NULL, descricao = :descricao WHERE id = :id';
             $stmt = $conexao->prepare($sql);
-            $stmt->bindValue(':descricao', $descricao);
+            $stmt->bindValue(':descricao', mb_strtoupper($descricao, 'UTF-8'));
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         } else {
             $sql = 'UPDATE dependencias SET codigo = :codigo, descricao = :descricao WHERE id = :id';
             $stmt = $conexao->prepare($sql);
             $stmt->bindValue(':codigo', $codigo);
-            $stmt->bindValue(':descricao', $descricao);
+            $stmt->bindValue(':descricao', mb_strtoupper($descricao, 'UTF-8'));
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         }
 

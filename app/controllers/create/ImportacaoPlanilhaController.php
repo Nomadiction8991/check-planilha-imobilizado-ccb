@@ -152,13 +152,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Garantir cadastro das dependencias distintas encontradas (apenas descricao)
         foreach ($dependencias_unicas as $dep_desc) {
             try {
+                $dep_desc_upper = mb_strtoupper($dep_desc, 'UTF-8');
                 $stmtDep = $conexao->prepare("SELECT id FROM dependencias WHERE descricao = :descricao");
-                $stmtDep->bindValue(':descricao', $dep_desc);
+                $stmtDep->bindValue(':descricao', $dep_desc_upper);
                 $stmtDep->execute();
                 $existeDep = $stmtDep->fetch(PDO::FETCH_ASSOC);
                 if (!$existeDep) {
                     $stmtInsertDep = $conexao->prepare("INSERT INTO dependencias (descricao) VALUES (:descricao)");
-                    $stmtInsertDep->bindValue(':descricao', $dep_desc);
+                    $stmtInsertDep->bindValue(':descricao', $dep_desc_upper);
                     $stmtInsertDep->execute();
                 }
             } catch (Throwable $e) {
@@ -388,9 +389,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                            comum_id = :comum_id
                                         WHERE id_produto = :id_produto";
                     $stmtUp = $conexao->prepare($sql_update_prod);
-                    $stmtUp->bindValue(':descricao_completa', $descricao_completa_calc);
-                    $stmtUp->bindValue(':complemento', $complemento_limpo);
-                    $stmtUp->bindValue(':bem', $ben);
+                    $stmtUp->bindValue(':descricao_completa', mb_strtoupper($descricao_completa_calc, 'UTF-8'));
+                    $stmtUp->bindValue(':complemento', mb_strtoupper($complemento_limpo, 'UTF-8'));
+                    $stmtUp->bindValue(':bem', mb_strtoupper($ben, 'UTF-8'));
                     $stmtUp->bindValue(':dependencia_id', $dependencia_id, PDO::PARAM_INT);
                     $stmtUp->bindValue(':tipo_bem_id', $tipo_bem_id, PDO::PARAM_INT);
                     $stmtUp->bindValue(':comum_id', $comum_processado_id, PDO::PARAM_INT);
@@ -422,13 +423,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt_prod->bindValue(':comum_id', $comum_processado_id, PDO::PARAM_INT);
                     $stmt_prod->bindValue(':id_produto', $id_produto_sequencial, PDO::PARAM_INT);
                     $stmt_prod->bindValue(':codigo', $codigo);
-                    $stmt_prod->bindValue(':descricao_completa', $descricao_completa_calc);
+                    $stmt_prod->bindValue(':descricao_completa', mb_strtoupper($descricao_completa_calc, 'UTF-8'));
                     $stmt_prod->bindValue(':tipo_bem_id', $tipo_bem_id, PDO::PARAM_INT);
-                    $stmt_prod->bindValue(':bem', $ben);
-                    $stmt_prod->bindValue(':complemento', $complemento_limpo);
+                    $stmt_prod->bindValue(':bem', mb_strtoupper($ben, 'UTF-8'));
+                    $stmt_prod->bindValue(':complemento', mb_strtoupper($complemento_limpo, 'UTF-8'));
                     $stmt_prod->bindValue(':dependencia_id', $dependencia_id, PDO::PARAM_INT);
                     $stmt_prod->bindValue(':imprimir_14_1', 0, PDO::PARAM_INT);
-                    $stmt_prod->bindValue(':observacao', $obs_prefix);
+                    $stmt_prod->bindValue(':observacao', mb_strtoupper($obs_prefix, 'UTF-8'));
                     $stmt_prod->bindValue(':condicao_14_1', '2');
                     if ($stmt_prod->execute()) {
                         $novos++;

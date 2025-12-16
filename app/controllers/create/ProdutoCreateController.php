@@ -24,10 +24,10 @@ $dependencias = $stmt_deps->fetchAll();
 
 // Processar o formulÃ¡rio quando enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $codigo = $_POST['codigo'] ?? ''; // Novo campo opcional
+    $codigo = mb_strtoupper(trim($_POST['codigo'] ?? ''), 'UTF-8');
     $id_tipo_ben = $_POST['id_tipo_ben'] ?? '';
-    $tipo_ben = $_POST['tipo_ben'] ?? '';
-    $complemento = $_POST['complemento'] ?? '';
+    $tipo_ben = mb_strtoupper(trim($_POST['tipo_ben'] ?? ''), 'UTF-8');
+    $complemento = mb_strtoupper(trim($_POST['complemento'] ?? ''), 'UTF-8');
     $id_dependencia = $_POST['id_dependencia'] ?? '';
     $multiplicador = $_POST['multiplicador'] ?? 1;
     
