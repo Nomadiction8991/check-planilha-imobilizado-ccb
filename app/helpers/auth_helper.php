@@ -45,11 +45,15 @@ if (!isset($_SESSION['usuario_id'])) {
         }
 
         if (!$ok) {
+            // Log why redirecting to login (help debug redirect loops)
+            error_log('AUTH_REDIRECT: missing session usuario_id; is_public=' . ($isPublic ? '1' : '0') . ' script=' . ($_SERVER['SCRIPT_NAME'] ?? '') . ' session_id=' . session_id());
             header('Location: ' . getLoginUrl());
             exit;
         }
     } else {
+        // Save redirect target and log for debug
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'] ?? '/';
+        error_log('AUTH_REDIRECT: not logged in; redirect_after_login=' . ($_SESSION['redirect_after_login'] ?? '') . ' session_id=' . session_id());
         header('Location: ' . getLoginUrl());
         exit;
     }
@@ -62,8 +66,14 @@ $_SESSION['last_activity'] = time();
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
     session_unset();
     session_destroy();
+    error_log('AUTH_REDIRECT: session timeout for session_id=' . session_id());
     header('Location: ' . getLoginUrl() . '?timeout=1');
     exit;
+}
+
+// Ensure basic session keys exist to avoid undefined notices and help debugging
+if (!isset($_SESSION['usuario_tipo'])) {
+    $_SESSION['usuario_tipo'] = '';
 }
 
 // Verifica se o usuario e Administrador/Acessor
