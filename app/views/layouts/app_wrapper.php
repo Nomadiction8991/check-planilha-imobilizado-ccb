@@ -429,7 +429,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
                         </a>
                     <?php endif; ?>
                     <div>
-                        <h1 class="app-title"><?php echo $pageTitle ?? 'Anvy'; ?></h1>
+                        <h1 class="app-title"><?php echo htmlspecialchars(to_uppercase($pageTitle ?? 'Anvy'), ENT_QUOTES, 'UTF-8'); ?></h1>
                         <?php if (isset($_SESSION['usuario_nome'])): ?>
                             <small style="font-size: 11px; opacity: 0.8;">
                                 <i class="bi bi-person-circle me-1"></i>
@@ -437,6 +437,10 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
                             </small>
                         <?php endif; ?>
                     </div>
+                    <style>
+                        /* Ensure header titles display uppercase visually too */
+                        .app-title { text-transform: uppercase; }
+                    </style>
                 </div>
                 <div class="header-actions">
                     <?php if (isset($headerActions)): ?>
