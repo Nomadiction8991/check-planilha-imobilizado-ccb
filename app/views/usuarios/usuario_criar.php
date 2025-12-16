@@ -33,7 +33,7 @@ if (!defined('PUBLIC_REGISTER')) {
 
 include __DIR__ . '/../../../app/controllers/create/UsuarioCreateController.php';
 
-$pageTitle = defined('PUBLIC_REGISTER') ? 'Cadastro' : 'Novo UsuÃ¡rio';
+$pageTitle = defined('PUBLIC_REGISTER') ? 'CADASTRO' : 'NOVO USUÁRIO';
 $backUrl = defined('PUBLIC_REGISTER') ? '../../../login.php' : './usuarios_listar.php';
 
 ob_start();
@@ -41,10 +41,11 @@ ob_start();
 
 <?php if (!empty($mensagem)): ?>
     <div class="alert alert-<?php echo $tipo_mensagem === 'success' ? 'success' : 'danger'; ?> alert-dismissible fade show">
-        <?php echo $mensagem; ?>
+        <?php echo to_uppercase(\voku\helper\UTF8::fix_utf8(htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8'))); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
+
 
 <!-- JQUERY e INPUTMASK -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -61,14 +62,15 @@ ob_start();
 <form method="POST" id="formUsuario">
     <!-- CAMPO OCULTO: tipo de usuÃ¡rio (apenas para registro pÃºblico) -->
     <?php if (defined('PUBLIC_REGISTER')): ?>
-        <input type="hidden" name="tipo" value="Doador/CÃ´njuge">
+        <input type="hidden" name="tipo" value="DOADOR/CÔNJUGE">
     <?php endif; ?>
+
     
-    <!-- Card 1: Dados BÃ¡sicos -->
+    <!-- CARD 1: DADOS BÁSICOS -->
     <div class="card mb-3">
         <div class="card-header">
             <i class="bi bi-person-plus me-2"></i>
-            Dados BÃ¡sicos
+            DADOS BÁSICOS
         </div>
         <div class="card-body">
             <div class="mb-3">
@@ -88,7 +90,7 @@ ob_start();
                     <label for="rg" class="form-label">RG <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="rg" name="rg" 
                            value="<?php echo htmlspecialchars($_POST['rg'] ?? ''); ?>" 
-                           placeholder="Digite os dÃ­gitos do RG" required>
+                           placeholder="DIGITE OS DÍGITOS DO RG" required> 
                     <div class="form-check mt-1">
                         <input class="form-check-input" type="checkbox" id="rg_igual_cpf" name="rg_igual_cpf" value="1">
                         <label class="form-check-label" for="rg_igual_cpf">RG igual ao CPF</label>
@@ -111,14 +113,14 @@ ob_start();
 
             <div class="row g-3">
                 <div class="col-12">
-                    <label for="senha" class="form-label">Senha <span class="text-danger">*</span></label>
+                    <label for="senha" class="form-label">SENHA <span class="text-danger">*</span></label>
                     <input type="password" class="form-control" id="senha" name="senha" 
                            minlength="6" required>
-                    <small class="text-muted">MÃ­nimo de 6 caracteres</small>
+                    <small class="text-muted">MÍNIMO DE 6 CARACTERES</small>
                 </div>
 
                 <div class="col-12">
-                    <label for="confirmar_senha" class="form-label">Confirmar Senha <span class="text-danger">*</span></label>
+                    <label for="confirmar_senha" class="form-label">CONFIRMAR SENHA <span class="text-danger">*</span></label>
                     <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" 
                            minlength="6" required>
                 </div>
@@ -130,11 +132,11 @@ ob_start();
         </div>
     </div>
 
-    <!-- Card 2: ESTADO civil -->
+    <!-- CARD 2: ESTADO CIVIL -->
     <div class="card mb-3">
         <div class="card-header">
             <i class="bi bi-person-hearts me-2"></i>
-            ESTADO civil
+            ESTADO CIVIL
         </div>
         <div class="card-body">
             <div class="form-check">
@@ -144,32 +146,32 @@ ob_start();
         </div>
     </div>
 
-    <!-- Card 4: Dados do CÃ´njuge (condicional) -->
+    <!-- CARD 4: DADOS DO CÔNJUGE (condicional) -->
     <div id="cardConjuge" class="card mb-3" style="display:none;">
         <div class="card-header">
             <i class="bi bi-people-fill me-2"></i>
-            Dados do CÃ´njuge
+            DADOS DO CÔNJUGE
         </div>
         <div class="card-body">
             <div class="mb-3">
-                <label for="nome_conjuge" class="form-label">NOME COMPLETO do CÃ´njuge</label>
+                <label for="nome_conjuge" class="form-label">NOME COMPLETO DO CÔNJUGE</label>
                 <input type="text" class="form-control" id="nome_conjuge" name="nome_conjuge" value="<?php echo htmlspecialchars($_POST['nome_conjuge'] ?? ''); ?>">
             </div>
             <div class="row g-3">
                 <div class="col-12">
-                    <label for="cpf_conjuge" class="form-label">CPF do CÃ´njuge</label>
+                    <label for="cpf_conjuge" class="form-label">CPF DO CÔNJUGE</label>
                     <input type="text" class="form-control" id="cpf_conjuge" name="cpf_conjuge" value="<?php echo htmlspecialchars($_POST['cpf_conjuge'] ?? ''); ?>" placeholder="000.000.000-00">
                 </div>
                 <div class="col-12">
-                    <label for="rg_conjuge" class="form-label">RG do CÃ´njuge</label>
+                    <label for="rg_conjuge" class="form-label">RG DO CÔNJUGE</label>
                     <input type="text" class="form-control" id="rg_conjuge" name="rg_conjuge" value="<?php echo htmlspecialchars($_POST['rg_conjuge'] ?? ''); ?>" placeholder="Digite os dÃ­gitos do RG">
                     <div class="form-check mt-1">
                         <input class="form-check-input" type="checkbox" id="rg_conjuge_igual_cpf" name="rg_conjuge_igual_cpf" value="1">
-                        <label class="form-check-label" for="rg_conjuge_igual_cpf">RG do cÃ´njuge igual ao CPF do cÃ´njuge</label>
+                        <label class="form-check-label" for="rg_conjuge_igual_cpf">RG DO CÔNJUGE IGUAL AO CPF DO CÔNJUGE</label>
                     </div>
                 </div>
                 <div class="col-12">
-                    <label for="telefone_conjuge" class="form-label">TELEFONE do CÃ´njuge</label>
+                    <label for="telefone_conjuge" class="form-label">TELEFONE DO CÔNJUGE</label>
                     <input type="text" class="form-control" id="telefone_conjuge" name="telefone_conjuge" value="<?php echo htmlspecialchars($_POST['telefone_conjuge'] ?? ''); ?>" placeholder="(00) 00000-0000">
                 </div>
             </div>
@@ -200,7 +202,7 @@ ob_start();
 
             <div class="row g-3 mt-2">
                 <div class="col-12">
-                    <label for="numero" class="form-label">NÃºmero</label>
+                    <label for="numero" class="form-label">NÚMERO</label>
                     <input type="text" class="form-control" id="numero" name="endereco_numero" 
                            value="<?php echo htmlspecialchars($_POST['endereco_numero'] ?? ''); ?>">
                 </div>
@@ -227,33 +229,33 @@ ob_start();
                     <label for="estado" class="form-label">ESTADO</label>
                     <select class="form-select" id="estado" name="endereco_estado">
                         <option value="">Selecione</option>
-                        <option value="AC" <?php echo ($_POST['endereco_estado'] ?? '') === 'AC' ? 'selected' : ''; ?>>Acre</option>
-                        <option value="AL" <?php echo ($_POST['endereco_estado'] ?? '') === 'AL' ? 'selected' : ''; ?>>Alagoas</option>
-                        <option value="AP" <?php echo ($_POST['endereco_estado'] ?? '') === 'AP' ? 'selected' : ''; ?>>AmapÃ¡</option>
-                        <option value="AM" <?php echo ($_POST['endereco_estado'] ?? '') === 'AM' ? 'selected' : ''; ?>>Amazonas</option>
-                        <option value="BA" <?php echo ($_POST['endereco_estado'] ?? '') === 'BA' ? 'selected' : ''; ?>>Bahia</option>
-                        <option value="CE" <?php echo ($_POST['endereco_estado'] ?? '') === 'CE' ? 'selected' : ''; ?>>CearÃ¡</option>
+                        <option value="AC" <?php echo ($_POST['endereco_estado'] ?? '') === 'AC' ? 'selected' : ''; ?>>ACRE</option>
+                        <option value="AL" <?php echo ($_POST['endereco_estado'] ?? '') === 'AL' ? 'selected' : ''; ?>>ALAGOAS</option>
+                        <option value="AP" <?php echo ($_POST['endereco_estado'] ?? '') === 'AP' ? 'selected' : ''; ?>>AMAPÁ</option>
+                        <option value="AM" <?php echo ($_POST['endereco_estado'] ?? '') === 'AM' ? 'selected' : ''; ?>>AMAZONAS</option>
+                        <option value="BA" <?php echo ($_POST['endereco_estado'] ?? '') === 'BA' ? 'selected' : ''; ?>>BAHIA</option>
+                        <option value="CE" <?php echo ($_POST['endereco_estado'] ?? '') === 'CE' ? 'selected' : ''; ?>>CEARÁ</option>
                         <option value="DF" <?php echo ($_POST['endereco_estado'] ?? '') === 'DF' ? 'selected' : ''; ?>>Distrito Federal</option>
                         <option value="ES" <?php echo ($_POST['endereco_estado'] ?? '') === 'ES' ? 'selected' : ''; ?>>EspÃ­rito Santo</option>
                         <option value="GO" <?php echo ($_POST['endereco_estado'] ?? '') === 'GO' ? 'selected' : ''; ?>>GoiÃ¡s</option>
                         <option value="MA" <?php echo ($_POST['endereco_estado'] ?? '') === 'MA' ? 'selected' : ''; ?>>MaranhÃ£o</option>
-                        <option value="MT" <?php echo ($_POST['endereco_estado'] ?? '') === 'MT' ? 'selected' : ''; ?>>Mato Grosso</option>
-                        <option value="MS" <?php echo ($_POST['endereco_estado'] ?? '') === 'MS' ? 'selected' : ''; ?>>Mato Grosso do Sul</option>
-                        <option value="MG" <?php echo ($_POST['endereco_estado'] ?? '') === 'MG' ? 'selected' : ''; ?>>Minas Gerais</option>
-                        <option value="PA" <?php echo ($_POST['endereco_estado'] ?? '') === 'PA' ? 'selected' : ''; ?>>ParÃ¡</option>
-                        <option value="PB" <?php echo ($_POST['endereco_estado'] ?? '') === 'PB' ? 'selected' : ''; ?>>ParaÃ­ba</option>
-                        <option value="PR" <?php echo ($_POST['endereco_estado'] ?? '') === 'PR' ? 'selected' : ''; ?>>ParanÃ¡</option>
-                        <option value="PE" <?php echo ($_POST['endereco_estado'] ?? '') === 'PE' ? 'selected' : ''; ?>>Pernambuco</option>
-                        <option value="PI" <?php echo ($_POST['endereco_estado'] ?? '') === 'PI' ? 'selected' : ''; ?>>PiauÃ­</option>
-                        <option value="RJ" <?php echo ($_POST['endereco_estado'] ?? '') === 'RJ' ? 'selected' : ''; ?>>Rio de Janeiro</option>
-                        <option value="RN" <?php echo ($_POST['endereco_estado'] ?? '') === 'RN' ? 'selected' : ''; ?>>Rio Grande do Norte</option>
-                        <option value="RS" <?php echo ($_POST['endereco_estado'] ?? '') === 'RS' ? 'selected' : ''; ?>>Rio Grande do Sul</option>
-                        <option value="RO" <?php echo ($_POST['endereco_estado'] ?? '') === 'RO' ? 'selected' : ''; ?>>RondÃ´nia</option>
-                        <option value="RR" <?php echo ($_POST['endereco_estado'] ?? '') === 'RR' ? 'selected' : ''; ?>>Roraima</option>
-                        <option value="SC" <?php echo ($_POST['endereco_estado'] ?? '') === 'SC' ? 'selected' : ''; ?>>Santa Catarina</option>
-                        <option value="SP" <?php echo ($_POST['endereco_estado'] ?? '') === 'SP' ? 'selected' : ''; ?>>SÃ£o Paulo</option>
-                        <option value="SE" <?php echo ($_POST['endereco_estado'] ?? '') === 'SE' ? 'selected' : ''; ?>>Sergipe</option>
-                        <option value="TO" <?php echo ($_POST['endereco_estado'] ?? '') === 'TO' ? 'selected' : ''; ?>>Tocantins</option>
+                        <option value="MT" <?php echo ($_POST['endereco_estado'] ?? '') === 'MT' ? 'selected' : ''; ?>>MATO GROSSO</option>
+                        <option value="MS" <?php echo ($_POST['endereco_estado'] ?? '') === 'MS' ? 'selected' : ''; ?>>MATO GROSSO DO SUL</option>
+                        <option value="MG" <?php echo ($_POST['endereco_estado'] ?? '') === 'MG' ? 'selected' : ''; ?>>MINAS GERAIS</option>
+                        <option value="PA" <?php echo ($_POST['endereco_estado'] ?? '') === 'PA' ? 'selected' : ''; ?>>PARÁ</option>
+                        <option value="PB" <?php echo ($_POST['endereco_estado'] ?? '') === 'PB' ? 'selected' : ''; ?>>PARAÍBA</option>
+                        <option value="PR" <?php echo ($_POST['endereco_estado'] ?? '') === 'PR' ? 'selected' : ''; ?>>PARANÁ</option>
+                        <option value="PE" <?php echo ($_POST['endereco_estado'] ?? '') === 'PE' ? 'selected' : ''; ?>>PERNAMBUCO</option>
+                        <option value="PI" <?php echo ($_POST['endereco_estado'] ?? '') === 'PI' ? 'selected' : ''; ?>>PIAUÍ</option>
+                        <option value="RJ" <?php echo ($_POST['endereco_estado'] ?? '') === 'RJ' ? 'selected' : ''; ?>>RIO DE JANEIRO</option>
+                        <option value="RN" <?php echo ($_POST['endereco_estado'] ?? '') === 'RN' ? 'selected' : ''; ?>>RIO GRANDE DO NORTE</option>
+                        <option value="RS" <?php echo ($_POST['endereco_estado'] ?? '') === 'RS' ? 'selected' : ''; ?>>RIO GRANDE DO SUL</option>
+                        <option value="RO" <?php echo ($_POST['endereco_estado'] ?? '') === 'RO' ? 'selected' : ''; ?>>RONDÔNIA</option>
+                        <option value="RR" <?php echo ($_POST['endereco_estado'] ?? '') === 'RR' ? 'selected' : ''; ?>>RORAIMA</option>
+                        <option value="SC" <?php echo ($_POST['endereco_estado'] ?? '') === 'SC' ? 'selected' : ''; ?>>SANTA CATARINA</option>
+                        <option value="SP" <?php echo ($_POST['endereco_estado'] ?? '') === 'SP' ? 'selected' : ''; ?>>SÃO PAULO</option>
+                        <option value="SE" <?php echo ($_POST['endereco_estado'] ?? '') === 'SE' ? 'selected' : ''; ?>>SERGIPE</option>
+                        <option value="TO" <?php echo ($_POST['endereco_estado'] ?? '') === 'TO' ? 'selected' : ''; ?>>TOCANTINS</option>
                     </select>
                 </div>
             </div>
@@ -263,8 +265,8 @@ ob_start();
     <div class="d-grid gap-2">
         <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-check-lg me-1"></i>
-            Cadastrar UsuÃ¡rio
-        </button>
+            CADASTRAR USUÁRIO
+        </button> 
     </div>
 </form>
 
