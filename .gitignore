@@ -21,12 +21,6 @@ cache/
 storage/
 /tmp/
 
-# Only keep GitHub workflows, ignore other .github content
-.github/*
-.github/instructions/*
-!.github/workflows/
-!.github/workflows/**
-
 # Node (if ever used)
 /node_modules/
 
