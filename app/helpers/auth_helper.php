@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Permite pular autenticação em páginas públicas/controladas
 if (defined('SKIP_AUTH') && SKIP_AUTH === true) {
     return;
@@ -15,9 +15,8 @@ ini_set('display_errors', '0');
 
 // URL de login baseada na profundidade do diretorio
 function getLoginUrl(): string {
-    $script = $_SERVER['SCRIPT_NAME'] ?? '';
-    $depth = substr_count($script, '/') - 2;
-    return str_repeat('../', max($depth, 0)) . 'login.php';
+    // Caminho absoluto para evitar erros de profundidade em subpastas
+    return '/login.php';
 }
 
 // Modo publico: permitir acesso restrito a algumas paginas com base em sessao publica

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -488,16 +488,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['mensagem'] = $mensagem;
         $_SESSION['tipo_mensagem'] = 'success';
     } else {
-        $_SESSION['mensagem'] = $mensagem ?: 'NÃ£o foi possÃ­vel concluir a importaÃ§Ã£o.';
+        $_SESSION['mensagem'] = $mensagem ?: 'Não foi possível concluir a importação.';
         $_SESSION['tipo_mensagem'] = 'danger';
     }
-    header('Location: ../../index.php');
+    header('Location: /index.php');
     exit;
 }
 
-// Se for GET, redirecionar de volta
+// Se for GET, redirecionar para o formulário de importação
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../../index.php');
+    header('Location: /app/views/planilhas/planilha_importar.php');
+    // Fallback para navegadores que não seguirem o redirect
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=/app/views/planilhas/planilha_importar.php"></head><body>'; 
+    echo '<p>Redirecionando para o formulário de importação... Se não for redirecionado automaticamente, <a href="/app/views/planilhas/planilha_importar.php">clique aqui</a>.</p>'; 
+    echo '</body></html>';
     exit;
 }
 ?>

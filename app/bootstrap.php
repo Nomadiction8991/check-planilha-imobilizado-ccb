@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Inicializa as dependencias principais para controllers e views.
  * Carrega bootstrap, conexao com banco e helpers compartilhados.
