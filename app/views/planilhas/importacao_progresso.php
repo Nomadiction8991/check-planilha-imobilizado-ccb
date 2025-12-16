@@ -48,8 +48,13 @@ ob_start();
             <ul id="errors-list" class="mb-0 mt-2"></ul>
         </div>
 
-        <div class="text-center mt-4">
-            <p class="mt-2 mb-0">Processando lotes. Você pode manter esta aba aberta; ao concluir, você será redirecionado.</p>
+        <div id="done-actions" class="text-center mt-4" style="display: none;">
+            <p class="mb-2">Importação finalizada. Você pode voltar para a listagem de comuns.</p>
+            <a id="go-comuns" class="btn btn-primary">Voltar para listagem de comuns</a>
+        </div>
+
+        <div class="text-center mt-4" id="processing-note">
+            <p class="mt-2 mb-0">Processando lotes. Você pode manter esta aba aberta; ao concluir, use o botão para voltar.</p>
         </div>
     </div>
 </div>
@@ -68,6 +73,9 @@ ob_start();
     const cancelBtn = document.getElementById('cancel-btn');
     const errorsNote = document.getElementById('errors-note');
     const errorsList = document.getElementById('errors-list');
+    const doneActions = document.getElementById('done-actions');
+    const goComuns = document.getElementById('go-comuns');
+    const processingNote = document.getElementById('processing-note');
 
     const errorsAccum = new Set();
 
@@ -117,9 +125,7 @@ ob_start();
                 canceled = false;
                 return;
             }
-            showAlert('warning', 'Importação cancelada. Redirecionando...');
-            const redirect = data.redirect || (baseUrl + 'app/views/planilhas/planilha_importar.php');
-            setTimeout(() => { window.location.href = redirect; }, 800);
+            showAlert('warning', 'Importação cancelada.');
         } catch (err) {
             showAlert('danger', 'Erro ao cancelar: ' + err);
             cancelBtn.disabled = false;
@@ -164,14 +170,21 @@ ob_start();
             if (data.done) {
                 setProgress(100);
                 const message = data.message || 'Importação finalizada.';
-                const redirect = data.redirect || (baseUrl + 'app/views/planilhas/planilha_importar.php');
+                const redirect = data.redirect || (baseUrl + 'app/views/comuns/comuns_listar.php');
                 if (data.errors && data.errors.length > 0) {
                     showAlert('warning', message + ' Verifique as linhas com erro.');
                     pushErrors(data.errors);
                 } else {
                     showAlert('success', message);
                 }
-                setTimeout(() => { window.location.href = redirect; }, 1500);
+                if (processingNote) processingNote.style.display = 'none';
+                if (doneActions) doneActions.style.display = '';
+                if (goComuns) {
+                    goComuns.setAttribute('href', redirect);
+                    goComuns.addEventListener('click', () => {
+                        window.location.href = redirect;
+                    });
+                }
                 return;
             }
 

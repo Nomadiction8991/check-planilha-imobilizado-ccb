@@ -119,6 +119,15 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
         }
     }
 
+    if ($data_mysql === null || $data_mysql === '') {
+        throw new Exception('Data da planilha não encontrada na célula ' . $posicao_data . '. Importação cancelada.');
+    }
+
+    $hoje = date('Y-m-d');
+    if ($data_mysql !== $hoje) {
+        throw new Exception('Data da planilha (' . $data_mysql . ') difere da data de hoje (' . $hoje . '). Importação cancelada.');
+    }
+
     $linhas = $aba->toArray();
     $linha_atual = 0;
     $registros_candidatos = 0;
@@ -223,10 +232,11 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
 
     $mapeamento_colunas_str = 'codigo=' . $mapeamento_codigo . ';complemento=' . $mapeamento_complemento . ';dependencia=' . $mapeamento_dependencia . ';localidade=' . $coluna_localidade;
 
-    $stmtCfg = $conexao->prepare('REPLACE INTO configuracoes (id, mapeamento_colunas, posicao_data, pulo_linhas) VALUES (1, :mapeamento_colunas, :posicao_data, :pulo_linhas)');
+    $stmtCfg = $conexao->prepare('REPLACE INTO configuracoes (id, mapeamento_colunas, posicao_data, pulo_linhas, data_importacao) VALUES (1, :mapeamento_colunas, :posicao_data, :pulo_linhas, :data_importacao)');
     $stmtCfg->bindValue(':mapeamento_colunas', $mapeamento_colunas_str);
     $stmtCfg->bindValue(':posicao_data', $posicao_data);
     $stmtCfg->bindValue(':pulo_linhas', $pulo_linhas);
+    $stmtCfg->bindValue(':data_importacao', $data_mysql);
     $stmtCfg->execute();
 
     $tipos_bens = [];
@@ -547,7 +557,7 @@ SQL;
                 'success' => empty($erros_produtos),
                 'message' => $mensagem,
                 'errors' => $erros_produtos,
-                'redirect' => base_url('app/views/planilhas/planilha_importar.php')
+                'redirect' => base_url('app/views/comuns/comuns_listar.php')
             ]);
         }
 
