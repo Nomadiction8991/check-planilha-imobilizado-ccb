@@ -120,15 +120,19 @@ ob_start();
     </div>
     <div class="card-body border-top">
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="info-label">NOME COMPLETO</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['nome_conjuge'] ?? ''); ?></div>
+            </div>
+            <div class="col-12">
                 <div class="info-label">CPF</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['cpf_conjuge'] ?? ''); ?></div>
             </div>
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="info-label">RG</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['rg_conjuge'] ?? ''); ?></div>
+            </div>
+            <div class="col-12">
                 <div class="info-label">TELEFONE</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['telefone_conjuge'] ?? ''); ?></div>
             </div>
@@ -143,31 +147,31 @@ ob_start();
     </div>
     <div class="card-body border-top">
         <div class="row g-3">
-            <div class="col-md-3">
+            <div class="col-12">
                 <div class="info-label">CEP</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['endereco_cep'] ?? ''); ?></div>
             </div>
-            <div class="col-md-9">
+            <div class="col-12">
                 <div class="info-label">LOGRADOURO</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['endereco_logradouro'] ?? ''); ?></div>
             </div>
-            <div class="col-md-3">
+            <div class="col-12">
                 <div class="info-label">NÚMERO</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['endereco_numero'] ?? ''); ?></div>
             </div>
-            <div class="col-md-9">
+            <div class="col-12">
                 <div class="info-label">COMPLEMENTO</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['endereco_complemento'] ?? ''); ?></div>
             </div>
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="info-label">BAIRRO</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['endereco_bairro'] ?? ''); ?></div>
             </div>
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="info-label">CIDADE</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['endereco_cidade'] ?? ''); ?></div>
             </div>
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="info-label">ESTADO</div>
                 <div class="info-value"><?php echo format_usuario_valor($usuario['endereco_estado'] ?? ''); ?></div>
             </div>
