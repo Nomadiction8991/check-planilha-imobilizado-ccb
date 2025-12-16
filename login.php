@@ -153,17 +153,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Auto-dismiss all alerts after 3 seconds (3000 ms)
+        // Auto-dismiss alerts: show for 3s, then fade out smoothly over 1s, then remove
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.alert').forEach(function (alertEl) {
+                // Ensure we can transition opacity/height
+                alertEl.style.transition = 'opacity 1s ease, max-height 1s ease, margin 1s ease, padding 1s ease';
+                alertEl.style.overflow = 'hidden';
+
+                // Wait 3 seconds, then fade
                 setTimeout(function () {
-                    try {
-                        var instance = bootstrap.Alert.getOrCreateInstance(alertEl);
-                        instance.close();
-                    } catch (e) {
-                        // Fallback: remove element
+                    // start fade: opacity -> 0 and collapse spacing
+                    alertEl.style.opacity = '0';
+                    alertEl.style.maxHeight = '0';
+                    alertEl.style.margin = '0';
+                    alertEl.style.padding = '0';
+
+                    // remove element after 1s (duration of fade)
+                    setTimeout(function () {
                         if (alertEl.parentNode) alertEl.parentNode.removeChild(alertEl);
-                    }
+                    }, 1000);
                 }, 3000);
             });
         });
