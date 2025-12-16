@@ -75,7 +75,7 @@ ob_start();
                     <label for="rg" class="form-label">RG <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="rg" name="rg" 
                            value="<?php echo htmlspecialchars($usuario['rg'] ?? ''); ?>" 
-                           placeholder="DIGITE OS DÍGITOS DO RG" required <?php echo !empty($usuario['rg_igual_cpf']) ? 'disabled' : ''; ?>>
+                           placeholder="<?php echo htmlspecialchars(to_uppercase('Digite os dígitos do RG'), ENT_QUOTES, 'UTF-8'); ?>" required <?php echo !empty($usuario['rg_igual_cpf']) ? 'disabled' : ''; ?>>
                     <div class="form-check mt-1">
                         <input class="form-check-input" type="checkbox" id="rg_igual_cpf" name="rg_igual_cpf" value="1" <?php echo !empty($usuario['rg_igual_cpf']) ? 'checked' : ''; ?>>
                         <label class="form-check-label" for="rg_igual_cpf">RG IGUAL AO CPF</label>
@@ -126,7 +126,7 @@ ob_start();
         <div class="card-body">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="casado" name="casado" value="1" <?php echo !empty($usuario['casado']) ? 'checked' : ''; ?>>
-                <label class="form-check-label" for="casado">SOU CASADO(A)</label>
+                <label class="form-check-label" for="casado"><?php echo htmlspecialchars(to_uppercase('Sou casado(a)'), ENT_QUOTES, 'UTF-8'); ?></label>
             </div>
         </div>
     </div>
@@ -149,7 +149,7 @@ ob_start();
                 </div>
                 <div class="col-12">
                     <label for="rg_conjuge" class="form-label">RG DO CÔNJUGE</label>
-                    <input type="text" class="form-control" id="rg_conjuge" name="rg_conjuge" value="<?php echo htmlspecialchars($usuario['rg_conjuge'] ?? ''); ?>" placeholder="Digite os dígitos do RG">
+                    <input type="text" class="form-control" id="rg_conjuge" name="rg_conjuge" value="<?php echo htmlspecialchars($usuario['rg_conjuge'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars(to_uppercase('Digite os dígitos do RG'), ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="form-check mt-1">
                         <input class="form-check-input" type="checkbox" id="rg_conjuge_igual_cpf" name="rg_conjuge_igual_cpf" value="1" <?php echo !empty($usuario['rg_conjuge_igual_cpf']) ? 'checked' : ''; ?>>
                         <label class="form-check-label" for="rg_conjuge_igual_cpf">RG DO CÔNJUGE IGUAL AO CPF DO CÔNJUGE</label>
@@ -219,7 +219,7 @@ ob_start();
                         foreach($estados as $sigla => $nome):
                             $selected = ($usuario['endereco_estado'] ?? '') === $sigla ? 'selected' : '';
                         ?>
-                        <option value="<?php echo $sigla; ?>" <?php echo $selected; ?>><?php echo $nome; ?></option>
+                        <option value="<?php echo $sigla; ?>" <?php echo $selected; ?>><?php echo htmlspecialchars(to_uppercase($nome), ENT_QUOTES, 'UTF-8'); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

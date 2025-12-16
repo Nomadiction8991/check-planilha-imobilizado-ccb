@@ -90,7 +90,7 @@ ob_start();
                     <label for="rg" class="form-label">RG <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="rg" name="rg" 
                            value="<?php echo htmlspecialchars($_POST['rg'] ?? ''); ?>" 
-                           placeholder="DIGITE OS DÍGITOS DO RG" required> 
+                           placeholder="<?php echo htmlspecialchars(to_uppercase('Digite os dígitos do RG'), ENT_QUOTES, 'UTF-8'); ?>" required> 
                     <div class="form-check mt-1">
                         <input class="form-check-input" type="checkbox" id="rg_igual_cpf" name="rg_igual_cpf" value="1">
                         <label class="form-check-label" for="rg_igual_cpf">RG igual ao CPF</label>
@@ -141,7 +141,7 @@ ob_start();
         <div class="card-body">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="casado" name="casado" value="1">
-                <label class="form-check-label" for="casado">Sou casado(a)</label>
+                <label class="form-check-label" for="casado"><?php echo htmlspecialchars(to_uppercase('Sou casado(a)'), ENT_QUOTES, 'UTF-8'); ?></label>
             </div>
         </div>
     </div>
@@ -164,7 +164,7 @@ ob_start();
                 </div>
                 <div class="col-12">
                     <label for="rg_conjuge" class="form-label">RG DO CÔNJUGE</label>
-                    <input type="text" class="form-control" id="rg_conjuge" name="rg_conjuge" value="<?php echo htmlspecialchars($_POST['rg_conjuge'] ?? ''); ?>" placeholder="Digite os dÃ­gitos do RG">
+                    <input type="text" class="form-control" id="rg_conjuge" name="rg_conjuge" value="<?php echo htmlspecialchars($_POST['rg_conjuge'] ?? ''); ?>" placeholder="<?php echo htmlspecialchars(to_uppercase('Digite os dígitos do RG'), ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="form-check mt-1">
                         <input class="form-check-input" type="checkbox" id="rg_conjuge_igual_cpf" name="rg_conjuge_igual_cpf" value="1">
                         <label class="form-check-label" for="rg_conjuge_igual_cpf">RG DO CÔNJUGE IGUAL AO CPF DO CÔNJUGE</label>
@@ -229,33 +229,41 @@ ob_start();
                     <label for="estado" class="form-label">ESTADO</label>
                     <select class="form-select" id="estado" name="endereco_estado">
                         <option value="">Selecione</option>
-                        <option value="AC" <?php echo ($_POST['endereco_estado'] ?? '') === 'AC' ? 'selected' : ''; ?>>ACRE</option>
-                        <option value="AL" <?php echo ($_POST['endereco_estado'] ?? '') === 'AL' ? 'selected' : ''; ?>>ALAGOAS</option>
-                        <option value="AP" <?php echo ($_POST['endereco_estado'] ?? '') === 'AP' ? 'selected' : ''; ?>>AMAPÁ</option>
-                        <option value="AM" <?php echo ($_POST['endereco_estado'] ?? '') === 'AM' ? 'selected' : ''; ?>>AMAZONAS</option>
-                        <option value="BA" <?php echo ($_POST['endereco_estado'] ?? '') === 'BA' ? 'selected' : ''; ?>>BAHIA</option>
-                        <option value="CE" <?php echo ($_POST['endereco_estado'] ?? '') === 'CE' ? 'selected' : ''; ?>>CEARÁ</option>
-                        <option value="DF" <?php echo ($_POST['endereco_estado'] ?? '') === 'DF' ? 'selected' : ''; ?>>Distrito Federal</option>
-                        <option value="ES" <?php echo ($_POST['endereco_estado'] ?? '') === 'ES' ? 'selected' : ''; ?>>EspÃ­rito Santo</option>
-                        <option value="GO" <?php echo ($_POST['endereco_estado'] ?? '') === 'GO' ? 'selected' : ''; ?>>GoiÃ¡s</option>
-                        <option value="MA" <?php echo ($_POST['endereco_estado'] ?? '') === 'MA' ? 'selected' : ''; ?>>MaranhÃ£o</option>
-                        <option value="MT" <?php echo ($_POST['endereco_estado'] ?? '') === 'MT' ? 'selected' : ''; ?>>MATO GROSSO</option>
-                        <option value="MS" <?php echo ($_POST['endereco_estado'] ?? '') === 'MS' ? 'selected' : ''; ?>>MATO GROSSO DO SUL</option>
-                        <option value="MG" <?php echo ($_POST['endereco_estado'] ?? '') === 'MG' ? 'selected' : ''; ?>>MINAS GERAIS</option>
-                        <option value="PA" <?php echo ($_POST['endereco_estado'] ?? '') === 'PA' ? 'selected' : ''; ?>>PARÁ</option>
-                        <option value="PB" <?php echo ($_POST['endereco_estado'] ?? '') === 'PB' ? 'selected' : ''; ?>>PARAÍBA</option>
-                        <option value="PR" <?php echo ($_POST['endereco_estado'] ?? '') === 'PR' ? 'selected' : ''; ?>>PARANÁ</option>
-                        <option value="PE" <?php echo ($_POST['endereco_estado'] ?? '') === 'PE' ? 'selected' : ''; ?>>PERNAMBUCO</option>
-                        <option value="PI" <?php echo ($_POST['endereco_estado'] ?? '') === 'PI' ? 'selected' : ''; ?>>PIAUÍ</option>
-                        <option value="RJ" <?php echo ($_POST['endereco_estado'] ?? '') === 'RJ' ? 'selected' : ''; ?>>RIO DE JANEIRO</option>
-                        <option value="RN" <?php echo ($_POST['endereco_estado'] ?? '') === 'RN' ? 'selected' : ''; ?>>RIO GRANDE DO NORTE</option>
-                        <option value="RS" <?php echo ($_POST['endereco_estado'] ?? '') === 'RS' ? 'selected' : ''; ?>>RIO GRANDE DO SUL</option>
-                        <option value="RO" <?php echo ($_POST['endereco_estado'] ?? '') === 'RO' ? 'selected' : ''; ?>>RONDÔNIA</option>
-                        <option value="RR" <?php echo ($_POST['endereco_estado'] ?? '') === 'RR' ? 'selected' : ''; ?>>RORAIMA</option>
-                        <option value="SC" <?php echo ($_POST['endereco_estado'] ?? '') === 'SC' ? 'selected' : ''; ?>>SANTA CATARINA</option>
-                        <option value="SP" <?php echo ($_POST['endereco_estado'] ?? '') === 'SP' ? 'selected' : ''; ?>>SÃO PAULO</option>
-                        <option value="SE" <?php echo ($_POST['endereco_estado'] ?? '') === 'SE' ? 'selected' : ''; ?>>SERGIPE</option>
-                        <option value="TO" <?php echo ($_POST['endereco_estado'] ?? '') === 'TO' ? 'selected' : ''; ?>>TOCANTINS</option>
+                        <?php
+                        $estados = [
+                            'AC' => 'Acre',
+                            'AL' => 'Alagoas',
+                            'AP' => 'Amapá',
+                            'AM' => 'Amazonas',
+                            'BA' => 'Bahia',
+                            'CE' => 'Ceará',
+                            'DF' => 'Distrito Federal',
+                            'ES' => 'Espírito Santo',
+                            'GO' => 'Goiás',
+                            'MA' => 'Maranhão',
+                            'MT' => 'Mato Grosso',
+                            'MS' => 'Mato Grosso do Sul',
+                            'MG' => 'Minas Gerais',
+                            'PA' => 'Pará',
+                            'PB' => 'Paraíba',
+                            'PR' => 'Paraná',
+                            'PE' => 'Pernambuco',
+                            'PI' => 'Piauí',
+                            'RJ' => 'Rio de Janeiro',
+                            'RN' => 'Rio Grande do Norte',
+                            'RS' => 'Rio Grande do Sul',
+                            'RO' => 'Rondônia',
+                            'RR' => 'Roraima',
+                            'SC' => 'Santa Catarina',
+                            'SP' => 'São Paulo',
+                            'SE' => 'Sergipe',
+                            'TO' => 'Tocantins'
+                        ];
+                        foreach($estados as $sigla => $nome) {
+                            $selected = ($_POST['endereco_estado'] ?? '') === $sigla ? 'selected' : ''; 
+                        ?>
+                            <option value="<?php echo $sigla; ?>" <?php echo $selected; ?>><?php echo htmlspecialchars(to_uppercase($nome), ENT_QUOTES, 'UTF-8'); ?></option>
+                        <?php } ?>
                     </select>
                 </div>
             </div>

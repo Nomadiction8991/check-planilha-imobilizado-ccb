@@ -222,7 +222,7 @@ ob_start();
                             <option value="">Selecione</option>
                             <?php foreach ($mt_cidades as $op): ?>
                                 <option value="<?php echo htmlspecialchars($op); ?>" <?php echo $comumAdm === $op ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($op); ?>
+                                    <?php echo htmlspecialchars(to_uppercase($op), ENT_QUOTES, 'UTF-8'); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -233,7 +233,7 @@ ob_start();
                             <option value="">Selecione</option>
                             <?php foreach ($mt_cidades as $op): ?>
                                 <option value="<?php echo htmlspecialchars($op); ?>" <?php echo $comumCIDADE === $op ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($op); ?>
+                                    <?php echo htmlspecialchars(to_uppercase($op), ENT_QUOTES, 'UTF-8'); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
