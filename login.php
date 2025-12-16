@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistema de Planilhas</title>
+    <title>LOGIN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($sucesso): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="bi bi-check-circle me-2"></i>
-                        <?php echo htmlspecialchars($sucesso); ?>
+                        <?php echo to_uppercase(htmlspecialchars($sucesso)); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($erro): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="bi bi-exclamation-triangle me-2"></i>
-                        <?php echo htmlspecialchars($erro); ?>
+                        <?php echo to_uppercase(htmlspecialchars($erro)); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
@@ -129,46 +129,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-3">
                         <h4 class="text-center mb-4">
                             <i class="bi bi-box-arrow-in-right me-2"></i>
-                            Login
+                            LOGIN
                         </h4>
                         <label for="email" class="form-label">
                             <i class="bi bi-envelope me-1"></i>
-                            Email
+                            EMAIL
                         </label>
                         <input type="email" class="form-control" id="email" name="email" 
-                               placeholder="seu@email.com" required autofocus
+                               placeholder="SEU@EMAIL.COM" required autofocus
                                value="<?php echo htmlspecialchars($email ?? ''); ?>">
                     </div>
 
                     <div class="mb-4">
                         <label for="senha" class="form-label">
                             <i class="bi bi-lock me-1"></i>
-                            Senha
+                            SENHA
                         </label>
                         <input type="password" class="form-control" id="senha" name="senha" 
-                               placeholder="Digite sua senha" required>
+                               placeholder="DIGITE SUA SENHA" required>
                     </div>
 
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-login">
                             <i class="bi bi-box-arrow-in-right me-2"></i>
-                            Entrar
+                            ENTRAR
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-        
-        <div class="text-center mt-3">
-            <a href="app/views/usuarios/usuario_criar.php?public=1" class="btn btn-light w-100 mb-2">
-                <i class="bi bi-person-plus me-2"></i>
-                Cadastre-se
-            </a>
-            <small class="text-white">
-                <i class="bi bi-shield-check me-1"></i>
-                Acesso seguro e criptografado
-            </small>
-        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
