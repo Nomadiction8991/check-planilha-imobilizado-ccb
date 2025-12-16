@@ -48,6 +48,11 @@ ob_start();
             <ul id="errors-list" class="mb-0 mt-2"></ul>
         </div>
 
+        <div class="mt-3">
+            <div class="fw-bold mb-2">Log</div>
+            <div id="log-box" class="border rounded p-2 bg-light" style="max-height: 220px; overflow-y: auto; font-size: 0.9rem;"></div>
+        </div>
+
         <div id="done-actions" class="text-center mt-4" style="display: none;">
             <p class="mb-2">Importação finalizada. Você pode voltar para a listagem de comuns.</p>
             <a id="go-comuns" class="btn btn-primary">Voltar para listagem de comuns</a>
@@ -76,6 +81,7 @@ ob_start();
     const doneActions = document.getElementById('done-actions');
     const goComuns = document.getElementById('go-comuns');
     const processingNote = document.getElementById('processing-note');
+    const logBox = document.getElementById('log-box');
 
     const errorsAccum = new Set();
 
@@ -90,6 +96,15 @@ ob_start();
 
     function showAlert(type, message) {
         alertArea.innerHTML = '<div class="alert alert-' + type + '" role="alert">' + message + '</div>';
+    }
+
+    function appendLog(level, message) {
+        if (!logBox) return;
+        const stamp = new Date().toLocaleTimeString('pt-BR');
+        const div = document.createElement('div');
+        div.textContent = '[' + stamp + '] ' + level.toUpperCase() + ': ' + message;
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
     }
 
     function pushErrors(errs) {
@@ -121,13 +136,17 @@ ob_start();
             const data = await resp.json();
             if (!resp.ok) {
                 showAlert('danger', data.message || 'Falha ao cancelar importação.');
+                appendLog('erro', data.message || 'Falha ao cancelar importação.');
                 cancelBtn.disabled = false;
                 canceled = false;
                 return;
             }
-            showAlert('warning', 'Importação cancelada.');
+            const msg = 'Importação cancelada.';
+            showAlert('warning', msg);
+            appendLog('aviso', msg);
         } catch (err) {
             showAlert('danger', 'Erro ao cancelar: ' + err);
+            appendLog('erro', 'Erro ao cancelar: ' + err);
             cancelBtn.disabled = false;
             canceled = false;
         }
@@ -144,6 +163,7 @@ ob_start();
             if (!resp.ok) {
                 const text = await resp.text();
                 showAlert('danger', 'Erro ao processar: ' + text);
+                appendLog('erro', 'Erro ao processar: ' + text);
                 setTimeout(poll, 3000);
                 return;
             }
@@ -165,17 +185,20 @@ ob_start();
             if (data.errors && data.errors.length > 0) {
                 showAlert('warning', 'Erros até agora: ' + data.errors.slice(-3).join(' | '));
                 pushErrors(data.errors);
+                appendLog('aviso', 'Erros recebidos: ' + data.errors.slice(-3).join(' | '));
             }
 
             if (data.done) {
                 setProgress(100);
                 const message = data.message || 'Importação finalizada.';
-                const redirect = data.redirect || (baseUrl + 'app/views/comuns/comuns_listar.php');
+                const redirect = data.redirect || (baseUrl + 'index.php');
                 if (data.errors && data.errors.length > 0) {
                     showAlert('warning', message + ' Verifique as linhas com erro.');
                     pushErrors(data.errors);
+                    appendLog('aviso', 'Finalizada com erros: ' + data.errors.length + ' ocorrência(s).');
                 } else {
                     showAlert('success', message);
+                    appendLog('ok', 'Finalizada com sucesso.');
                 }
                 if (processingNote) processingNote.style.display = 'none';
                 if (doneActions) doneActions.style.display = '';
@@ -191,6 +214,7 @@ ob_start();
             setTimeout(poll, 400);
         } catch (err) {
             showAlert('danger', 'Falha na requisição: ' + err);
+            appendLog('erro', 'Falha na requisição: ' + err);
             setTimeout(poll, 3000);
         }
     }

@@ -557,7 +557,7 @@ SQL;
                 'success' => empty($erros_produtos),
                 'message' => $mensagem,
                 'errors' => $erros_produtos,
-                'redirect' => base_url('app/views/comuns/comuns_listar.php')
+                'redirect' => base_url('index.php')
             ]);
         }
 
