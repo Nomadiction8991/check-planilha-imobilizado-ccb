@@ -137,6 +137,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Se não casado, limpar campos de cônjuge para evitar dados órfãos
             $nome_conjuge = $cpf_conjuge = $rg_conjuge = $telefone_conjuge = '';
+        }
+
+        // Hash da senha para armazenamento
+        $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
 
         // INSERT: campos atualizados (removidas colunas de assinatura)
         $sql = "INSERT INTO usuarios (
