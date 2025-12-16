@@ -433,7 +433,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
                         <?php if (isset($_SESSION['usuario_nome'])): ?>
                             <small style="font-size: 11px; opacity: 0.8;">
                                 <i class="bi bi-person-circle me-1"></i>
-                                <?php echo htmlspecialchars($_SESSION['usuario_nome']); ?>
+                                <?php echo htmlspecialchars(to_uppercase($_SESSION['usuario_nome']), ENT_QUOTES, 'UTF-8'); ?>
                             </small>
                         <?php endif; ?>
                     </div>
