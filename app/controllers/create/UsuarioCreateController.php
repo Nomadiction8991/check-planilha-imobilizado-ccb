@@ -189,9 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Admin cadastrando usuário: redireciona para listagem, preservando filtros
             $retQ = [];
-            if (!empty($_GET['busca'])) { $retQ['busca'] = $_GET['busca']; }
-            if (isset($_GET['status']) && $_GET['status'] !== '') { $retQ['status'] = $_GET['status']; }
-            if (!empty($_GET['pagina'])) { $retQ['pagina'] = $_GET['pagina']; }
+            // Accept filters from GET or POST (REQUEST) so forms that POST hidden filters still work
+            if (!empty($_REQUEST['busca'])) { $retQ['busca'] = $_REQUEST['busca']; }
+            if (isset($_REQUEST['status']) && $_REQUEST['status'] !== '') { $retQ['status'] = $_REQUEST['status']; }
+            if (!empty($_REQUEST['pagina'])) { $retQ['pagina'] = $_REQUEST['pagina']; }
             $retQ['success'] = 1;
             header('Location: ../../views/usuarios/usuarios_listar.php?' . http_build_query($retQ));
         }

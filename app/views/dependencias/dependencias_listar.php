@@ -81,7 +81,7 @@ ob_start();
         </form>
     </div>
     <div class="card-footer text-muted small">
-        <?php echo (int)$total_registros; ?> <?php echo htmlspecialchars(to_uppercase('dependência(s) encontrada(s)'), ENT_QUOTES, 'UTF-8'); ?>
+        <?php echo (int)$total_registros_all; ?> <?php echo htmlspecialchars(to_uppercase('dependência(s) encontrada(s)'), ENT_QUOTES, 'UTF-8'); ?>
     </div>
 </div>
 

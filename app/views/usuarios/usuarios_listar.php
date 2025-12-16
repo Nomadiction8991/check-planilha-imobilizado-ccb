@@ -121,7 +121,7 @@ ob_start();
                                         <div class="fw-semibold text-wrap"><?php echo htmlspecialchars(to_uppercase($usuario['nome'])); ?></div>
                                         <div class="small text-muted text-wrap"><?php echo htmlspecialchars(to_uppercase($usuario['email']), ENT_QUOTES, 'UTF-8'); ?></div>
                                         <div class="mt-2 d-flex gap-1 flex-wrap justify-content-end">
-                                            <a href="./usuario_ver.php?id=<?php echo $usuario['id']; ?>"
+                                            <a href="./usuario_ver.php?id=<?php echo $usuario['id']; ?><?php echo ($qs ? '&' . $qs : ''); ?>"
                                                class="btn btn-sm btn-outline-secondary" title="VISUALIZAR">
                                                 <i class="bi bi-eye"></i>
                                             </a>

@@ -29,14 +29,13 @@ ob_start();
         <?php echo htmlspecialchars(to_uppercase('Cadastrar nova dependência'), ENT_QUOTES, 'UTF-8'); ?>
     </div>
     <div class="card-body">
-        <form method="POST" action="">
+        <form method="POST" action="" id="formDependenciaCreate">
             <div class="row g-3">
                 <!-- campo codigo removido conforme solicitado -->
-                <div class="col-12">
+                <div class="col-12 mb-3">
                     <label for="descricao" class="form-label"><?php echo htmlspecialchars(to_uppercase('Descrição'), ENT_QUOTES, 'UTF-8'); ?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control text-uppercase" id="descricao" name="descricao" required
-                           placeholder="<?php echo htmlspecialchars(to_uppercase('Digite a descrição'), ENT_QUOTES, 'UTF-8'); ?>"
-                           value="<?php echo htmlspecialchars($_POST['descricao'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                    <textarea class="form-control text-uppercase" id="descricao" name="descricao" rows="3" required placeholder="<?php echo htmlspecialchars(to_uppercase('Digite a descrição'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($_POST['descricao'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                    <small class="text-muted"><?php echo htmlspecialchars(to_uppercase('Descrição da dependência'), ENT_QUOTES, 'UTF-8'); ?></small>
                 </div>
             </div>
             <div class="mt-4">
@@ -47,6 +46,18 @@ ob_start();
                 <!-- botão Voltar removido conforme solicitado -->
             </div>
         </form>
+
+        <script>
+        // Validação do formulário (criar)
+        document.getElementById('formDependenciaCreate').addEventListener('submit', function(e) {
+            const descricao = document.getElementById('descricao').value.trim();
+            if (!descricao) {
+                e.preventDefault();
+                alert('<?php echo htmlspecialchars(to_uppercase("A descrição é obrigatória!"), ENT_QUOTES, 'UTF-8'); ?>');
+                return false;
+            }
+        });
+        </script>
     </div>
 </div>
 

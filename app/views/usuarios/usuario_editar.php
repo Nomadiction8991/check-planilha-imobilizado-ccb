@@ -22,8 +22,17 @@ if (!$isSelf && !isAdmin()) {
 include __DIR__ . '/../../../app/controllers/update/UsuarioUpdateController.php';
 
 $pageTitle = $isSelf ? 'EDITAR USUÁRIO' : 'VISUALIZAR USUÁRIO';
-// Voltar: self e admin vão para listagem; outros vão para index
-$backUrl = (isAdmin() || $isSelf) ? './usuarios_listar.php' : '../../../index.php';
+// Voltar: self e admin vão para listagem (preservando filtros); outros vão para index
+if (isAdmin() || $isSelf) {
+    $qsArr = [];
+    if (!empty($_GET['busca'])) { $qsArr['busca'] = $_GET['busca']; }
+    if (isset($_GET['status']) && $_GET['status'] !== '') { $qsArr['status'] = $_GET['status']; }
+    if (!empty($_GET['pagina'])) { $qsArr['pagina'] = $_GET['pagina']; }
+
+    $backUrl = './usuarios_listar.php' . ($qsArr ? ('?' . http_build_query($qsArr)) : '');
+} else {
+    $backUrl = '../../../index.php';
+}
 
 ob_start();
 ?>
@@ -49,6 +58,10 @@ ob_start();
 
 <?php if (isset($usuario)): ?>
 <form method="POST" id="formUsuario">
+    <?php // Preserve filters when submitting the edit form so controller can redirect back properly ?>
+    <input type="hidden" name="busca" value="<?php echo htmlspecialchars($_GET['busca'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="status" value="<?php echo htmlspecialchars($_GET['status'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="pagina" value="<?php echo htmlspecialchars($_GET['pagina'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 
     
     <!-- Card 1: DADOS BÁSICOS -->

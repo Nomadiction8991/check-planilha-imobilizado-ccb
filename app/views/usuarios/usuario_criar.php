@@ -34,7 +34,16 @@ if (!defined('PUBLIC_REGISTER')) {
 include __DIR__ . '/../../../app/controllers/create/UsuarioCreateController.php';
 
 $pageTitle = defined('PUBLIC_REGISTER') ? 'CADASTRO' : 'NOVO USUÁRIO';
-$backUrl = defined('PUBLIC_REGISTER') ? '../../../login.php' : './usuarios_listar.php';
+if (defined('PUBLIC_REGISTER')) {
+    $backUrl = '../../../login.php';
+} else {
+    // Preserve filters on return to list
+    $qsArr = [];
+    if (!empty($_GET['busca'])) { $qsArr['busca'] = $_GET['busca']; }
+    if (isset($_GET['status']) && $_GET['status'] !== '') { $qsArr['status'] = $_GET['status']; }
+    if (!empty($_GET['pagina'])) { $qsArr['pagina'] = $_GET['pagina']; }
+    $backUrl = './usuarios_listar.php' . ($qsArr ? ('?' . http_build_query($qsArr)) : '');
+}
 
 ob_start();
 ?>
@@ -60,6 +69,12 @@ ob_start();
 </style>
 
 <form method="POST" id="formUsuario">
+    <?php // Preserve filters when submitting the create form so controller can redirect back properly ?>
+    <?php if (!defined('PUBLIC_REGISTER')): ?>
+        <input type="hidden" name="busca" value="<?php echo htmlspecialchars($_GET['busca'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="hidden" name="status" value="<?php echo htmlspecialchars($_GET['status'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="hidden" name="pagina" value="<?php echo htmlspecialchars($_GET['pagina'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <?php endif; ?>
     <!-- CAMPO OCULTO: tipo de usuÃ¡rio (apenas para registro pÃºblico) -->
     <?php if (defined('PUBLIC_REGISTER')): ?>
         <input type="hidden" name="tipo" value="DOADOR/CÔNJUGE">

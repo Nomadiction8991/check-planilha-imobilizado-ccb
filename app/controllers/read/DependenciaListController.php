@@ -19,7 +19,11 @@ try {
         throw new Exception('Sem conexão com o banco de dados');
     }
 
-    // Count with optional search
+    // Global total (always from full table, independent of search)
+    $sql_all_count = 'SELECT COUNT(*) FROM dependencias';
+    $total_registros_all = (int) $conexao->query($sql_all_count)->fetchColumn();
+
+    // Count with optional search (used for pagination)
     if ($busca !== '') {
         $sql_count = 'SELECT COUNT(*) FROM dependencias WHERE descricao LIKE :busca';
         $stmt_count = $conexao->prepare($sql_count);
@@ -49,6 +53,7 @@ try {
     $total_registros = 0;
     $total_paginas = 0;
     $pagina = 1;
+    $total_registros_all = 0;
     error_log('Erro ao carregar dependências: ' . $e->getMessage());
 }
 
