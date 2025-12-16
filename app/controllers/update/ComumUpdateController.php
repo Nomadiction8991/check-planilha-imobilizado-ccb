@@ -69,7 +69,12 @@ try {
 
     $_SESSION['mensagem'] = 'Comum atualizada com sucesso!';
     $_SESSION['tipo_mensagem'] = 'success';
-    header('Location: ../../views/comuns/comum_editar.php?id=' . urlencode((string) $id));
+    // Return to list preserving pagination/search filters if present
+    $retQ = [];
+    if (!empty($_GET['busca'])) { $retQ['busca'] = $_GET['busca']; }
+    if (!empty($_GET['pagina'])) { $retQ['pagina'] = $_GET['pagina']; }
+    $retQ['success'] = 1;
+    header('Location: ../../views/comuns/comuns_listar.php?' . http_build_query($retQ));
     exit;
 } catch (Throwable $e) {
     $_SESSION['mensagem'] = 'Erro ao salvar: ' . $e->getMessage();

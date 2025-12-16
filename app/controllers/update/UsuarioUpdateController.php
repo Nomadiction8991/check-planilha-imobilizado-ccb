@@ -225,8 +225,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindValue(':id', $id);
         $stmt->execute();
 
-        // Redirecionar para listagem com mensagem de sucesso
-        header('Location: ./usuarios_listar.php?updated=1');
+        // Redirecionar para listagem com mensagem de sucesso e preservando filtros
+        $retQ = [];
+        if (!empty($_GET['busca'])) { $retQ['busca'] = $_GET['busca']; }
+        if (isset($_GET['status']) && $_GET['status'] !== '') { $retQ['status'] = $_GET['status']; }
+        if (!empty($_GET['pagina'])) { $retQ['pagina'] = $_GET['pagina']; }
+        $retQ['updated'] = 1;
+        header('Location: ./usuarios_listar.php?' . http_build_query($retQ));
         exit;
 
     } catch (Exception $e) {

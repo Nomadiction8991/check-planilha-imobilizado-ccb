@@ -12,9 +12,15 @@ include __DIR__ . '/../../../app/controllers/read/UsuarioListController.php';
 
 $pageTitle = 'USUÁRIOS';
 $backUrl = '../../../index.php';
-$headerActions = '
-    <a href="./usuario_criar.php" class="btn-header-action" title="NOVO USUÁRIO"><i class="bi bi-plus-lg"></i></a>
-';
+// Preserve current filters when navigating to create/edit pages
+$qsArr = [];
+if (!empty($filtroNome)) { $qsArr['busca'] = $filtroNome; }
+if ($filtroStatus !== '') { $qsArr['status'] = $filtroStatus; }
+if (!empty($pagina) && $pagina > 1) { $qsArr['pagina'] = $pagina; }
+$qs = http_build_query($qsArr);
+$createHref = './usuario_criar.php' . ($qs ? ('?' . $qs) : '');
+$headerActions = '<a href="' . $createHref . '" class="btn-header-action" title="NOVO USUÁRIO"><i class="bi bi-plus-lg"></i></a>';
+
 
 ob_start();
 ?>
@@ -120,7 +126,7 @@ ob_start();
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             <?php if ($is_self): ?>
-                                                <a href="./usuario_editar.php?id=<?php echo $usuario['id']; ?>"
+                                                <a href="./usuario_editar.php?id=<?php echo $usuario['id']; ?><?php echo ($qs ? '&' . $qs : ''); ?>"
                                                    class="btn btn-sm btn-outline-primary" title="EDITAR MEU PERFIL">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>

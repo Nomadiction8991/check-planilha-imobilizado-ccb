@@ -184,11 +184,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Redirecionar apÃ³s sucesso
         if (defined('PUBLIC_REGISTER')) {
-            // Registro pÃºblico (doador se cadastrando): redireciona para login
+            // Registro público (doador se cadastrando): redireciona para login
             header('Location: ../../../login.php?registered=1');
         } else {
-            // Admin cadastrando usuÃ¡rio: redireciona para listagem, independente do tipo
-            header('Location: ../../views/usuarios/usuarios_listar.php?success=1');
+            // Admin cadastrando usuário: redireciona para listagem, preservando filtros
+            $retQ = [];
+            if (!empty($_GET['busca'])) { $retQ['busca'] = $_GET['busca']; }
+            if (isset($_GET['status']) && $_GET['status'] !== '') { $retQ['status'] = $_GET['status']; }
+            if (!empty($_GET['pagina'])) { $retQ['pagina'] = $_GET['pagina']; }
+            $retQ['success'] = 1;
+            header('Location: ../../views/usuarios/usuarios_listar.php?' . http_build_query($retQ));
         }
         exit;
 

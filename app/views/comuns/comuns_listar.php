@@ -6,6 +6,11 @@ require_once dirname(__DIR__, 2) . '/bootstrap.php';
 // ConfiguraÃƒÂ§ÃƒÂµes da pÃƒÂ¡gina
 $pageTitle = 'Gerenciar Comuns';
 $backUrl = '../shared/menu_planilha.php';
+// Preserve current filters (if any) when navigating to edit/create
+$qsArr = [];
+if (!empty($_GET['busca'])) { $qsArr['busca'] = $_GET['busca']; }
+if (!empty($pagina) && $pagina > 1) { $qsArr['pagina'] = $pagina; }
+$qs = http_build_query($qsArr);
 $headerActions = '
     <a href="../shared/menu_planilha.php" class="btn-header-action" title="Menu">
         <i class="bi bi-list fs-5"></i>
@@ -104,7 +109,7 @@ ob_start();
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="./comum_editar.php?id=<?php echo $comum['id']; ?>" 
+                                            <a href="./comum_editar.php?id=<?php echo $comum['id']; ?><?php echo ($qs ? '&' . $qs : ''); ?>" 
                                                class="btn btn-outline-primary" 
                                                title="EDITAR">
                                                 <i class="bi bi-pencil"></i>
