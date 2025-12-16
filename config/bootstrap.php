@@ -25,6 +25,17 @@ if (!defined('APP_BOOTSTRAPPED')) {
     // Timezone padrao da aplicacao (Cuiaba - UTC-4)
     date_default_timezone_set('America/Cuiaba');
 
+    // Autoload do Composer com bibliotecas externas
+    require_once BASE_PATH . '/vendor/autoload.php';
+
+    // Carrega config da aplicacao
+    require_once BASE_PATH . '/config/database.php';
+    require_once BASE_PATH . '/config/app_config.php';
+
+    // Carrega helpers utilitarios
+    require_once BASE_PATH . '/app/helpers/auth_helper.php';
+    require_once BASE_PATH . '/app/helpers/uppercase_helper.php';
+
     // Sessoes mais seguras
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start([

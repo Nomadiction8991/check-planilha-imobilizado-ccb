@@ -1,21 +1,31 @@
 <?php
 /**
  * Helper para converter strings para UPPERCASE
- * Centraliza toda a lógica de conversão para UPPERCASE no sistema
+ * Usa a biblioteca voku/portable-utf8 para manipulação avançada de UTF-8
  */
 
+use voku\helper\UTF8;
+
 /**
- * Converte um campo para UPPERCASE
+ * Converte um campo para UPPERCASE com suporte completo a UTF-8 e acentos
  * 
  * @param string $value O valor a ser convertido
- * @param array $campos_excluir Lista de campos que NÃO devem ser convertidos (ex: email, senha, CPF)
  * @return string O valor em UPPERCASE
  */
-function to_uppercase($value, $exclude_fields = []) {
+function to_uppercase($value) {
     if (empty($value) || !is_string($value)) {
         return $value;
     }
-    return mb_strtoupper($value, 'UTF-8');
+    
+    // Usa a biblioteca voku/portable-utf8 para conversão robusta
+    return UTF8::strtoupper($value);
+}
+
+/**
+ * Alias para to_uppercase (compatibilidade)
+ */
+function uppercase($value) {
+    return to_uppercase($value);
 }
 
 /**
@@ -28,6 +38,61 @@ function to_uppercase($value, $exclude_fields = []) {
 function uppercase_fields(&$data, $fields_to_convert = []) {
     foreach ($fields_to_convert as $field) {
         if (isset($data[$field]) && is_string($data[$field])) {
+            $data[$field] = to_uppercase($data[$field]);
+        }
+    }
+    return $data;
+}
+
+/**
+ * Normaliza um texto (remove acentos opcionalmente e converte para uppercase)
+ * 
+ * @param string $text Texto a normalizar
+ * @param bool $remove_accents Se deve remover acentos
+ * @return string Texto normalizado
+ */
+function normalize_text($text, $remove_accents = false) {
+    if (empty($text)) {
+        return $text;
+    }
+    
+    if ($remove_accents) {
+        // Remove acentos e converte para uppercase
+        $text = UTF8::remove_accents($text);
+    }
+    
+    return to_uppercase($text);
+}
+
+/**
+ * Converte para lowercase mantendo suporte UTF-8
+ * 
+ * @param string $value O valor a ser convertido
+ * @return string O valor em lowercase
+ */
+function to_lowercase($value) {
+    if (empty($value) || !is_string($value)) {
+        return $value;
+    }
+    
+    return UTF8::strtolower($value);
+}
+
+/**
+ * Remove acentos de uma string
+ * 
+ * @param string $text Texto com possíveis acentos
+ * @return string Texto sem acentos
+ */
+function remove_accents($text) {
+    if (empty($text)) {
+        return $text;
+    }
+    
+    return UTF8::remove_accents($text);
+}
+?>
+
             $data[$field] = to_uppercase($data[$field]);
         }
     }
