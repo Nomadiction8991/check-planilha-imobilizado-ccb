@@ -101,23 +101,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="login-card">
             <div class="login-body">
                 <?php if ($sucesso): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success fade show" role="alert">
                         <i class="bi bi-check-circle me-2"></i>
                         <?php 
                             // Corrige possíveis problemas de codificação e então aplica uppercase
                             echo to_uppercase(htmlspecialchars(\voku\helper\UTF8::fix_utf8($sucesso), ENT_QUOTES, 'UTF-8')); 
                         ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
                 
                 <?php if ($erro): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="alert alert-danger fade show" role="alert">
                         <i class="bi bi-exclamation-triangle me-2"></i>
                         <?php 
                             echo to_uppercase(htmlspecialchars(\voku\helper\UTF8::fix_utf8($erro), ENT_QUOTES, 'UTF-8'));
                         ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
@@ -154,6 +152,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-dismiss all alerts after 3 seconds (3000 ms)
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.alert').forEach(function (alertEl) {
+                setTimeout(function () {
+                    try {
+                        var instance = bootstrap.Alert.getOrCreateInstance(alertEl);
+                        instance.close();
+                    } catch (e) {
+                        // Fallback: remove element
+                        if (alertEl.parentNode) alertEl.parentNode.removeChild(alertEl);
+                    }
+                }, 3000);
+            });
+        });
+    </script>
 </body>
 </html>
 
