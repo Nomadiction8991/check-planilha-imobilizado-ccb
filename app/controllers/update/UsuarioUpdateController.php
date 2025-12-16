@@ -36,7 +36,8 @@ try {
 // Processar formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome = trim($_POST['nome'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+    // Normalize email to uppercase for consistency (do NOT change senha)
+    $email = to_uppercase(trim($_POST['email'] ?? ''));
     $senha = trim($_POST['senha'] ?? '');
     $confirmar_senha = trim($_POST['confirmar_senha'] ?? '');
     $ativo = isset($_POST['ativo']) ? 1 : 0;

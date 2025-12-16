@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('E-mail e senha são obrigatórios.');
         }
 
-        // Buscar usuÃ¡rio por email
-        $stmt = $conexao->prepare('SELECT * FROM usuarios WHERE email = :email AND ativo = 1');
-        $stmt->bindValue(':email', $email);
+        // Buscar usuÃ¡rio por email (comparacao em UPPER para ser robusto a case)
+        $stmt = $conexao->prepare('SELECT * FROM usuarios WHERE UPPER(email) = :email AND ativo = 1');
+        $stmt->bindValue(':email', to_uppercase($email));
         $stmt->execute();
         $usuario = $stmt->fetch();
 
