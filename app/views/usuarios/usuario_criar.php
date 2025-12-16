@@ -270,48 +270,30 @@ ob_start();
     </div>
 </form>
 
-<!-- Modal fullscreen para assinatura -->
-<div id="signatureModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1050;">
-    <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-        <div style="background:#fff; width:100%; height:100%; padding:12px; box-sizing:border-box; position:relative;">
-            <div class="d-flex justify-content-between mb-2">
-                <div>
-                    <button type="button" class="btn btn-warning btn-sm" onclick="limparModalAssinatura()">LIMPAR</button>
-                </div>
-                <div>
-                    <button type="button" class="btn btn-success btn-sm" onclick="salvarModalAssinatura()">SALVAR</button>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="fecharModalAssinatura()">FECHAR</button>
-                </div>
-            </div>
-            <div style="width:100%; height:calc(100% - 48px); overflow:auto; -webkit-overflow-scrolling:touch; display:flex; align-items:center; justify-content:center;">
-                <canvas id="modal_canvas" style="background:#fff; border:1px solid #ddd; width:auto; height:auto; display:block;"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Assinaturas removidas: campos e validações relacionados a assinaturas foram removidos em razão da alteração do esquema de banco de dados. -->
 
 <script>
-// ========== MÃSCARAS COM INPUTMASK ==========
+// ========== MÁSCARAS COM INPUTMASK ==========
 $(document).ready(function() {
-    // MÃ¡scara CPF: 000.000.000-00
+    // Máscara CPF: 000.000.000-00
     Inputmask('999.999.999-99').mask('#cpf');
     Inputmask('999.999.999-99').mask('#cpf_conjuge');
     
-    // MÃ¡scara TELEFONE: (00) 00000-0000 ou (00) 0000-0000
+    // Máscara TELEFONE: (00) 00000-0000 ou (00) 0000-0000
     Inputmask(['(99) 99999-9999', '(99) 9999-9999']).mask('#telefone');
     Inputmask(['(99) 99999-9999', '(99) 9999-9999']).mask('#telefone_conjuge');
     
-    // MÃ¡scara CEP: 00000-000
+    // Máscara CEP: 00000-000
     Inputmask('99999-999').mask('#cep');
 
-    // MÃ¡scara RG: dÃ­gitos com traÃ§o antes do Ãºltimo (1 a 8 dÃ­gitos + '-' + 1 dÃ­gito ou X)
-    // Removemos mÃ¡scara de RG para usar formataÃ§Ã£o dinÃ¢mica
+    // Máscara RG: dígitos com traço antes do último (1 a 8 dígitos + '-' + 1 dígito ou X)
+    // Removemos máscara de RG para usar formatação dinâmica
 
     // Toggle RG igual ao CPF
-    // ======= RG DinÃ¢mico =======
+    // ======= RG Dinâmico =======
     function formatRgDigits(raw) {
         const digits = raw.replace(/\D/g,'');
-        if (digits.length <= 1) return digits; // 1 dÃ­gito sem hÃ­fen
+        if (digits.length <= 1) return digits; // 1 dígito sem hífen
         return digits.slice(0,-1) + '-' + digits.slice(-1);
     }
     const rgInput = document.getElementById('rg');
@@ -324,13 +306,13 @@ $(document).ready(function() {
     });
     function aplicarRgIgualCpf(aplicar) {
         if (aplicar) {
-            // Aplica mÃ¡scara de CPF ao RG e copia valor mascarado
+            // Aplica máscara de CPF ao RG e copia valor mascarado
             Inputmask('999.999.999-99').mask('#rg');
             const cpfMasked = document.getElementById('cpf').value;
             rgInput.value = cpfMasked;
             rgInput.setAttribute('disabled','disabled');
         } else {
-            // Remove mÃ¡scara e limpa para voltar Ã  formataÃ§Ã£o dinÃ¢mica
+            // Remove máscara e limpa para voltar à formatação dinâmica
             rgInput.removeAttribute('disabled');
             Inputmask.remove('#rg');
             rgInput.value = '';
@@ -339,7 +321,7 @@ $(document).ready(function() {
     document.getElementById('rg_igual_cpf').addEventListener('change', function(){ aplicarRgIgualCpf(this.checked); });
     document.getElementById('cpf').addEventListener('input', function(){ if (document.getElementById('rg_igual_cpf').checked) aplicarRgIgualCpf(true); });
 
-    // ======= RG CÃ´njuge DinÃ¢mico =======
+    // ======= RG Cônjuge Dinâmico =======
     const rgConjInput = document.getElementById('rg_conjuge');
     rgConjInput.addEventListener('input', function(){
         if (document.getElementById('rg_conjuge_igual_cpf').checked) return;
@@ -361,14 +343,14 @@ $(document).ready(function() {
     document.getElementById('rg_conjuge_igual_cpf').addEventListener('change', function(){ aplicarRgConjugeIgualCpf(this.checked); });
     document.getElementById('cpf_conjuge').addEventListener('input', function(){ if (document.getElementById('rg_conjuge_igual_cpf').checked) aplicarRgConjugeIgualCpf(true); });
 
-    // Toggle cÃ´njuge
+    // Toggle cônjuge
     const casadoCb = document.getElementById('casado');
     casadoCb.addEventListener('change', function(){
         document.getElementById('cardConjuge').style.display = this.checked ? '' : 'none';
     });
 });
 
-// ========== VIACEP: BUSCA AUTOMÃTICA DE ENDEREÃ‡O ==========
+// ========== VIACEP: BUSCA AUTOMÁTICA DE ENDEREÇO ==========
 document.getElementById('cep').addEventListener('blur', function() {
     const cep = this.value.replace(/\D/g, '');
     
@@ -394,7 +376,7 @@ document.getElementById('cep').addEventListener('blur', function() {
             document.getElementById('cidade').value = data.localidade || '';
             document.getElementById('estado').value = data.uf || '';
             
-            // Focar no nÃºmero apÃ³s preencher
+            // Focar no número após preencher
             document.getElementById('numero').focus();
         })
         .catch(error => {
@@ -404,274 +386,7 @@ document.getElementById('cep').addEventListener('blur', function() {
         });
 });
 
-// ========== ASSINATURA DIGITAL (PADRÃƒO MODAL) ==========
-// VariÃ¡veis globais
-let currentField = 'usuario'; // Campo Ãºnico neste formulÃ¡rio
-let modalCanvas, modalCtx, modalDrawing=false, modalLastX=0, modalLastY=0;
-let signaturePad = null;
-let pointerListenersEnabled = false;
-
-// Inicializar canvas de preview (somente leitura)
-function initPreviewCanvas(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    canvas.style.pointerEvents = 'none';
-    return canvas;
-}
-
-// Desenhar imagem dataURL em canvas de preview
-function drawImageOnCanvas(canvasId, dataUrl) {
-    if (!dataUrl) return;
-    const c = document.getElementById(canvasId);
-    const ctx = c.getContext('2d');
-    const img = new Image();
-    img.onload = function() {
-        ctx.clearRect(0,0,c.width,c.height);
-        const scale = Math.min(c.width / img.width, c.height / img.height);
-        const w = img.width * scale;
-        const h = img.height * scale;
-        const x = (c.width - w)/2;
-        const y = (c.height - h)/2;
-        ctx.drawImage(img, x, y, w, h);
-    };
-    img.src = dataUrl;
-}
-
-// LIMPAR canvas de preview
-function clearPreviewCanvas(id) {
-    const c = document.getElementById('canvas_' + id);
-    const ctx = c.getContext('2d');
-    ctx.clearRect(0,0,c.width,c.height);
-    document.getElementById('assinatura_' + id).value = '';
-}
-
-// Inicializar modal canvas
-function initModalCanvas() {
-    modalCanvas = document.getElementById('modal_canvas');
-    modalCtx = modalCanvas.getContext('2d');
-    try {
-        modalCanvas.style.touchAction = 'none';
-        modalCanvas.style.webkitUserSelect = 'none';
-        modalCanvas.style.userSelect = 'none';
-    } catch(e){}
-}
-
-// Redimensionar modal canvas com devicePixelRatio
-function resizeModalCanvas() {
-    if (!modalCanvas) return;
-    const rect = modalCanvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    modalCanvas.width = Math.floor(rect.width * dpr);
-    modalCanvas.height = Math.floor(rect.height * dpr);
-    modalCtx.setTransform(1,0,0,1,0,0);
-    modalCtx.scale(dpr, dpr);
-    modalCtx.lineWidth = 2;
-    modalCtx.lineCap = 'round';
-    modalCtx.strokeStyle = '#000000';
-}
-
-// Configurar modal para landscape (95% width, 40% height)
-function setModalLandscape() {
-    if (!modalCanvas) initModalCanvas();
-    const cssW = Math.floor(window.innerWidth * 0.95);
-    const cssH = Math.floor(window.innerHeight * 0.40);
-    modalCanvas.style.width = cssW + 'px';
-    modalCanvas.style.height = cssH + 'px';
-    resizeModalCanvas();
-    try { modalCtx.strokeStyle = '#000000'; } catch(e){}
-}
-
-// Iniciar SIGNATUREPAD
-function startSIGNATUREPAD(keepExisting=false){
-    if (!modalCanvas) initModalCanvas();
-    if (!keepExisting) {
-        try { modalCtx.clearRect(0,0,modalCanvas.width, modalCanvas.height); } catch(e){}
-    }
-    if (typeof SIGNATUREPAD !== 'undefined') {
-        disablePointerDrawing();
-        signaturePad = new SIGNATUREPAD(modalCanvas, { backgroundColor: 'rgb(255,255,255)', penColor: 'black' });
-        if (!keepExisting) signaturePad.clear();
-    } else {
-        signaturePad = null;
-        enablePointerDrawing();
-    }
-}
-
-// Handlers para desenho manual (fallback)
-function getModalCoords(e){
-    if (!modalCanvas) return {x:0,y:0};
-    const rect = modalCanvas.getBoundingClientRect();
-    const clientX = (e.clientX !== undefined ? e.clientX : (e.touches ? e.touches[0].clientX : 0));
-    const clientY = (e.clientY !== undefined ? e.clientY : (e.touches ? e.touches[0].clientY : 0));
-    return { x: clientX - rect.left, y: clientY - rect.top };
-}
-
-function modalPointerDown(e){
-    try { e.preventDefault(); } catch(err){}
-    if (!modalCanvas) return;
-    try { modalCanvas.setPointerCapture(e.pointerId); } catch(err){}
-    modalDrawing = true;
-    const p = getModalCoords(e);
-    modalLastX = p.x; modalLastY = p.y;
-    try { modalCtx.beginPath(); modalCtx.moveTo(modalLastX, modalLastY); } catch(err){}
-}
-
-function modalPointerMove(e){
-    if (!modalDrawing) return;
-    try { e.preventDefault(); } catch(err){}
-    const p = getModalCoords(e);
-    try {
-        modalCtx.beginPath();
-        modalCtx.moveTo(modalLastX, modalLastY);
-        modalCtx.lineTo(p.x, p.y);
-        modalCtx.stroke();
-    } catch(err){}
-    modalLastX = p.x; modalLastY = p.y;
-}
-
-function modalPointerUp(e){
-    try { if (modalCanvas && e && e.pointerId) modalCanvas.releasePointerCapture(e.pointerId); } catch(err){}
-    modalDrawing = false;
-}
-
-function enablePointerDrawing(){
-    if (!modalCanvas || pointerListenersEnabled) return;
-    modalCanvas.addEventListener('pointerdown', modalPointerDown);
-    modalCanvas.addEventListener('pointermove', modalPointerMove);
-    modalCanvas.addEventListener('pointerup', modalPointerUp);
-    modalCanvas.addEventListener('pointercancel', modalPointerUp);
-    pointerListenersEnabled = true;
-}
-
-function disablePointerDrawing(){
-    if (!modalCanvas || !pointerListenersEnabled) return;
-    modalCanvas.removeEventListener('pointerdown', modalPointerDown);
-    modalCanvas.removeEventListener('pointermove', modalPointerMove);
-    modalCanvas.removeEventListener('pointerup', modalPointerUp);
-    modalCanvas.removeEventListener('pointercancel', modalPointerUp);
-    pointerListenersEnabled = false;
-}
-
-function resizeModalIfVisible(){ 
-    try{ 
-        const m=document.getElementById('signatureModal'); 
-        if (m && m.style.display !== 'none') {
-            if (!modalCanvas) initModalCanvas();
-            modalCanvas.style.width = Math.floor(window.innerWidth * 0.95) + 'px';
-            modalCanvas.style.height = Math.floor(window.innerHeight * 0.40) + 'px';
-            resizeModalCanvas();
-        } 
-    }catch(e){} 
-}
-
-// Abrir modal para assinatura
-window.abrirModalAssinatura = async function(fieldId){
-    currentField = fieldId;
-    const modal = document.getElementById('signatureModal');
-    modal.style.display = 'block';
-    
-    // Tentar fullscreen e landscape
-    try{
-        if (modal.requestFullscreen) await modal.requestFullscreen();
-        else if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
-        if (screen && screen.orientation && screen.orientation.lock) {
-            try{ await screen.orientation.lock('landscape'); } catch(e){}
-        }
-    }catch(err){ /* ignore */ }
-    
-    // Inicializar canvas
-    if (!modalCanvas) initModalCanvas();
-    setModalLandscape();
-    
-    // Carregar assinatura existente se houver
-    const existing = document.getElementById('assinatura_' + fieldId).value;
-    startSIGNATUREPAD(true);
-    if (existing) {
-        const img = new Image();
-        img.onload = function(){
-            try{
-                const rect = modalCanvas.getBoundingClientRect();
-                const cssW = rect.width; const cssH = rect.height;
-                modalCtx.clearRect(0,0,cssW,cssH);
-                const scale = Math.min(cssW / img.width, cssH / img.height);
-                const w = img.width * scale; const h = img.height * scale;
-                modalCtx.drawImage(img, (cssW - w)/2, (cssH - h)/2, w, h);
-            }catch(e){}
-        };
-        img.src = existing;
-    }
-    
-    // Event listeners para resize
-    window.addEventListener('resize', resizeModalIfVisible);
-    window.addEventListener('orientationchange', resizeModalIfVisible);
-};
-
-// LIMPAR modal
-window.limparModalAssinatura = function(){
-    if (!modalCanvas) return;
-    if (signaturePad) {
-        signaturePad.clear();
-    }
-    try { modalCtx.clearRect(0,0,modalCanvas.width, modalCanvas.height); } catch(e){}
-};
-
-// SALVAR assinatura do modal
-window.salvarModalAssinatura = function(){
-    let data = null;
-    if (signaturePad) {
-        if (signaturePad.isEmpty()) data = null; 
-        else data = signaturePad.toDataURL('image/png', 0.8); // CompressÃ£o em 80%
-    } else {
-        data = modalCanvas.toDataURL('image/png', 0.8); // CompressÃ£o em 80%
-    }
-    
-    const preview = document.getElementById('canvas_' + currentField);
-    const pCtx = preview.getContext('2d');
-    if (data) {
-        const img = new Image();
-        img.onload = function(){
-            pCtx.clearRect(0,0,preview.width, preview.height);
-            const scale = Math.min(preview.width / img.width, preview.height / img.height);
-            const w = img.width * scale; 
-            const h = img.height * scale;
-            const x = (preview.width - w)/2; 
-            const y = (preview.height - h)/2;
-            pCtx.drawImage(img, x, y, w, h);
-            document.getElementById('assinatura_' + currentField).value = data;
-            fecharModalAssinatura();
-        };
-        img.src = data;
-    } else {
-        pCtx.clearRect(0,0,preview.width, preview.height);
-        document.getElementById('assinatura_' + currentField).value = '';
-        fecharModalAssinatura();
-    }
-};
-
-// FECHAR modal
-window.fecharModalAssinatura = async function(){
-    document.getElementById('signatureModal').style.display='none';
-    try{ 
-        if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen(); 
-        if (screen && screen.orientation && screen.orientation.unlock) { 
-            try{ screen.orientation.unlock(); } catch(e){} 
-        } 
-    }catch(err){}
-    if (signaturePad) { 
-        try{ signaturePad.off && signaturePad.off(); } catch(e){} 
-        signaturePad = null; 
-    }
-    disablePointerDrawing();
-    window.removeEventListener('resize', resizeModalIfVisible);
-    window.removeEventListener('orientationchange', resizeModalIfVisible);
-};
-
-// Inicializar preview canvas na carga
-document.addEventListener('DOMContentLoaded', function() {
-    initPreviewCanvas('canvas_usuario');
-    initPreviewCanvas('canvas_conjuge');
-});
-
-// ========== VALIDAÃ‡ÃƒO E ENVIO DO FORMULÃRIO ==========
+// ========== VALIDAÇÃO E ENVIO DO FORMULÁRIO ==========
 document.getElementById('formUsuario').addEventListener('submit', function(e) {
     const senha = document.getElementById('senha').value;
     const confirmar = document.getElementById('confirmar_senha').value;
@@ -683,28 +398,19 @@ document.getElementById('formUsuario').addEventListener('submit', function(e) {
         return false;
     }
     
-    // Campos endereÃ§o obrigatÃ³rios
+    // Campos endereço obrigatórios
     const enderecoObrigatorios = ['cep','logradouro','numero','bairro','cidade','estado'];
     for (let id of enderecoObrigatorios) {
         const el = document.getElementById(id);
-        if (!el.value.trim()) { e.preventDefault(); alert('Todos os campos de endereÃ§o sÃ£o obrigatÃ³rios.'); return false; }
-    }
-
-    // Assinatura usuÃ¡rio obrigatÃ³ria
-    if (!document.getElementById('assinatura_usuario').value.trim()) {
-        e.preventDefault();
-        alert('A assinatura do usuÃ¡rio Ã© obrigatÃ³ria.');
-        return false;
+        if (!el.value.trim()) { e.preventDefault(); alert('Todos os campos de endereço são obrigatórios.'); return false; }
     }
 
     if (document.getElementById('casado').checked) {
         const obrigatoriosConjuge = ['nome_conjuge','cpf_conjuge','telefone_conjuge'];
         for (let id of obrigatoriosConjuge) {
             const el = document.getElementById(id);
-            if (!el.value.trim()) { e.preventDefault(); alert('Preencha todos os dados obrigatÃ³rios do cÃ´njuge.'); return false; }
+            if (!el.value.trim()) { e.preventDefault(); alert('Preencha todos os dados obrigatórios do cônjuge.'); return false; }
         }
-        if (!document.getElementById('assinatura_conjuge').value.trim()) {
-            e.preventDefault(); alert('A assinatura do cÃ´njuge Ã© obrigatÃ³ria.'); return false; }
     }
 });
 </script>

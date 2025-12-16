@@ -31,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rg_conjuge = trim($_POST['rg_conjuge'] ?? '');
     $rg_conjuge_igual_cpf = isset($_POST['rg_conjuge_igual_cpf']) ? 1 : 0;
     $telefone_conjuge = trim($_POST['telefone_conjuge'] ?? '');
-    $assinatura_conjuge = trim($_POST['assinatura_conjuge'] ?? '');
     
     // EndereÃ§o
     $endereco_cep = trim($_POST['endereco_cep'] ?? '');
