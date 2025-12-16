@@ -38,6 +38,10 @@ function uppercase($value) {
  */
 function uppercase_fields(&$data, $fields_to_convert = []) {
     foreach ($fields_to_convert as $field) {
+        // Safety: never uppercase password fields even if requested
+        if ($field === 'senha' || $field === 'password') {
+            continue;
+        }
         if (isset($data[$field]) && is_string($data[$field])) {
             $data[$field] = to_uppercase($data[$field]);
         }
