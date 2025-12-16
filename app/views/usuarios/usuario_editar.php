@@ -227,7 +227,7 @@ ob_start();
         </div>
     </div>
 
-    <?php if ($isSelf): ?>
+    <?php if ($isSelf || isAdmin()): ?>
     <div class="d-grid gap-2">
         <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-check-lg me-1"></i>
@@ -378,7 +378,7 @@ window.fecharModalAssinatura = async function(){ /* assinatura removida */ };
 
 // Se NÃO é o próprio usuário, desabilitar todos campos
 document.addEventListener('DOMContentLoaded', function() {
-    <?php if (!$isSelf): ?>
+    <?php if (!$isSelf && !isAdmin()): ?>
     Array.from(document.querySelectorAll('#formUsuario input, #formUsuario select, #formUsuario button.btn-primary')).forEach(el => {
         if (el.tagName === 'BUTTON') {
             el.disabled = true;
