@@ -33,6 +33,12 @@ ob_start();
     </div>
 <?php endif; ?>
 
+<?php if (!empty($erro)): ?>
+    <div class="alert alert-danger">
+        <?php echo htmlspecialchars($erro, ENT_QUOTES, 'UTF-8'); ?>
+    </div>
+<?php endif; ?>
+
 <!-- Filtros de Pesquisa -->
 <form method="get" class="card mb-3" aria-label="Formulário de busca">
     <div class="card-header">
@@ -52,10 +58,10 @@ ob_start();
                 <i class="bi bi-funnel me-1"></i>
                 STATUS
             </label>
-            <select class="form-select" id="filtroSTATUS" name="STATUS">
-                <option value=""<?php echo ($filtroSTATUS === '') ? ' selected' : ''; ?>>TODOS</option>
-                <option value="1"<?php echo ($filtroSTATUS === '1') ? ' selected' : ''; ?>>ATIVOS</option>
-                <option value="0"<?php echo ($filtroSTATUS === '0') ? ' selected' : ''; ?>>INATIVOS</option>
+            <select class="form-select" id="filtroSTATUS" name="status">
+                <option value=""<?php echo ($filtroStatus === '') ? ' selected' : ''; ?>>TODOS</option>
+                <option value="1"<?php echo ($filtroStatus === '1') ? ' selected' : ''; ?>>ATIVOS</option>
+                <option value="0"<?php echo ($filtroStatus === '0') ? ' selected' : ''; ?>>INATIVOS</option>
             </select>
         </div>
         <div class="mb-3">
