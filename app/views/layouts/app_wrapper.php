@@ -563,6 +563,55 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
     <?php if (isset($customJs)): ?>
         <script><?php echo $customJs; ?></script>
     <?php endif; ?>
+
+    <!-- Global alert behavior: remove close button, auto-dismiss after 3s with 1s fade -->
+    <script>
+    (function(){
+        const AUTO_MS = 3000; // show time
+        const FADE_MS = 1000; // fade duration
+
+        function processAlert(el){
+            if (!el || el.dataset._autoDismissProcessed) return;
+            el.dataset._autoDismissProcessed = '1';
+
+            // Remove any close button (X)
+            const closeBtn = el.querySelector('.btn-close');
+            if (closeBtn) closeBtn.remove();
+
+            // Ensure fade class and desired transition duration
+            el.classList.add('fade');
+            // force transition duration to 1s for opacity
+            el.style.transition = `opacity ${FADE_MS}ms ease`;
+
+            // Ensure it is shown (some alerts may be created without show)
+            if (!el.classList.contains('show')) el.classList.add('show');
+
+            // Schedule auto-hide
+            setTimeout(()=>{
+                // remove 'show' to start fade
+                el.classList.remove('show');
+                // remove from DOM after fade
+                setTimeout(()=>{ try{ el.remove(); }catch(e){} }, FADE_MS + 20);
+            }, AUTO_MS);
+        }
+
+        // process existing alerts
+        document.querySelectorAll('.alert').forEach(processAlert);
+
+        // observe for dynamically added alerts
+        const mo = new MutationObserver(muts => {
+            for (const m of muts){
+                for (const node of m.addedNodes){
+                    if (!(node instanceof HTMLElement)) continue;
+                    if (node.classList && node.classList.contains('alert')) processAlert(node);
+                    // also check nested
+                    node.querySelectorAll && node.querySelectorAll('.alert').forEach(processAlert);
+                }
+            }
+        });
+        mo.observe(document.body, { childList: true, subtree: true });
+    })();
+    </script>
 </body>
 </html>
 
