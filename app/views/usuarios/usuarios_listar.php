@@ -101,7 +101,7 @@ ob_start();
                                 data-STATUS="<?php echo $usuario['ativo']; ?>">
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <div class="fw-semibold text-wrap"><?php echo htmlspecialchars($usuario['nome']); ?></div>
+                                        <div class="fw-semibold text-wrap"><?php echo htmlspecialchars(to_uppercase($usuario['nome'])); ?></div>
                                         <div class="small text-muted text-wrap"><?php echo htmlspecialchars($usuario['email']); ?></div>
                                         <div class="mt-2 d-flex gap-1 flex-wrap justify-content-end">
                                             <a href="./usuario_ver.php?id=<?php echo $usuario['id']; ?>"
