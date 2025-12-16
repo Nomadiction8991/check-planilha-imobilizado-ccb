@@ -43,6 +43,11 @@ ob_start();
 
         <div id="alert-area"></div>
 
+        <div id="errors-note" class="alert alert-warning mt-3" role="alert" style="display: none;">
+            <strong>Erros acumulados:</strong>
+            <ul id="errors-list" class="mb-0 mt-2"></ul>
+        </div>
+
         <div class="text-center mt-4">
             <p class="mt-2 mb-0">Processando lotes. Você pode manter esta aba aberta; ao concluir, você será redirecionado.</p>
         </div>
@@ -60,6 +65,10 @@ ob_start();
     const excluidosEl = document.getElementById('excluidos');
     const alertArea = document.getElementById('alert-area');
     const cancelBtn = document.getElementById('cancel-btn');
+    const errorsNote = document.getElementById('errors-note');
+    const errorsList = document.getElementById('errors-list');
+
+    const errorsAccum = new Set();
 
     let canceled = false;
 
@@ -72,6 +81,21 @@ ob_start();
 
     function showAlert(type, message) {
         alertArea.innerHTML = '<div class="alert alert-' + type + '" role="alert">' + message + '</div>';
+    }
+
+    function pushErrors(errs) {
+        if (!errs || !errs.length) return;
+        errs.forEach(e => {
+            if (!errorsAccum.has(e)) {
+                errorsAccum.add(e);
+                const li = document.createElement('li');
+                li.textContent = e;
+                errorsList.appendChild(li);
+            }
+        });
+        if (errorsAccum.size > 0) {
+            errorsNote.style.display = '';
+        }
     }
 
     async function cancelImport() {
@@ -133,6 +157,7 @@ ob_start();
 
             if (data.errors && data.errors.length > 0) {
                 showAlert('warning', 'Erros até agora: ' + data.errors.slice(-3).join(' | '));
+                pushErrors(data.errors);
             }
 
             if (data.done) {
@@ -141,6 +166,7 @@ ob_start();
                 const redirect = data.redirect || '/app/views/planilhas/planilha_importar.php';
                 if (data.errors && data.errors.length > 0) {
                     showAlert('warning', message + ' Verifique as linhas com erro.');
+                    pushErrors(data.errors);
                 } else {
                     showAlert('success', message);
                 }
