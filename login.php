@@ -48,10 +48,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
         // Login bem-sucedido
+        // Regenerate session id to prevent fixation and ensure session persistence
+        session_regenerate_id(true);
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario_nome'] = $usuario['nome'];
         $_SESSION['usuario_email'] = $usuario['email'];
         $_SESSION['usuario_tipo'] = $usuario['tipo'] ?? 'Administrador/Acessor';
+
+        // Log debug info for session persistence issues
+        error_log(sprintf('LOGIN_SUCCESS: user_id=%s session_id=%s client=%s', $usuario['id'], session_id(), $_SERVER['REMOTE_ADDR'] ?? 'cli'));
+
+        // ensure session data is written before redirect
+        session_write_close();
 
         header('Location: index.php');
         exit;
