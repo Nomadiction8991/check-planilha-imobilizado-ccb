@@ -245,7 +245,8 @@ ob_start();
 
 <script>
 // ========== MÁSCARAS COM INPUTMASK (PROTEGIDAS) ==========
-$(document).ready(function() {
+(function(){
+    function initEditUserForm() {
     try {
         // Se a biblioteca de Inputmask não estiver carregada, ignorar as máscaras
         if (typeof Inputmask !== 'undefined') {
@@ -318,7 +319,13 @@ $(document).ready(function() {
     } catch (e) {
         console.error('Erro ao inicializar máscaras/inputs em usuario_editar:', e);
     }
-});
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initEditUserForm);
+    } else {
+        initEditUserForm();
+    }
+})();
 
 // ========== VIACEP: BUSCA AUTOMÃTICA DE ENDEREÃ‡O ==========
 document.getElementById('cep').addEventListener('blur', function() {
