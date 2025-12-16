@@ -343,11 +343,16 @@ $(document).ready(function() {
     document.getElementById('rg_conjuge_igual_cpf').addEventListener('change', function(){ aplicarRgConjugeIgualCpf(this.checked); });
     document.getElementById('cpf_conjuge').addEventListener('input', function(){ if (document.getElementById('rg_conjuge_igual_cpf').checked) aplicarRgConjugeIgualCpf(true); });
 
-    // Toggle cônjuge
-    const casadoCb = document.getElementById('casado');
-    casadoCb.addEventListener('change', function(){
-        document.getElementById('cardConjuge').style.display = this.checked ? '' : 'none';
-    });
+    // Toggle cônjuge (mais robusto)
+    (function(){
+        const casadoCb = document.getElementById('casado');
+        const card = document.getElementById('cardConjuge');
+        if (!casadoCb || !card) return;
+        const setVisibility = () => { card.style.display = casadoCb.checked ? '' : 'none'; };
+        casadoCb.addEventListener('change', setVisibility);
+        // inicializa baseado no estado atual
+        setVisibility();
+    })();
 });
 
 // ========== VIACEP: BUSCA AUTOMÁTICA DE ENDEREÇO ==========
