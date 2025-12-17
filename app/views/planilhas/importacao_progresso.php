@@ -21,10 +21,7 @@ ob_start();
             <i class="bi bi-cloud-upload"></i>
             <?php echo htmlspecialchars(to_uppercase('Importando planilha'), ENT_QUOTES, 'UTF-8'); ?>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-secondary" id="job-id">JOB: <?php echo htmlspecialchars($jobId, ENT_QUOTES, 'UTF-8'); ?></span>
-            <button id="cancel-btn" type="button" class="btn btn-outline-danger btn-sm">Cancelar</button>
-        </div>
+        <span class="badge bg-secondary" id="job-id">JOB: <?php echo htmlspecialchars($jobId, ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="card-body">
         <p class="mb-3">Estamos processando sua planilha em lotes de 200 registros para evitar travamentos. Esta página irá atualizar o progresso automaticamente.</p>
@@ -60,6 +57,10 @@ ob_start();
 
         <div class="text-center mt-4" id="processing-note">
             <p class="mt-2 mb-0">Processando lotes. Você pode manter esta aba aberta; ao concluir, use o botão para voltar.</p>
+        </div>
+
+        <div class="mt-3">
+            <button id="cancel-btn" type="button" class="btn btn-outline-danger w-100 py-3">Cancelar</button>
         </div>
     </div>
 </div>
