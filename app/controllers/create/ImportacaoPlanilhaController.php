@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 const IP_BATCH_SIZE = 200;
 const IP_JOB_DIR = __DIR__ . '/../../../storage/tmp';
+const IP_LOG_LIMIT = 300;
 
 // --- Funções utilitárias ---
 function ip_corrige_encoding($texto) {
@@ -34,6 +35,55 @@ function ip_to_uppercase($texto) {
     if ($texto === null || $texto === '') return '';
     $texto = UTF8::fix_utf8((string)$texto);
     return UTF8::strtoupper($texto);
+}
+
+function ip_append_log(array &$job, string $level, string $message): void {
+    if (!isset($job['log']) || !is_array($job['log'])) {
+        $job['log'] = [];
+    }
+    $job['log'][] = [
+        'ts' => time(),
+        'level' => $level,
+        'message' => $message,
+    ];
+    if (count($job['log']) > IP_LOG_LIMIT) {
+        $job['log'] = array_slice($job['log'], -IP_LOG_LIMIT);
+    }
+}
+
+function ip_parse_planilha_data($valor): ?string {
+    if ($valor instanceof DateTimeInterface) {
+        return $valor->format('Y-m-d');
+    }
+
+    if (is_numeric($valor)) {
+        try {
+            return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($valor)->format('Y-m-d');
+        } catch (Throwable $e) {
+            // segue para outros formatos
+        }
+    }
+
+    $valor_str = trim((string)$valor);
+    if ($valor_str === '') {
+        return null;
+    }
+
+    $valor_normalizado = str_replace(['.', '-'], '/', $valor_str);
+    $formatos = ['d/m/Y', 'd/m/y', 'd/m/Y H:i', 'd/m/Y H:i:s'];
+    foreach ($formatos as $fmt) {
+        $dt = DateTime::createFromFormat($fmt, $valor_normalizado);
+        if ($dt && $dt->format($fmt) === $valor_normalizado) {
+            return $dt->format('Y-m-d');
+        }
+    }
+
+    $ts = strtotime($valor_normalizado);
+    if ($ts !== false) {
+        return date('Y-m-d', $ts);
+    }
+
+    return null;
 }
 
 function ip_job_path(string $jobId): string {
@@ -106,21 +156,20 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
     $planilha = IOFactory::load($job['file_path']);
     $aba = $planilha->getActiveSheet();
 
-    $valor_data = trim((string)$aba->getCell($posicao_data)->getCalculatedValue());
-    $data_mysql = null;
-    if ($valor_data !== '') {
-        if (is_numeric($valor_data)) {
-            $data_mysql = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($valor_data)->format('Y-m-d');
-        } else {
-            $ts = strtotime($valor_data);
-            if ($ts !== false) {
-                $data_mysql = date('Y-m-d', $ts);
-            }
+    $valor_data_cell = $aba->getCell($posicao_data);
+    $valor_data = '';
+    if ($valor_data_cell) {
+        $valor_data = $valor_data_cell->getFormattedValue();
+        if ($valor_data === '') {
+            $valor_data = $valor_data_cell->getCalculatedValue();
         }
     }
 
+    $data_mysql = ip_parse_planilha_data($valor_data);
+
     if ($data_mysql === null || $data_mysql === '') {
-        throw new Exception('Data da planilha não encontrada na célula ' . $posicao_data . '. Importação cancelada.');
+        $valor_debug = trim((string)$valor_data);
+        throw new Exception('Data da planilha não encontrada na célula ' . $posicao_data . '. Valor lido: "' . $valor_debug . '". Importação cancelada.');
     }
 
     $hoje = date('Y-m-d');
@@ -283,6 +332,8 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
     $job['status'] = 'ready';
     $job['data_mysql'] = $data_mysql;
 
+    ip_append_log($job, 'info', 'Leitura inicial concluída. Total estimado de linhas úteis: ' . $registros_candidatos . '.');
+
     ip_save_job($job);
     return $job;
 }
@@ -332,6 +383,8 @@ if ($action === 'process') {
         $tipos_aliases = pp_construir_aliases_tipos($tipos_bens);
 
         $conexao->beginTransaction();
+
+        ip_append_log($job, 'info', 'Processando linhas ' . ($inicio + 1) . ' a ' . $fim . '.');
 
         $codigos_processados = $job['codigos_processados'] ?? [];
         $produtos_existentes = $job['produtos_existentes'] ?? [];
@@ -543,11 +596,16 @@ SQL;
         $job['erros_produtos'] = $erros_produtos;
         $job['produtos_existentes'] = $produtos_existentes;
 
+        $resumo_lote = 'Lote concluído (' . ($inicio + 1) . '-' . $fim . '): ' . $stats['processados'] . ' processados, ' . $stats['novos'] . ' novos, ' . $stats['atualizados'] . ' atualizados, ' . $stats['excluidos'] . ' excluídos.';
+        ip_append_log($job, 'info', $resumo_lote);
+
         if ($jobDone) {
             $mensagem = 'Importação concluída! Novos: ' . $stats['novos'] . ', Atualizados: ' . $stats['atualizados'] . ', Excluídos: ' . $stats['excluidos'] . '.';
             if (!empty($erros_produtos)) {
                 $mensagem .= ' Erros em ' . count($erros_produtos) . ' linha(s).';
             }
+
+            ip_append_log($job, 'info', 'Processamento finalizado. ' . $mensagem);
 
             $_SESSION['mensagem'] = $mensagem;
             $_SESSION['tipo_mensagem'] = empty($erros_produtos) ? 'success' : 'warning';
@@ -559,7 +617,8 @@ SQL;
                 'success' => empty($erros_produtos),
                 'message' => $mensagem,
                 'errors' => $erros_produtos,
-                'redirect' => base_url('index.php')
+                'redirect' => base_url('index.php'),
+                'log' => $job['log'] ?? [],
             ]);
         }
 
@@ -577,6 +636,7 @@ SQL;
             'total' => $job['registros_candidatos'],
             'processed' => $job['stats']['processados'],
             'errors' => $erros_produtos,
+            'log' => $job['log'] ?? [],
         ]);
     } catch (Throwable $e) {
         if ($conexao->inTransaction()) {
@@ -641,7 +701,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'start') {
             'debug' => [
                 'requested_debug' => $debug_import,
             ],
+            'log' => [],
         ];
+
+        ip_append_log($job, 'info', 'Upload recebido. Arquivo armazenado e aguardando preparação.');
 
         ip_save_job($job);
 
@@ -674,13 +737,15 @@ if ($action === 'cancel') {
         ip_response_json(['message' => 'Job de importação não encontrado ou expirado.'], 404);
     }
 
+    ip_append_log($job, 'warning', 'Importação cancelada pelo usuário.');
     ip_cleanup_job_resources($job);
     $_SESSION['mensagem'] = 'Importação cancelada pelo usuário.';
     $_SESSION['tipo_mensagem'] = 'warning';
 
     ip_response_json([
         'canceled' => true,
-        'redirect' => base_url('app/views/planilhas/planilha_importar.php')
+        'redirect' => base_url('app/views/planilhas/planilha_importar.php'),
+        'log' => $job['log'] ?? [],
     ]);
 }
 

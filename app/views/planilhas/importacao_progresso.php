@@ -99,11 +99,30 @@ ob_start();
         alertArea.innerHTML = '<div class="alert alert-' + type + '" role="alert">' + message + '</div>';
     }
 
+    function formatLogEntry(entry) {
+        const ts = entry.ts ? new Date(entry.ts * 1000) : new Date();
+        const stamp = ts.toLocaleTimeString('pt-BR');
+        const lvl = (entry.level || 'info').toUpperCase();
+        const msg = entry.message || '';
+        return '[' + stamp + '] ' + lvl + ': ' + msg;
+    }
+
+    function renderLog(entries) {
+        if (!logBox) return;
+        logBox.innerHTML = '';
+        entries.forEach(e => {
+            const div = document.createElement('div');
+            div.textContent = formatLogEntry(e);
+            logBox.appendChild(div);
+        });
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
     function appendLog(level, message) {
         if (!logBox) return;
-        const stamp = new Date().toLocaleTimeString('pt-BR');
+        const entry = { ts: Math.floor(Date.now() / 1000), level, message };
         const div = document.createElement('div');
-        div.textContent = '[' + stamp + '] ' + level.toUpperCase() + ': ' + message;
+        div.textContent = formatLogEntry(entry);
         logBox.appendChild(div);
         logBox.scrollTop = logBox.scrollHeight;
     }
@@ -185,6 +204,10 @@ ob_start();
             }
             if (data.progress !== undefined) {
                 setProgress(data.progress);
+            }
+
+            if (data.log && Array.isArray(data.log)) {
+                renderLog(data.log);
             }
 
             if (data.errors && data.errors.length > 0) {
