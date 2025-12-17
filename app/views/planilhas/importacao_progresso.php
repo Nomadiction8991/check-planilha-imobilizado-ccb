@@ -19,9 +19,8 @@ ob_start();
     <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-cloud-upload"></i>
-            <?php echo htmlspecialchars(to_uppercase('Importando planilha'), ENT_QUOTES, 'UTF-8'); ?>
+            <span id="job-id"><?php echo htmlspecialchars($jobId, ENT_QUOTES, 'UTF-8'); ?></span>
         </div>
-        <span class="badge bg-secondary" id="job-id">JOB: <?php echo htmlspecialchars($jobId, ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="card-body">
         <p class="mb-3">Estamos processando sua planilha em lotes de 200 registros para evitar travamentos. Esta página irá atualizar o progresso automaticamente.</p>
