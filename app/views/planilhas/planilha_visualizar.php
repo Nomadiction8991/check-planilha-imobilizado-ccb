@@ -472,9 +472,13 @@ ob_start();
             
             $tipo_invalido = (!isset($p['tipo_bem_id']) || $p['tipo_bem_id'] == 0 || empty($p['tipo_bem_id']));
             ?>
+            <?php
+                $produtoId = $p['id_PRODUTO'] ?? $p['id_produto'] ?? $p['ID_PRODUTO'] ?? ($p['ID_PRODUTO'] ?? '');
+                $produtoId = intval($produtoId);
+            ?>
             <div 
                 class="list-group-item <?php echo $classe; ?><?php echo $tipo_invalido ? ' tipo-nao-identificado' : ''; ?>" 
-                data-PRODUTO-id="<?php echo $p['id_PRODUTO']; ?>"
+                data-PRODUTO-id="<?php echo $produtoId; ?>"
                 data-ativo="<?php echo (int) $p['ativo']; ?>"
                 data-checado="<?php echo (int) $p['checado']; ?>"
                 data-imprimir="<?php echo (int) $p['imprimir']; ?>"
@@ -548,8 +552,8 @@ ob_start();
                 <?php if (isAdmin()): ?>
                 <div class="acao-container">
                     <!-- Check -->
-                    <form method="POST" action="../../../app/controllers/update/PRODUTOCheckController.php" style="display: <?php echo $show_check ? 'inline' : 'none'; ?>;" class="PRODUTO-action-form action-check" data-action="check" data-PRODUTO-id="<?php echo $p['id_PRODUTO']; ?>">
-                        <input type="hidden" name="produto_id" value="<?php echo $p['id_PRODUTO']; ?>">
+                    <form method="POST" action="../../../app/controllers/update/PRODUTOCheckController.php" style="display: <?php echo $show_check ? 'inline' : 'none'; ?>;" class="PRODUTO-action-form action-check" data-action="check" data-PRODUTO-id="<?php echo $produtoId; ?>">
+                        <input type="hidden" name="produto_id" value="<?php echo $produtoId; ?>">
                         <input type="hidden" name="comum_id" value="<?php echo $comum_id; ?>">
                         <input type="hidden" name="checado" value="<?php echo $p['checado'] ? '0' : '1'; ?>">
                         <input type="hidden" name="pagina" value="<?php echo $pagina ?? 1; ?>">
@@ -563,8 +567,8 @@ ob_start();
                     </form>
                     
                     <!-- Etiqueta -->
-                    <form method="POST" action="../../../app/controllers/update/PRODUTOEtiquetaController.php" style="display: <?php echo $show_imprimir ? 'inline' : 'none'; ?>;" class="PRODUTO-action-form action-imprimir" data-action="imprimir" data-PRODUTO-id="<?php echo $p['id_PRODUTO']; ?>" data-confirm="<?php echo $p['imprimir'] ? 'Deseja desmarcar este PRODUTO para etiqueta?' : 'Deseja marcar este PRODUTO para etiqueta?'; ?>">
-                        <input type="hidden" name="produto_id" value="<?php echo $p['id_PRODUTO']; ?>">
+                    <form method="POST" action="../../../app/controllers/update/PRODUTOEtiquetaController.php" style="display: <?php echo $show_imprimir ? 'inline' : 'none'; ?>;" class="PRODUTO-action-form action-imprimir" data-action="imprimir" data-PRODUTO-id="<?php echo $produtoId; ?>" data-confirm="<?php echo $p['imprimir'] ? 'Deseja desmarcar este PRODUTO para etiqueta?' : 'Deseja marcar este PRODUTO para etiqueta?'; ?>">
+                        <input type="hidden" name="produto_id" value="<?php echo $produtoId; ?>">
                         <input type="hidden" name="comum_id" value="<?php echo $comum_id; ?>">
                         <input type="hidden" name="imprimir" value="<?php echo $p['imprimir'] ? '0' : '1'; ?>">
                         <input type="hidden" name="pagina" value="<?php echo $pagina ?? 1; ?>">
@@ -578,13 +582,13 @@ ob_start();
                     </form>
                     
                     <!-- Observa??o -->
-                    <a href="../PRODUTOS/PRODUTO_observacao.php?id_PRODUTO=<?php echo $p['id_PRODUTO']; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
+                    <a href="../PRODUTOS/PRODUTO_observacao.php?id_PRODUTO=<?php echo $produtoId; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
                        class="btn btn-outline-warning btn-sm action-observacao <?php echo !empty($p['observacao']) ? 'active' : ''; ?>" style="display: <?php echo $show_obs ? 'inline-block' : 'none'; ?>;" title="Observa??o">
                         <i class="bi bi-chat-square-text-fill"></i>
                     </a>
                     
                     <!-- EDITAR -->
-                    <a href="../PRODUTOS/PRODUTO_editar.php?id_PRODUTO=<?php echo $p['id_PRODUTO']; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
+                    <a href="../PRODUTOS/PRODUTO_editar.php?id_PRODUTO=<?php echo $produtoId; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
                        class="btn btn-outline-primary btn-sm action-editar <?php echo $tem_edicao ? 'active' : ''; ?>" style="display: <?php echo $show_edit ? 'inline-block' : 'none'; ?>;" title="EDITAR">
                         <i class="bi bi-pencil-fill"></i>
                     </a></div>
@@ -1490,4 +1494,3 @@ include __DIR__ . '/../layouts/app_wrapper.php';
 // LIMPAR arquivo temporÃ¢â€Å“ÃƒÂ­rio
 unlink($tempFile);
 ?>
-
