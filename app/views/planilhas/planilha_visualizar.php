@@ -279,6 +279,35 @@ ob_start();
     flex-wrap: wrap;
     margin-top: 0.5rem;
 }
+
+.legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.legend-checked { background-color: #10b759; }
+.legend-observacao { background-color: #fb8c00; }
+.legend-imprimir { background-color: #1976d2; }
+.legend-dr { background-color: #e53935; }
+.legend-editado { background-color: #8e24aa; }
+.legend-tipo-invalido { background-color: #fdd835; }
 </style>
 
 <!-- Link para Material Icons -->
@@ -390,35 +419,36 @@ ob_start();
 
 <!-- Legenda -->
 <div class="card mb-3">
-    <div class="card-body p-2">
-        <div class="d-flex flex-wrap gap-2 justify-content-center small">
-            <span class="d-flex align-items-center gap-1">
-                <span style="width: 3px; height: 16px; background-color: #10b759; display: inline-block;"></span>
-                <?php echo htmlspecialchars(to_uppercase('Checado'), ENT_QUOTES, 'UTF-8'); ?>
-            </span>
-            <span class="d-flex align-items-center gap-1">
-                <span style="width: 3px; height: 16px; background-color: #fb8c00; display: inline-block;"></span>
-                <?php echo htmlspecialchars(to_uppercase('Observação'), ENT_QUOTES, 'UTF-8'); ?>
-            </span>
-            <span class="d-flex align-items-center gap-1">
-                <span style="width: 3px; height: 16px; background-color: #1976d2; display: inline-block;"></span>
-                <?php echo htmlspecialchars(to_uppercase('Imprimir Etiqueta'), ENT_QUOTES, 'UTF-8'); ?>
-            </span>
-            <span class="d-flex align-items-center gap-1">
-                <span style="width: 3px; height: 16px; background-color: #e53935; display: inline-block;"></span>
-                <?php echo htmlspecialchars(to_uppercase('DR'), ENT_QUOTES, 'UTF-8'); ?>
-            </span>
-            <span class="d-flex align-items-center gap-1">
-                <span style="width: 3px; height: 16px; background-color: #8e24aa; display: inline-block;"></span>
-                <?php echo htmlspecialchars(to_uppercase('Editado'), ENT_QUOTES, 'UTF-8'); ?>
-            </span>
-        </div>
-        <hr class="my-2">
-        <div class="d-flex flex-wrap gap-2 justify-content-center small text-muted">
-            <span class="d-flex align-items-center gap-1">
-                <span style="width: 3px; height: 16px; background-color: #fdd835; display: inline-block;"></span>
-                <?php echo htmlspecialchars(to_uppercase('Tipo de bem não identificado'), ENT_QUOTES, 'UTF-8'); ?>
-            </span>
+    <div class="card-body p-3">
+        <div class="legend-grid">
+            <ul class="list-unstyled mb-0">
+                <li class="legend-item">
+                    <span class="legend-color legend-checked"></span>
+                    <?php echo htmlspecialchars(to_uppercase('Checado'), ENT_QUOTES, 'UTF-8'); ?>
+                </li>
+                <li class="legend-item">
+                    <span class="legend-color legend-observacao"></span>
+                    <?php echo htmlspecialchars(to_uppercase('Observação'), ENT_QUOTES, 'UTF-8'); ?>
+                </li>
+                <li class="legend-item">
+                    <span class="legend-color legend-imprimir"></span>
+                    <?php echo htmlspecialchars(to_uppercase('Imprimir Etiqueta'), ENT_QUOTES, 'UTF-8'); ?>
+                </li>
+            </ul>
+            <ul class="list-unstyled mb-0">
+                <li class="legend-item">
+                    <span class="legend-color legend-dr"></span>
+                    <?php echo htmlspecialchars(to_uppercase('DR'), ENT_QUOTES, 'UTF-8'); ?>
+                </li>
+                <li class="legend-item">
+                    <span class="legend-color legend-editado"></span>
+                    <?php echo htmlspecialchars(to_uppercase('Editado'), ENT_QUOTES, 'UTF-8'); ?>
+                </li>
+                <li class="legend-item">
+                    <span class="legend-color legend-tipo-invalido"></span>
+                    <?php echo htmlspecialchars(to_uppercase('Tipo de bem não identificado'), ENT_QUOTES, 'UTF-8'); ?>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
