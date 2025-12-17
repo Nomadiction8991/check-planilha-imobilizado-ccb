@@ -10,6 +10,10 @@ if ($comum_id <= 0) {
 
 require_once dirname(__DIR__, 2) . '/controllers/read/PlanilhaViewController.php';
 
+$PRODUTOS = $produtos ?? [];
+$erro_PRODUTOS = $erro_produtos ?? '';
+$filtro_STATUS = $filtro_status ?? '';
+
 // Configuracoes da pagina
 $id_planilha = $comum_id; // compatibilidade com cÃƒÂ³digo legado
 $pageTitle = htmlspecialchars($planilha['comum_descricao'] ?? 'VISUALIZAR Planilha');
@@ -95,8 +99,8 @@ if (isAdmin()) {
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <a class="dropdown-item" href="../planilhas/relatorio141_view.php?id=' . $id_planilha . '&comum_id=' . $comum_id . '">
-                    <i class="bi bi-file-earmark-pdf me-2"></i>RelatÃ¢â€Å“Ã¢â€â€šrio 14.1
+                <a class="dropdown-item" href="../planilhas/relatorio141_view.php?id=' . $comum_id . '&comum_id=' . $comum_id . '">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>' . htmlspecialchars(to_uppercase('Relatório 14.1'), ENT_QUOTES, 'UTF-8') . '
                 </a>
             </li>
             <li>
@@ -105,16 +109,16 @@ if (isAdmin()) {
                 </a>
             </li>
             <li>
-                <a class="dropdown-item" href="../planilhas/relatorio_imprimir_alteracao.php?id=' . $id_planilha . '&comum_id=' . $comum_id . '">
-                    <i class="bi bi-printer me-2"></i>Imprimir AlteraÃ¢â€Å“Ã‚ÂºÃ¢â€Å“ÃƒÂºo
+                <a class="dropdown-item" href="../planilhas/relatorio_imprimir_alteracao.php?id=' . $comum_id . '&comum_id=' . $comum_id . '">
+                    <i class="bi bi-printer me-2"></i>' . htmlspecialchars(to_uppercase('Imprimir Alteração'), ENT_QUOTES, 'UTF-8') . '
                 </a>
             </li>';
 } else {
     // Doador/CÃ¢â€Å“Ã¢â€Â¤njuge: apenas relatÃ¢â€Å“Ã¢â€â€šrios
     $headerActions .= '
             <li>
-                <a class="dropdown-item" href="../planilhas/relatorio141_view.php?id=' . $id_planilha . '&comum_id=' . $comum_id . '">
-                    <i class="bi bi-file-earmark-pdf me-2"></i>RelatÃ¢â€Å“Ã¢â€â€šrio 14.1
+                <a class="dropdown-item" href="../planilhas/relatorio141_view.php?id=' . $comum_id . '&comum_id=' . $comum_id . '">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>' . htmlspecialchars(to_uppercase('Relatório 14.1'), ENT_QUOTES, 'UTF-8') . '
                 </a>
             </li>';
 }
@@ -357,8 +361,8 @@ ob_start();
                             </div>
                             
                             <div class="mb-3">
-                                <label class="form-label" for="STATUS">STATUS</label>
-                                <select class="form-select" id="STATUS" name="STATUS">
+                                <label class="form-label" for="status">STATUS</label>
+                                <select class="form-select" id="status" name="status">
                                     <option value=""><?php echo htmlspecialchars(to_uppercase('Todos'), ENT_QUOTES, 'UTF-8'); ?></option>
                                     <option value="checado" <?php echo ($filtro_STATUS ?? '')==='checado'?'selected':''; ?>><?php echo htmlspecialchars(to_uppercase('Checados'), ENT_QUOTES, 'UTF-8'); ?></option>
                                     <option value="observacao" <?php echo ($filtro_STATUS ?? '')==='observacao'?'selected':''; ?>><?php echo htmlspecialchars(to_uppercase('Com Observação'), ENT_QUOTES, 'UTF-8'); ?></option>
@@ -552,7 +556,7 @@ ob_start();
                         <input type="hidden" name="nome" value="<?php echo htmlspecialchars($filtro_nome ?? ''); ?>">
                         <input type="hidden" name="dependencia" value="<?php echo htmlspecialchars($filtro_dependencia ?? ''); ?>">
                         <input type="hidden" name="codigo" value="<?php echo htmlspecialchars($filtro_codigo ?? ''); ?>">
-                        <input type="hidden" name="STATUS" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
+                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
                         <button type="submit" class="btn btn-outline-success btn-sm <?php echo $p['checado'] == 1 ? 'active' : ''; ?>" title="<?php echo $p['checado'] ? 'Desmarcar checado' : 'Marcar como checado'; ?>">
                             <i class="bi bi-check-circle-fill"></i>
                         </button>
@@ -567,20 +571,20 @@ ob_start();
                         <input type="hidden" name="nome" value="<?php echo htmlspecialchars($filtro_nome ?? ''); ?>">
                         <input type="hidden" name="dependencia" value="<?php echo htmlspecialchars($filtro_dependencia ?? ''); ?>">
                         <input type="hidden" name="codigo" value="<?php echo htmlspecialchars($filtro_codigo ?? ''); ?>">
-                        <input type="hidden" name="STATUS" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
+                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
                         <button type="submit" class="btn btn-outline-info btn-sm <?php echo $p['imprimir'] == 1 ? 'active' : ''; ?>" title="Etiqueta">
                             <i class="bi bi-printer-fill"></i>
                         </button>
                     </form>
                     
                     <!-- Observa??o -->
-                    <a href="../PRODUTOS/PRODUTO_observacao.php?id_PRODUTO=<?php echo $p['id_PRODUTO']; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&STATUS=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
+                    <a href="../PRODUTOS/PRODUTO_observacao.php?id_PRODUTO=<?php echo $p['id_PRODUTO']; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
                        class="btn btn-outline-warning btn-sm action-observacao <?php echo !empty($p['observacao']) ? 'active' : ''; ?>" style="display: <?php echo $show_obs ? 'inline-block' : 'none'; ?>;" title="Observa??o">
                         <i class="bi bi-chat-square-text-fill"></i>
                     </a>
                     
                     <!-- EDITAR -->
-                    <a href="../PRODUTOS/PRODUTO_editar.php?id_PRODUTO=<?php echo $p['id_PRODUTO']; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&STATUS=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
+                    <a href="../PRODUTOS/PRODUTO_editar.php?id_PRODUTO=<?php echo $p['id_PRODUTO']; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
                        class="btn btn-outline-primary btn-sm action-editar <?php echo $tem_edicao ? 'active' : ''; ?>" style="display: <?php echo $show_edit ? 'inline-block' : 'none'; ?>;" title="EDITAR">
                         <i class="bi bi-pencil-fill"></i>
                     </a>
@@ -596,7 +600,7 @@ ob_start();
                         <input type="hidden" name="nome" value="<?php echo htmlspecialchars($filtro_nome ?? ''); ?>">
                         <input type="hidden" name="dependencia" value="<?php echo htmlspecialchars($filtro_dependencia ?? ''); ?>">
                         <input type="hidden" name="codigo" value="<?php echo htmlspecialchars($filtro_codigo ?? ''); ?>">
-                        <input type="hidden" name="STATUS" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
+                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
                         <button type="submit" class="btn btn-outline-danger btn-sm <?php echo $p['ativo'] == 0 ? 'active' : ''; ?>" title="DR">
                             <i class="bi bi-exclamation-triangle-fill"></i>
                         </button>
