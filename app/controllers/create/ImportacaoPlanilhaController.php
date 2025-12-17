@@ -86,6 +86,25 @@ function ip_parse_planilha_data($valor): ?string {
     return null;
 }
 
+function ip_obter_codigo_comum($valor): int {
+    $texto = trim((string)$valor);
+    if ($texto === '') {
+        return 0;
+    }
+
+    $codigo = extrair_codigo_comum($texto);
+    if ($codigo > 0) {
+        return $codigo;
+    }
+
+    $apenas_digitos = preg_replace('/\D+/', '', $texto);
+    if ($apenas_digitos === '') {
+        return 0;
+    }
+
+    return (int)$apenas_digitos;
+}
+
 function ip_job_path(string $jobId): string {
     return IP_JOB_DIR . '/import_job_' . preg_replace('/[^a-zA-Z0-9_\-]/', '', $jobId) . '.json';
 }
@@ -209,13 +228,9 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
         }
 
         if (isset($linha[$idx_localidade])) {
-            $localidade_raw = (string)$linha[$idx_localidade];
-            $localidade_num = preg_replace('/\D+/', '', $localidade_raw);
-            if ($localidade_num !== '') {
-                $codigo_localidade = (int)$localidade_num;
-                if (!in_array($codigo_localidade, $localidades_unicas, true)) {
-                    $localidades_unicas[] = $codigo_localidade;
-                }
+            $codigo_localidade = ip_obter_codigo_comum($linha[$idx_localidade]);
+            if ($codigo_localidade > 0 && !in_array($codigo_localidade, $localidades_unicas, true)) {
+                $localidades_unicas[] = $codigo_localidade;
             }
         }
     }
@@ -289,7 +304,9 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
 
     $mapeamento_colunas_str = 'codigo=' . $mapeamento_codigo . ';complemento=' . $mapeamento_complemento . ';dependencia=' . $mapeamento_dependencia . ';localidade=' . $coluna_localidade;
 
-    $stmtCfg = $conexao->prepare('REPLACE INTO configuracoes (id, mapeamento_colunas, posicao_data, pulo_linhas, data_importacao) VALUES (1, :mapeamento_colunas, :posicao_data, :pulo_linhas, :data_importacao)');
+    // Garantir que apenas a última configuração seja mantida após remover a coluna id
+    $conexao->exec('DELETE FROM configuracoes');
+    $stmtCfg = $conexao->prepare('INSERT INTO configuracoes (mapeamento_colunas, posicao_data, pulo_linhas, data_importacao) VALUES (:mapeamento_colunas, :posicao_data, :pulo_linhas, :data_importacao)');
     $stmtCfg->bindValue(':mapeamento_colunas', $mapeamento_colunas_str);
     $stmtCfg->bindValue(':posicao_data', $posicao_data);
     $stmtCfg->bindValue(':pulo_linhas', $pulo_linhas);
@@ -440,10 +457,27 @@ if ($action === 'process') {
                 $codigo_norm = pp_normaliza($codigo);
 
                 $localidade_raw = isset($linha[$idx_localidade]) ? (string)$linha[$idx_localidade] : '';
-                $localidade_num = preg_replace('/\D+/', '', $localidade_raw);
+                $codigo_localidade = ip_obter_codigo_comum($localidade_raw);
                 $comum_destino_id = $comum_processado_id;
-                if ($localidade_num !== '' && isset($map_comum_ids[$localidade_num])) {
-                    $comum_destino_id = (int)$map_comum_ids[$localidade_num];
+                if ($codigo_localidade > 0) {
+                    if (!isset($map_comum_ids[$codigo_localidade])) {
+                        try {
+                            $stmtBuscaComum = $conexao->prepare('SELECT id FROM comums WHERE codigo = :codigo');
+                            $stmtBuscaComum->bindValue(':codigo', $codigo_localidade, PDO::PARAM_INT);
+                            $stmtBuscaComum->execute();
+                            $comumEncontrado = $stmtBuscaComum->fetch(PDO::FETCH_ASSOC);
+                            if ($comumEncontrado) {
+                                $map_comum_ids[$codigo_localidade] = (int)$comumEncontrado['id'];
+                            } else {
+                                $map_comum_ids[$codigo_localidade] = (int)garantir_comum_por_codigo($conexao, $codigo_localidade);
+                            }
+                        } catch (Throwable $e) {
+                            error_log('Falha ao resolver comum ' . $codigo_localidade . ': ' . $e->getMessage());
+                        }
+                    }
+                    if (isset($map_comum_ids[$codigo_localidade])) {
+                        $comum_destino_id = (int)$map_comum_ids[$codigo_localidade];
+                    }
                 }
 
                 $codigo_key = $comum_destino_id . '|' . $codigo_norm;
@@ -642,6 +676,7 @@ SQL;
         $job['stats'] = $stats;
         $job['erros_produtos'] = $erros_produtos;
         $job['produtos_existentes'] = $produtos_existentes;
+        $job['map_comum_ids'] = $map_comum_ids;
 
         $resumo_lote = 'Lote concluído (' . ($inicio + 1) . '-' . $fim . '): ' . $stats['processados'] . ' processados, ' . $stats['novos'] . ' novos, ' . $stats['atualizados'] . ' atualizados, ' . $stats['excluidos'] . ' excluídos.';
         ip_append_log($job, 'info', $resumo_lote);
@@ -797,4 +832,3 @@ if ($action === 'cancel') {
 }
 
 ip_response_json(['message' => 'Ação inválida ou método não suportado.'], 400);
-
