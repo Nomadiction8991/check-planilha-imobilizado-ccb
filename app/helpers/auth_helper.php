@@ -15,8 +15,18 @@ ini_set('display_errors', '0');
 
 // URL de login baseada na profundidade do diretorio
 function getLoginUrl(): string {
-    // Caminho absoluto para evitar erros de profundidade em subpastas
-    return '/login.php';
+    $prefix = '';
+    if (defined('BASE_PATH')) {
+        $docRoot = realpath($_SERVER['DOCUMENT_ROOT'] ?? '');
+        $basePath = realpath(BASE_PATH);
+        if ($docRoot && $basePath && strpos($basePath, $docRoot) === 0) {
+            $prefix = trim(str_replace($docRoot, '', $basePath), '/');
+        }
+    }
+
+    $segments = array_filter([$prefix, 'login.php'], 'strlen');
+    $path = '/' . implode('/', $segments);
+    return preg_replace('#/+#', '/', $path);
 }
 
 // Modo publico: permitir acesso restrito a algumas paginas com base em sessao publica
@@ -102,4 +112,3 @@ function isDoador(): bool {
 function isLoggedIn(): bool {
     return isset($_SESSION['usuario_id']) && (int) $_SESSION['usuario_id'] > 0;
 }
-
