@@ -172,6 +172,7 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
     $mapeamento_complemento = strtoupper(trim($job['mapeamento_complemento'] ?? 'D'));
     $mapeamento_dependencia = strtoupper(trim($job['mapeamento_dependencia'] ?? 'P'));
 
+    ip_normalizar_csv_encoding($job['file_path']);
     $planilha = IOFactory::load($job['file_path']);
     $aba = $planilha->getActiveSheet();
 
@@ -759,6 +760,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'start') {
         if (!move_uploaded_file($arquivo_csv['tmp_name'], $destino)) {
             throw new Exception('Não foi possível armazenar o arquivo enviado.');
         }
+        ip_normalizar_csv_encoding($destino);
         $job = [
             'id' => $jobId,
             'file_path' => $destino,

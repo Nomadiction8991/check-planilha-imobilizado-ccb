@@ -46,6 +46,7 @@ if (!defined('APP_BOOTSTRAPPED')) {
     // Carrega helpers utilitarios
     require_once BASE_PATH . '/app/helpers/auth_helper.php';
     require_once BASE_PATH . '/app/helpers/uppercase_helper.php';
+    require_once BASE_PATH . '/app/helpers/csv_encoding_helper.php';
 
     // Log em arquivo local (cria pasta se necessario)
     $logDir = BASE_PATH . '/storage/logs';
@@ -90,4 +91,3 @@ if (!defined('APP_BOOTSTRAPPED')) {
         return trim((string) $value);
     }
 }
-
