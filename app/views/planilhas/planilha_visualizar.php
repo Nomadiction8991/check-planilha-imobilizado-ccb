@@ -380,7 +380,7 @@ ob_start();
         </form>
     </div>
     <div class="card-footer text-muted small">
-        <?php echo $total_registros ?? 0; ?> registros encontrados no total
+        <?php echo htmlspecialchars(to_uppercase(($total_registros ?? 0) . ' registros encontrados no total'), ENT_QUOTES, 'UTF-8'); ?>
     </div>
 </div>
 
@@ -390,30 +390,30 @@ ob_start();
         <div class="d-flex flex-wrap gap-2 justify-content-center small">
             <span class="d-flex align-items-center gap-1">
                 <span style="width: 3px; height: 16px; background-color: #10b759; display: inline-block;"></span>
-                Checado
+                <?php echo htmlspecialchars(to_uppercase('Checado'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <span class="d-flex align-items-center gap-1">
                 <span style="width: 3px; height: 16px; background-color: #fb8c00; display: inline-block;"></span>
-                ObservaÃ¢â€Å“Ã‚ÂºÃ¢â€Å“ÃƒÂºo
+                <?php echo htmlspecialchars(to_uppercase('Observação'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <span class="d-flex align-items-center gap-1">
                 <span style="width: 3px; height: 16px; background-color: #1976d2; display: inline-block;"></span>
-                Imprimir Etiqueta
+                <?php echo htmlspecialchars(to_uppercase('Imprimir Etiqueta'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <span class="d-flex align-items-center gap-1">
                 <span style="width: 3px; height: 16px; background-color: #e53935; display: inline-block;"></span>
-                DR
+                <?php echo htmlspecialchars(to_uppercase('DR'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <span class="d-flex align-items-center gap-1">
                 <span style="width: 3px; height: 16px; background-color: #8e24aa; display: inline-block;"></span>
-                Editado
+                <?php echo htmlspecialchars(to_uppercase('Editado'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
         </div>
         <hr class="my-2">
         <div class="d-flex flex-wrap gap-2 justify-content-center small text-muted">
             <span class="d-flex align-items-center gap-1">
                 <span style="width: 3px; height: 16px; background-color: #fdd835; display: inline-block;"></span>
-                Tipo de bem nÃ¢â€Å“ÃƒÂºo identificado
+                <?php echo htmlspecialchars(to_uppercase('Tipo de bem não identificado'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
         </div>
     </div>
@@ -426,7 +426,7 @@ ob_start();
             <i class="bi bi-box-seam me-2"></i>
             PRODUTOS
         </span>
-        <span class="badge bg-white text-dark"><?php echo count($PRODUTOS ?? []); ?> itens</span>
+        <span class="badge bg-white text-dark"><?php echo htmlspecialchars(to_uppercase(count($PRODUTOS ?? []) . ' itens'), ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="list-group list-group-flush">
         <?php if ($PRODUTOS): ?>
