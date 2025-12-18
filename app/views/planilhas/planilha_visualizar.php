@@ -270,6 +270,16 @@ ob_start();
     opacity: 0.55;
 }
 
+/* Botão visualmente desabilitado (mas clicável quando necessário, ex: imprimir que autocheca) */
+.acao-container .btn.disabled-visually {
+    pointer-events: auto;
+    opacity: 0.45;
+    filter: grayscale(0.2);
+}
+.acao-container .btn.disabled-visually:hover {
+    transform: none;
+}
+
 .acao-container form,
 .acao-container a {
     margin: 0;
@@ -749,15 +759,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const updateActionButtons = (row, state) => {
+        // Sempre mostrar os botões, apenas controlar o estado (disabled / active)
         const showCheck = !(state.ativo === 0) && !(state.imprimir === 1 || state.editado === 1);
         const showImprimir = state.ativo === 1 && state.checado === 1 && state.editado === 0;
         const showObs = state.ativo === 1;
         const showEdit = state.ativo === 1 && state.checado === 0;
 
-        row.querySelectorAll('.action-check').forEach(el => el.style.display = showCheck ? 'inline-block' : 'none');
-        row.querySelectorAll('.action-imprimir').forEach(el => el.style.display = showImprimir ? 'inline-block' : 'none');
-        row.querySelectorAll('.btn-outline-warning').forEach(el => el.style.display = showObs ? 'inline-block' : 'none');
-        row.querySelectorAll('.btn-outline-primary').forEach(el => el.style.display = showEdit ? 'inline-block' : 'none');
+        row.querySelectorAll('.action-check').forEach(el => {
+            el.style.display = 'inline-block';
+            const btn = el.querySelector('button');
+            if (btn) { btn.disabled = !showCheck; if (btn.disabled) { btn.classList.remove('active'); btn.setAttribute('aria-disabled','true'); } else { btn.removeAttribute('aria-disabled'); } }
+        });
+
+        row.querySelectorAll('.action-imprimir').forEach(el => {
+            el.style.display = 'inline-block';
+            const btn = el.querySelector('button');
+            // Manter o botão clicável para permitir marcar imprimir e autochecar; apenas marcar visualmente quando indisponível
+            if (btn) { btn.classList.toggle('disabled-visually', !showImprimir); btn.removeAttribute('aria-disabled'); }
+        });
+
+        row.querySelectorAll('.btn-outline-warning').forEach(el => {
+            el.style.display = 'inline-block';
+            if (!showObs) { el.classList.add('disabled'); el.setAttribute('aria-disabled','true'); } else { el.classList.remove('disabled'); el.removeAttribute('aria-disabled'); }
+        });
+
+        row.querySelectorAll('.btn-outline-primary').forEach(el => {
+            el.style.display = 'inline-block';
+            // Manter edit clicável e autochecar; apenas indicar visualmente
+            if (!showEdit) { el.classList.add('disabled-visually'); el.setAttribute('aria-disabled','true'); } else { el.classList.remove('disabled-visually'); el.removeAttribute('aria-disabled'); }
+        });
     };
 
     const applyState = (row, updates = {}) => {
@@ -776,6 +806,85 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.list-group-item[data-produto-id]').forEach(row => {
         updateActionButtons(row, getRowState(row));
     });
+
+    // Interceptar submissões de 'imprimir' para garantir que produto esteja checado
+    document.addEventListener('submit', function(ev){
+        const form = ev.target;
+        if (!form || !form.classList || !form.classList.contains('PRODUTO-action-form')) return;
+        const action = form.dataset.action;
+        if (action !== 'imprimir') return;
+        const prodId = form.dataset.produtoId;
+        const row = document.querySelector(`.list-group-item[data-produto-id="${prodId}"]`);
+        if (!row) return;
+        const state = getRowState(row);
+        if (state.checado === 1) return; // já checado, deixa passar
+        // evitar submissão imediata
+        ev.preventDefault();
+        // submeter o check via AJAX e, se ok, re-submeter o formulário de imprimir
+        const checkForm = document.querySelector(`.PRODUTO-action-form.action-check[data-produto-id="${prodId}"]`);
+        if (!checkForm) { showAlert('danger','Formulário de checado não encontrado'); return; }
+        const fd = new FormData(checkForm);
+        fetch(checkForm.action, { method: 'POST', body: fd, headers: { 'X-Requested-With':'XMLHttpRequest','Accept':'application/json' } })
+            .then(r=>r.json().catch(()=>({})))
+            .then(j=>{
+                if (j.success === false) { showAlert('danger', j.message || 'Falha ao marcar como checado'); return; }
+                // atualizar estado local e reenviar o form original
+                applyState(row, { checado: 1 });
+                // re-enviar o form de imprimir
+                form.requestSubmit ? form.requestSubmit() : form.submit();
+            }).catch(err=>{ showAlert('danger', err.message || 'Erro no servidor'); });
+    }, true);
+
+    // Interceptar cliques em editar para garantir checado antes de redirecionar
+    document.addEventListener('click', function(ev){
+        const a = ev.target.closest && ev.target.closest('.action-editar');
+        if (!a) return;
+        // Se estiver visualmente desabilitado, ignorar
+        if (a.classList.contains('disabled') || a.getAttribute('aria-disabled') === 'true') return;
+        const prodId = a.closest('.list-group-item').dataset.produtoId;
+        const row = document.querySelector(`.list-group-item[data-produto-id="${prodId}"]`);
+        const state = getRowState(row);
+        if (state.checado === 1) return; // já checado
+        ev.preventDefault();
+        const checkForm = document.querySelector(`.PRODUTO-action-form.action-check[data-produto-id="${prodId}"]`);
+        if (!checkForm) { showAlert('danger','Formulário de checado não encontrado'); return; }
+        const fd = new FormData(checkForm);
+        fetch(checkForm.action, { method: 'POST', body: fd, headers: { 'X-Requested-With':'XMLHttpRequest','Accept':'application/json' } })
+            .then(r=>r.json().catch(()=>({})))
+            .then(j=>{
+                if (j.success === false) { showAlert('danger', j.message || 'Falha ao marcar como checado'); return; }
+                applyState(row, { checado: 1 });
+                // Redirecionar para edição
+                window.location.href = a.href;
+            }).catch(err=>{ showAlert('danger', err.message || 'Erro no servidor'); });
+    });
+
+    // Observador para mudanças em data-checado: se virar 0, desmarcar imprimir e limpar edições
+    const observer = new MutationObserver((mutList)=>{
+        for(const m of mutList){
+            if (m.type !== 'attributes' || m.attributeName !== 'data-checado') continue;
+            const row = m.target;
+            const prodId = row.dataset.produtoId;
+            const state = getRowState(row);
+            if (Number(state.checado) === 0) {
+                // desmarcar imprimir
+                const imprimirForm = document.querySelector(`.PRODUTO-action-form.action-imprimir[data-produto-id="${prodId}"]`);
+                if (imprimirForm) {
+                    const fdImp = new FormData(imprimirForm);
+                    fdImp.set('imprimir','0');
+                    fetch(imprimirForm.action, { method: 'POST', body: fdImp, headers: { 'X-Requested-With':'XMLHttpRequest','Accept':'application/json' } })
+                        .then(r=>r.json().catch(()=>({})))
+                        .then(j=>{ if (j.success !== false) applyState(row, { imprimir: 0 }); })
+                        .catch(()=>{});
+                }
+                // limpar edições via endpoint AJAX (novo controller)
+                fetch('<?php echo '../../../app/controllers/update/ProdutoLimparEdicoesController.php'; ?>', { method: 'POST', headers: { 'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest','Accept':'application/json' }, body: 'produto_id=' + encodeURIComponent(prodId) + '&comum_id=' + encodeURIComponent(<?php echo json_encode($comum_id ?? ''); ?>) })
+                    .then(r=>r.json().catch(()=>({}))).then(j=>{ if (j.success !== false) applyState(row, { editado: 0 }); }).catch(()=>{});
+            }
+        }
+    });
+
+    document.querySelectorAll('.list-group-item[data-produto-id]').forEach(r => observer.observe(r, { attributes: true }));
 
     document.querySelectorAll('.PRODUTO-action-form').forEach(form => {
         form.addEventListener('submit', (event) => {
