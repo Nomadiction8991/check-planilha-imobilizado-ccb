@@ -68,6 +68,7 @@ try {
 // Processar o formulÃ¡rio quando enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $observacoes = trim($_POST['observacoes'] ?? '');
+    $observacoes = to_uppercase($observacoes);
     
     // Receber filtros do POST
     $pagina = $_POST['pagina'] ?? 1;

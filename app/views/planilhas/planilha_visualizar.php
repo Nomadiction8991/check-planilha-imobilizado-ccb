@@ -89,7 +89,7 @@ $headerActions = '
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuPlanilha">';
 
-// Administrador/Acessor: menu completo
+                <!-- Ações - Apenas para Administrador/Acessor -->
 if (isAdmin()) {
     $headerActions .= '
             <li>
@@ -245,16 +245,34 @@ ob_start();
 
 /* Ações: usar padrão Bootstrap para botões e manter largura proporcional */
 .acao-container .btn {
-    padding: 0.25rem 0.5rem;
+    aspect-ratio: 1 / 1;
+    width: 48px;
+    min-width: 48px;
+    max-width: 48px;
+    height: 48px;
+    padding: 0 !important;
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    /* Garantir que cada botão ocupe proporcionalmente o mesmo espaço (igual a .input-group > .btn) */
-    flex: 0 0 15% !important;
-    min-width: 45px !important;
-    max-width: 60px !important;
-    padding: 0.375rem 0.25rem !important;
-    font-size: 1.1rem !important;
+    font-size: 1.2rem;
+    border-radius: 0.85rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.acao-container .btn:not([disabled]):not(.disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.acao-container .btn[disabled],
+.acao-container .btn.disabled {
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+.acao-container form,
+.acao-container a {
+    margin: 0;
 }
 
 .edicao-pendente {
@@ -496,7 +514,12 @@ ob_start();
                     $show_edit = ($p['checado'] == 0);
                     $show_dr = true; // Sempre mostrar DR
                 }
-            
+
+                $checkDisabled = !$show_check;
+                $imprimirDisabled = !$show_imprimir;
+                $obsDisabled = !$show_obs;
+                $editDisabled = !$show_edit;
+
             $tipo_invalido = (!isset($p['tipo_bem_id']) || $p['tipo_bem_id'] == 0 || empty($p['tipo_bem_id']));
             ?>
             <?php
@@ -575,50 +598,64 @@ ob_start();
                     <?php echo htmlspecialchars($p['descricao_completa']); ?><br>
                 </div>
                 
-                <!-- AÃ¢â€Å“Ã‚ÂºÃ¢â€Å“ÃƒÂes - Apenas para Administrador/Acessor -->
+                <!-- Ações - Apenas para Administrador/Acessor -->
                 <?php if (isAdmin()): ?>
+                <?php 
+                    $paginaAtual = $pagina ?? 1;
+                    $filtroNomeParam = urlencode($filtro_nome ?? '');
+                    $filtroDependenciaParam = urlencode($filtro_dependencia ?? '');
+                    $filtroCodigoParam = urlencode($filtro_codigo ?? '');
+                    $filtroStatusParam = urlencode($filtro_STATUS ?? '');
+                    $observacaoUrl = '../produtos/produto_observacao.php?id_produto=' . $produtoId . '&comum_id=' . $comum_id . '&pagina=' . $paginaAtual . '&nome=' . $filtroNomeParam . '&dependencia=' . $filtroDependenciaParam . '&filtro_codigo=' . $filtroCodigoParam . '&status=' . $filtroStatusParam;
+                    $editarUrl = '../produtos/produto_editar.php?id_produto=' . $produtoId . '&comum_id=' . $comum_id . '&pagina=' . $paginaAtual . '&nome=' . $filtroNomeParam . '&dependencia=' . $filtroDependenciaParam . '&filtro_codigo=' . $filtroCodigoParam . '&status=' . $filtroStatusParam;
+                ?>
                 <div class="acao-container">
                     <!-- Check -->
-                    <form method="POST" action="../../../app/controllers/update/ProdutoCheckController.php" style="display: <?php echo $show_check ? 'inline' : 'none'; ?>;" class="PRODUTO-action-form action-check" data-action="check" data-produto-id="<?php echo $produtoId; ?>">
+                    <form method="POST" action="../../../app/controllers/update/ProdutoCheckController.php" class="PRODUTO-action-form action-check" data-action="check" data-produto-id="<?php echo $produtoId; ?>">
                         <input type="hidden" name="produto_id" value="<?php echo $produtoId; ?>">
                         <input type="hidden" name="comum_id" value="<?php echo $comum_id; ?>">
                         <input type="hidden" name="checado" value="<?php echo $p['checado'] ? '0' : '1'; ?>">
-                        <input type="hidden" name="pagina" value="<?php echo $pagina ?? 1; ?>">
+                        <input type="hidden" name="pagina" value="<?php echo $paginaAtual; ?>">
                         <input type="hidden" name="nome" value="<?php echo htmlspecialchars($filtro_nome ?? ''); ?>">
                         <input type="hidden" name="dependencia" value="<?php echo htmlspecialchars($filtro_dependencia ?? ''); ?>">
                         <input type="hidden" name="codigo" value="<?php echo htmlspecialchars($filtro_codigo ?? ''); ?>">
                         <input type="hidden" name="status" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
-                        <button type="submit" class="btn btn-outline-success btn-sm <?php echo $p['checado'] == 1 ? 'active' : ''; ?>" title="<?php echo $p['checado'] ? 'Desmarcar checado' : 'Marcar como checado'; ?>">
+                        <button type="submit" class="btn btn-outline-success btn-sm <?php echo $p['checado'] == 1 ? 'active' : ''; ?>" title="<?php echo $p['checado'] ? 'Desmarcar checado' : 'Marcar como checado'; ?>" <?php echo $checkDisabled ? 'disabled' : ''; ?>>
                             <i class="bi bi-check-circle-fill"></i>
                         </button>
                     </form>
-                    
+
                     <!-- Etiqueta -->
-                    <form method="POST" action="../../../app/controllers/update/ProdutoEtiquetaController.php" style="display: <?php echo $show_imprimir ? 'inline' : 'none'; ?>;" class="PRODUTO-action-form action-imprimir" data-action="imprimir" data-produto-id="<?php echo $produtoId; ?>">
+                    <form method="POST" action="../../../app/controllers/update/ProdutoEtiquetaController.php" class="PRODUTO-action-form action-imprimir" data-action="imprimir" data-produto-id="<?php echo $produtoId; ?>">
                         <input type="hidden" name="produto_id" value="<?php echo $produtoId; ?>">
                         <input type="hidden" name="comum_id" value="<?php echo $comum_id; ?>">
                         <input type="hidden" name="imprimir" value="<?php echo $p['imprimir'] ? '0' : '1'; ?>">
-                        <input type="hidden" name="pagina" value="<?php echo $pagina ?? 1; ?>">
+                        <input type="hidden" name="pagina" value="<?php echo $paginaAtual; ?>">
                         <input type="hidden" name="nome" value="<?php echo htmlspecialchars($filtro_nome ?? ''); ?>">
                         <input type="hidden" name="dependencia" value="<?php echo htmlspecialchars($filtro_dependencia ?? ''); ?>">
                         <input type="hidden" name="codigo" value="<?php echo htmlspecialchars($filtro_codigo ?? ''); ?>">
                         <input type="hidden" name="status" value="<?php echo htmlspecialchars($filtro_STATUS ?? ''); ?>">
-                        <button type="submit" class="btn btn-outline-info btn-sm <?php echo $p['imprimir'] == 1 ? 'active' : ''; ?>" title="Etiqueta">
+                        <button type="submit" class="btn btn-outline-info btn-sm <?php echo $p['imprimir'] == 1 ? 'active' : ''; ?>" title="Etiqueta" <?php echo $imprimirDisabled ? 'disabled' : ''; ?>>
                             <i class="bi bi-printer-fill"></i>
                         </button>
                     </form>
-                    
+
                     <!-- Observacao -->
-                    <a href="../produtos/produto_observacao.php?id_produto=<?php echo $produtoId; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
-                       class="btn btn-outline-warning btn-sm action-observacao <?php echo !empty($p['observacao']) ? 'active' : ''; ?>" style="display: <?php echo $show_obs ? 'inline-block' : 'none'; ?>;" title="<?php echo htmlspecialchars(to_uppercase('observacao'), ENT_QUOTES, 'UTF-8'); ?>">
+                    <a href="<?php echo $obsDisabled ? '#' : $observacaoUrl; ?>"
+                       class="btn btn-outline-warning btn-sm action-observacao <?php echo !empty($p['observacao']) ? 'active' : ''; ?> <?php echo $obsDisabled ? 'disabled' : ''; ?>"
+                       title="<?php echo htmlspecialchars(to_uppercase('observacao'), ENT_QUOTES, 'UTF-8'); ?>"
+                       <?php if ($obsDisabled): ?>tabindex="-1" aria-disabled="true" onclick="event.preventDefault();"<?php endif; ?>>
                         <i class="bi bi-chat-square-text-fill"></i>
                     </a>
-                    
+
                     <!-- EDITAR -->
-                    <a href="../produtos/produto_editar.php?id_produto=<?php echo $produtoId; ?>&comum_id=<?php echo $comum_id; ?>&pagina=<?php echo $pagina ?? 1; ?>&nome=<?php echo urlencode($filtro_nome ?? ''); ?>&dependencia=<?php echo urlencode($filtro_dependencia ?? ''); ?>&filtro_codigo=<?php echo urlencode($filtro_codigo ?? ''); ?>&status=<?php echo urlencode($filtro_STATUS ?? ''); ?>"
-                       class="btn btn-outline-primary btn-sm action-editar <?php echo $tem_edicao ? 'active' : ''; ?>" style="display: <?php echo $show_edit ? 'inline-block' : 'none'; ?>;" title="EDITAR">
+                    <a href="<?php echo $editDisabled ? '#' : $editarUrl; ?>"
+                       class="btn btn-outline-primary btn-sm action-editar <?php echo $tem_edicao ? 'active' : ''; ?> <?php echo $editDisabled ? 'disabled' : ''; ?>"
+                       title="EDITAR"
+                       <?php if ($editDisabled): ?>tabindex="-1" aria-disabled="true" onclick="event.preventDefault();"<?php endif; ?>>
                         <i class="bi bi-pencil-fill"></i>
-                    </a></div>
+                    </a>
+                </div>
                 <?php endif; // fim do if isAdmin() ?>
             </div>
             <?php endforeach; ?>
