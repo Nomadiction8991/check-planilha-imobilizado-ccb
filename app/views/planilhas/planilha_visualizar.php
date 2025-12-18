@@ -89,7 +89,7 @@ $headerActions = '
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuPlanilha">';
 
-                <!-- Ações - Apenas para Administrador/Acessor -->
+// Ações - Apenas para Administrador/Acessor
 if (isAdmin()) {
     $headerActions .= '
             <li>
