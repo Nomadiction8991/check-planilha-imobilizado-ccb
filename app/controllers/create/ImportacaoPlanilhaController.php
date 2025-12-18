@@ -384,11 +384,12 @@ function ip_bulk_upsert_produtos(PDO $conexao, array $rows, int $chunkSize = 500
 function ip_delete_unprocessed(PDO $conexao, string $jobId): int {
     ip_ensure_processed_table($conexao);
     $sql = 'DELETE p FROM produtos p
-            JOIN (SELECT DISTINCT comum_id FROM import_job_processed WHERE job_id = :job) c ON c.comum_id = p.comum_id
-            LEFT JOIN import_job_processed t ON t.job_id = :job AND t.id_produto = p.id_produto
+            JOIN (SELECT DISTINCT comum_id FROM import_job_processed WHERE job_id = :job_main) c ON c.comum_id = p.comum_id
+            LEFT JOIN import_job_processed t ON t.job_id = :job_left AND t.id_produto = p.id_produto
             WHERE t.id_produto IS NULL';
     $stmt = $conexao->prepare($sql);
-    $stmt->bindValue(':job', $jobId);
+    $stmt->bindValue(':job_main', $jobId);
+    $stmt->bindValue(':job_left', $jobId);
     $stmt->execute();
     return (int)$stmt->rowCount();
 }
