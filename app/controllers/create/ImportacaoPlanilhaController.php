@@ -13,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 const IP_BATCH_SIZE = 200;
 const IP_JOB_DIR = __DIR__ . '/../../../storage/tmp';
 const IP_LOG_LIMIT = 300;
+const IP_LOCK_FILE = IP_JOB_DIR . '/importacao.lock';
 
 class ImportacaoReadFilter implements IReadFilter
 {
@@ -133,11 +134,54 @@ function ip_job_path(string $jobId): string {
     return IP_JOB_DIR . '/import_job_' . preg_replace('/[^a-zA-Z0-9_\-]/', '', $jobId) . '.json';
 }
 
+function ip_acquire_import_lock(bool $nonBlocking = true) {
+    if (!is_dir(IP_JOB_DIR)) {
+        @mkdir(IP_JOB_DIR, 0775, true);
+    }
+    $fp = @fopen(IP_LOCK_FILE, 'c+');
+    if (!$fp) {
+        return null;
+    }
+
+    $op = LOCK_EX;
+    if ($nonBlocking) {
+        $op |= LOCK_NB;
+    }
+
+    if (!flock($fp, $op)) {
+        fclose($fp);
+        return null;
+    }
+
+    @ftruncate($fp, 0);
+    @fwrite($fp, json_encode(['pid' => getmypid(), 'ts' => time()], JSON_UNESCAPED_UNICODE));
+    @fflush($fp);
+    return $fp;
+}
+
+function ip_release_import_lock($fp): void {
+    if (is_resource($fp)) {
+        @flock($fp, LOCK_UN);
+        @fclose($fp);
+    }
+}
+
 function ip_save_job(array $job): void {
     if (!is_dir(IP_JOB_DIR)) {
         @mkdir(IP_JOB_DIR, 0775, true);
     }
-    file_put_contents(ip_job_path($job['id']), json_encode($job));
+
+    $path = ip_job_path($job['id']);
+    $json = json_encode($job, JSON_UNESCAPED_UNICODE);
+    if ($json === false) {
+        $json = '{"error":"Falha ao serializar job"}';
+    }
+
+    $rand = function_exists('random_bytes') ? bin2hex(random_bytes(6)) : uniqid('', true);
+    $tmp = $path . '.tmp.' . $rand;
+
+    file_put_contents($tmp, $json, LOCK_EX);
+    @rename($tmp, $path);
 }
 
 function ip_load_job(string $jobId): ?array {
@@ -164,37 +208,65 @@ function ip_response_json(array $payload, int $status = 200): void {
     json_response($payload, $status);
 }
 
+function ip_response_and_release($lock, array $payload, int $status = 200): void {
+    if (isset($lock)) {
+        ip_release_import_lock($lock);
+    }
+    ip_response_json($payload, $status);
+}
+
 function ip_is_csv(string $filePath): bool {
     return strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv';
 }
 
 function ip_detect_csv_delimiter(string $filePath): string {
-    $delimiters = [',', ';', '\t', '|'];
-    $handle = fopen($filePath, 'r');
-    if (!$handle) {
-        return ',';
-    }
-    $line = '';
-    while (($line = fgets($handle)) !== false) {
-        $line = trim($line);
-        if ($line !== '') {
-            break;
+    $candidates = [',', ';', "\t", '|'];
+    $best = ',';
+    $bestMedian = -1;
+    $bestVar = PHP_INT_MAX;
+
+    foreach ($candidates as $delim) {
+        $file = new SplFileObject($filePath, 'r');
+        $file->setFlags(SplFileObject::READ_CSV | SplFileObject::DROP_NEW_LINE);
+        $file->setCsvControl($delim);
+
+        $counts = [];
+        $sampled = 0;
+        foreach ($file as $row) {
+            if ($row === null || $row === [null]) {
+                continue;
+            }
+            if (empty(array_filter((array)$row, fn($v) => trim((string)$v) !== ''))) {
+                continue;
+            }
+            $counts[] = count((array)$row);
+            $sampled++;
+            if ($sampled >= 10) {
+                break;
+            }
+        }
+
+        if (!$counts) {
+            continue;
+        }
+
+        sort($counts);
+        $median = $counts[(int)floor(count($counts) / 2)];
+        $mean = array_sum($counts) / count($counts);
+        $variance = 0.0;
+        foreach ($counts as $count) {
+            $variance += ($count - $mean) * ($count - $mean);
+        }
+        $variance = $variance / max(1, count($counts));
+
+        if ($median > $bestMedian || ($median === $bestMedian && $variance < $bestVar)) {
+            $bestMedian = $median;
+            $bestVar = $variance;
+            $best = $delim;
         }
     }
-    fclose($handle);
-    if ($line === '') {
-        return ',';
-    }
-    $bestDelimiter = ',';
-    $bestCount = -1;
-    foreach ($delimiters as $delim) {
-        $c = substr_count($line, $delim === '\\t' ? "\t" : $delim);
-        if ($c > $bestCount) {
-            $bestCount = $c;
-            $bestDelimiter = $delim === '\\t' ? "\t" : $delim;
-        }
-    }
-    return $bestDelimiter;
+
+    return $best;
 }
 
 function ip_ensure_processed_table(PDO $conexao): void {
@@ -234,28 +306,30 @@ function ip_read_csv_batch(string $filePath, string $delimiter, int $startLine, 
     $file = new SplFileObject($filePath, 'r');
     $file->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
     $file->setCsvControl($delimiter);
+
     if ($startLine > 0) {
         $file->seek($startLine);
     } else {
         $file->rewind();
     }
+
     $rows = [];
-    $current = $file->key();
     while (!$file->eof() && count($rows) < $batchSize) {
+        $lineIdx = $file->key();
         $row = $file->fgetcsv();
-        // Php's fgetcsv returns [null] on blank lines sometimes
         if ($row === null || $row === [null]) {
-            $current++;
             continue;
         }
-        $rows[] = $row;
-        $current++;
+        if (empty(array_filter((array)$row, fn($v) => trim((string)$v) !== ''))) {
+            continue;
+        }
+        $rows[] = ['line' => $lineIdx + 1, 'row' => $row];
     }
-    $nextLine = $file->key();
-    return [$rows, $nextLine];
+
+    return [$rows, $file->key(), $file->eof()];
 }
 
-function ip_bulk_upsert_produtos(PDO $conexao, array $rows): void {
+function ip_bulk_upsert_produtos(PDO $conexao, array $rows, int $chunkSize = 500): void {
     if (empty($rows)) {
         return;
     }
@@ -269,31 +343,33 @@ function ip_bulk_upsert_produtos(PDO $conexao, array $rows): void {
         'administrador_acessor_id','doador_conjugue_id'
     ];
 
-    $placeholders = [];
-    $params = [];
-    foreach ($rows as $row) {
-        $placeholders[] = '(' . implode(',', array_fill(0, count($cols), '?')) . ')';
-        foreach ($cols as $c) {
-            $params[] = $row[$c];
+    foreach (array_chunk($rows, $chunkSize) as $chunk) {
+        $placeholders = [];
+        $params = [];
+        foreach ($chunk as $row) {
+            $placeholders[] = '(' . implode(',', array_fill(0, count($cols), '?')) . ')';
+            foreach ($cols as $c) {
+                $params[] = $row[$c];
+            }
         }
+
+        $sql = 'INSERT INTO produtos (' . implode(',', $cols) . ')
+                VALUES ' . implode(',', $placeholders) . '
+                ON DUPLICATE KEY UPDATE 
+                    descricao_completa = VALUES(descricao_completa),
+                    complemento = VALUES(complemento),
+                    bem = VALUES(bem),
+                    dependencia_id = VALUES(dependencia_id),
+                    editado_dependencia_id = VALUES(editado_dependencia_id),
+                    tipo_bem_id = VALUES(tipo_bem_id),
+                    comum_id = VALUES(comum_id),
+                    editado_descricao_completa = VALUES(editado_descricao_completa),
+                    editado_bem = VALUES(editado_bem),
+                    editado_complemento = VALUES(editado_complemento)';
+
+        $stmt = $conexao->prepare($sql);
+        $stmt->execute($params);
     }
-
-    $sql = 'INSERT INTO produtos (' . implode(',', $cols) . ')
-            VALUES ' . implode(',', $placeholders) . '
-            ON DUPLICATE KEY UPDATE 
-                descricao_completa = VALUES(descricao_completa),
-                complemento = VALUES(complemento),
-                bem = VALUES(bem),
-                dependencia_id = VALUES(dependencia_id),
-                editado_dependencia_id = VALUES(editado_dependencia_id),
-                tipo_bem_id = VALUES(tipo_bem_id),
-                comum_id = VALUES(comum_id),
-                editado_descricao_completa = VALUES(editado_descricao_completa),
-                editado_bem = VALUES(editado_bem),
-                editado_complemento = VALUES(editado_complemento)';
-
-    $stmt = $conexao->prepare($sql);
-    $stmt->execute($params);
 }
 
 function ip_delete_unprocessed(PDO $conexao, string $jobId): int {
@@ -338,7 +414,7 @@ function ip_fetch_existentes_batch(PDO $conexao, array $codigos_norm, array $com
 
 function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     $filePath = $job['file_path'];
-    $delimiter = ip_detect_csv_delimiter($filePath);
+    $delimiter = $job['delimiter'] ?? ip_detect_csv_delimiter($filePath);
     $pulo_linhas = (int)($job['pulo_linhas'] ?? 25);
     $posicao_data = strtoupper(trim($job['posicao_data'] ?? 'D13'));
     if (!preg_match('/^([A-Z]+)(\d+)$/', $posicao_data, $matches)) {
@@ -776,39 +852,70 @@ if ($action === 'process') {
         ip_response_json(['message' => 'Job de importação não encontrado ou expirado.'], 404);
     }
 
-    if (($job['status'] ?? 'pending') === 'pending') {
-        try {
-            $job = ip_prepare_job($job, $conexao, $pp_config);
-        } catch (Throwable $prepEx) {
-            ip_cleanup_job_resources($job);
-            ip_response_json(['message' => 'Falha ao preparar importação: ' . $prepEx->getMessage()], 500);
+    $lock = ip_acquire_import_lock(true);
+    if (!$lock) {
+        $percent = 0;
+        if (!empty($job['registros_candidatos'])) {
+            $percent = min(100, round((($job['stats']['processados'] ?? 0) / $job['registros_candidatos']) * 100, 2));
         }
+        ip_response_json([
+            'done' => false,
+            'busy' => true,
+            'progress' => $percent,
+            'stats' => $job['stats'] ?? [],
+            'total' => $job['registros_candidatos'] ?? 0,
+            'processed' => $job['stats']['processados'] ?? 0,
+            'errors' => $job['erros_produtos'] ?? [],
+            'log' => $job['log'] ?? [],
+        ]);
     }
 
-    // marca como em processamento para exibir retomada na tela de importação
-    $job['status'] = 'processing';
-    ip_save_job($job);
-
-    @set_time_limit(0);
-
     try {
-        $linhas = $job['linhas'];
-        $totalLinhas = count($linhas);
+        if (($job['status'] ?? 'pending') === 'pending') {
+            try {
+                $job = ip_prepare_job($job, $conexao, $pp_config);
+            } catch (Throwable $prepEx) {
+                ip_cleanup_job_resources($job);
+                ip_release_import_lock($lock);
+                ip_response_json(['message' => 'Falha ao preparar importação: ' . $prepEx->getMessage()], 500);
+            }
+        }
+
+        $job['status'] = 'processing';
+        ip_save_job($job);
+
+        @set_time_limit(0);
+
+        $isCsv = !empty($job['is_csv']);
         $inicio = (int)($job['cursor'] ?? 0);
-        $fim = min($totalLinhas, $inicio + IP_BATCH_SIZE);
+        $batchItems = [];
+        $jobDone = false;
+        $fim = $inicio;
 
-        $pulo_linhas = (int)$job['pulo_linhas'];
-        $idx_codigo = (int)$job['idx_codigo'];
-        $idx_complemento = (int)$job['idx_complemento'];
-        $idx_dependencia = (int)$job['idx_dependencia'];
-        $idx_localidade = (int)$job['idx_localidade'];
+        if ($isCsv) {
+            $delimiter = $job['delimiter'] ?? ',';
+            [$batchItems, $nextCursor, $eof] = ip_read_csv_batch($job['file_path'], $delimiter, $inicio, IP_BATCH_SIZE);
+            $fim = $nextCursor;
+            $jobDone = $eof;
+        } else {
+            $linhas = $job['linhas'] ?? [];
+            $totalLinhas = count($linhas);
+            $fim = min($totalLinhas, $inicio + IP_BATCH_SIZE);
+            for ($i = $inicio; $i < $fim; $i++) {
+                $batchItems[] = [
+                    'line' => $i + 1,
+                    'row' => $linhas[$i],
+                ];
+            }
+            $jobDone = ($fim >= $totalLinhas);
+        }
 
+        $pulo_linhas = (int)($job['pulo_linhas']);
+        $idx_codigo = (int)($job['idx_codigo'] ?? 0);
+        $idx_complemento = (int)($job['idx_complemento'] ?? 0);
+        $idx_dependencia = (int)($job['idx_dependencia'] ?? 0);
+        $idx_localidade = (int)($job['idx_localidade'] ?? 0);
         $tipos_aliases = $job['tipos_aliases'] ?? [];
-
-        $conexao->beginTransaction();
-
-        ip_append_log($job, 'info', 'Processando linhas ' . ($inicio + 1) . ' a ' . $fim . '.');
-
         $codigos_processados = $job['codigos_processados'] ?? [];
         $produtos_existentes = $job['produtos_existentes'] ?? [];
         $produtos_existentes_por_codigo = $job['produtos_existentes_por_codigo'] ?? [];
@@ -818,15 +925,19 @@ if ($action === 'process') {
         $erros_produtos = $job['erros_produtos'] ?? [];
         $comum_processado_id = (int)$job['comum_processado_id'];
         $map_comum_ids = $job['map_comum_ids'] ?? [];
+        $processedByComum = [];
 
-        for ($i = $inicio; $i < $fim; $i++) {
-            $linhaNumero = $i + 1;
-            $linha = $linhas[$i];
+        $conexao->beginTransaction();
+        ip_append_log($job, 'info', 'Processando lote a partir da linha ' . ($inicio + 1) . '. Items: ' . count($batchItems) . '.');
+
+        foreach ($batchItems as $item) {
+            $linhaNumero = $item['line'];
+            $linha = $item['row'];
 
             if ($linhaNumero <= $pulo_linhas) {
                 continue;
             }
-            if (empty(array_filter($linha))) {
+            if (empty(array_filter((array)$linha))) {
                 continue;
             }
 
@@ -981,6 +1092,7 @@ if ($action === 'process') {
                     $stmtUp->bindValue(':id_produto', $prodExist['id_produto'], PDO::PARAM_INT);
                     if ($stmtUp->execute()) {
                         $stats['atualizados']++;
+                        $processedByComum[$comum_destino_id][] = (int)$prodExist['id_produto'];
                     } else {
                         $err = $stmtUp->errorInfo();
                         throw new Exception($err[2] ?? 'Erro ao atualizar produto existente');
@@ -1018,6 +1130,7 @@ SQL;
                     $stmt_prod->bindValue(':condicao_14_1', '2');
                     if ($stmt_prod->execute()) {
                         $stats['novos']++;
+                        $processedByComum[$comum_destino_id][] = (int)$id_produto_sequencial;
                         $id_produto_sequencial++;
                     } else {
                         $err = $stmt_prod->errorInfo();
@@ -1035,18 +1148,15 @@ SQL;
             }
         }
 
-        $jobDone = ($fim >= $totalLinhas);
+        foreach ($processedByComum as $cid => $ids) {
+            ip_track_processed_ids($conexao, $jobId, array_values(array_unique($ids)), (int)$cid);
+        }
 
         if ($jobDone) {
-            foreach ($produtos_existentes as $key => $prod) {
-                if (!isset($codigos_processados[$key])) {
-                    $stmtDel = $conexao->prepare('DELETE FROM produtos WHERE id_produto = :id_produto');
-                    $stmtDel->bindValue(':id_produto', $prod['id_produto'], PDO::PARAM_INT);
-                    if ($stmtDel->execute()) {
-                        $stats['excluidos']++;
-                    }
-                }
-            }
+            $deleted = ip_delete_unprocessed($conexao, $jobId);
+            $stats['excluidos'] += $deleted;
+            ip_append_log($job, 'info', 'Exclusão final concluída: ' . $deleted . ' produto(s) removido(s) por não estarem na planilha.');
+            ip_cleanup_processed_ids($conexao, $jobId);
         }
 
         $conexao->commit();
@@ -1060,7 +1170,9 @@ SQL;
         $job['produtos_existentes'] = $produtos_existentes;
         $job['map_comum_ids'] = $map_comum_ids;
 
-        $resumo_lote = 'Lote concluído (' . ($inicio + 1) . '-' . $fim . '): ' . $stats['processados'] . ' processados, ' . $stats['novos'] . ' novos, ' . $stats['atualizados'] . ' atualizados, ' . $stats['excluidos'] . ' excluídos.';
+        $rangeStart = $inicio + 1;
+        $rangeEnd = $isCsv ? ($inicio + count($batchItems)) : $fim;
+        $resumo_lote = 'Lote concluído (' . $rangeStart . '-' . max($rangeStart, $rangeEnd) . '): ' . $stats['processados'] . ' processados, ' . $stats['novos'] . ' novos, ' . $stats['atualizados'] . ' atualizados, ' . $stats['excluidos'] . ' excluídos.';
         ip_append_log($job, 'info', $resumo_lote);
 
         if ($jobDone) {
@@ -1075,8 +1187,7 @@ SQL;
             $_SESSION['tipo_mensagem'] = empty($erros_produtos) ? 'success' : 'warning';
 
             ip_cleanup_job_resources($job);
-
-            ip_response_json([
+            ip_response_and_release($lock, [
                 'done' => true,
                 'success' => empty($erros_produtos),
                 'message' => $mensagem,
@@ -1084,6 +1195,7 @@ SQL;
                 'redirect' => base_url('index.php'),
                 'log' => $job['log'] ?? [],
             ]);
+            return;
         }
 
         ip_save_job($job);
@@ -1093,7 +1205,7 @@ SQL;
             $percent = min(100, round(($job['stats']['processados'] / $job['registros_candidatos']) * 100, 2));
         }
 
-        ip_response_json([
+        ip_response_and_release($lock, [
             'done' => false,
             'progress' => $percent,
             'stats' => $job['stats'],
@@ -1102,14 +1214,15 @@ SQL;
             'errors' => $erros_produtos,
             'log' => $job['log'] ?? [],
         ]);
+        return;
     } catch (Throwable $e) {
         if ($conexao->inTransaction()) {
             $conexao->rollBack();
         }
+        ip_release_import_lock($lock);
         ip_response_json(['message' => 'Falha ao processar lote: ' . $e->getMessage()], 500);
     }
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'start') {
     @set_time_limit(0);
 
@@ -1122,7 +1235,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'start') {
     $mapeamento_dependencia = strtoupper(trim($_POST['mapeamento_dependencia'] ?? 'P'));
     $debug_import = isset($_POST['debug_import']);
 
+    $lock = null;
     try {
+        $lock = ip_acquire_import_lock(true);
+        if (!$lock) {
+            throw new Exception('Já existe uma importação em andamento. Aguarde finalizar para iniciar outra.');
+        }
+
         if (!$arquivo_csv || $arquivo_csv['error'] !== UPLOAD_ERR_OK) {
             throw new Exception('Selecione um arquivo CSV válido.');
         }
@@ -1173,9 +1292,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'start') {
 
         ip_save_job($job);
 
+        ip_release_import_lock($lock);
+
         header('Location: ' . base_url('app/views/planilhas/importacao_progresso.php?job=' . urlencode($jobId)));
         exit;
     } catch (Exception $e) {
+        if (isset($lock)) {
+            ip_release_import_lock($lock);
+        }
         $_SESSION['mensagem'] = 'Erro: ' . $e->getMessage();
         $_SESSION['tipo_mensagem'] = 'danger';
         header('Location: ' . base_url('app/views/planilhas/planilha_importar.php'));
