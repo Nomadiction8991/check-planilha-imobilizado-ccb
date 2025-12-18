@@ -759,25 +759,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const updateActionButtons = (row, state) => {
-        // Sempre mostrar os botões, apenas controlar o estado (disabled / active)
-        const showCheck = !(state.ativo === 0) && !(state.imprimir === 1 || state.editado === 1);
-        // Liberar impressão assim que estiver ativo e checado (ignora flag editado)
+        // Botão de check sempre habilitado quando item estiver ativo
+        const showCheck = state.ativo === 1;
+        // Liberar impressão assim que estiver ativo e checado
         const showImprimir = state.ativo === 1 && state.checado === 1;
         const showObs = state.ativo === 1;
-        // Permitir editar quando o item estiver ativo — também será liberado ao marcar como checado
+        // Permitir editar quando o item estiver ativo
         const showEdit = state.ativo === 1;
 
         row.querySelectorAll('.action-check').forEach(el => {
             el.style.display = 'inline-block';
             const btn = el.querySelector('button');
-            if (btn) { btn.disabled = !showCheck; if (btn.disabled) { btn.classList.remove('active'); btn.setAttribute('aria-disabled','true'); } else { btn.removeAttribute('aria-disabled'); } }
+            if (btn) { 
+                btn.disabled = !showCheck; 
+                btn.classList.toggle('active', state.checado === 1);
+                if (btn.disabled) { 
+                    btn.setAttribute('aria-disabled','true'); 
+                } else { 
+                    btn.removeAttribute('aria-disabled'); 
+                } 
+            }
         });
 
         row.querySelectorAll('.action-imprimir').forEach(el => {
             el.style.display = 'inline-block';
             const btn = el.querySelector('button');
-            // Manter o botão clicável para permitir marcar imprimir e autochecar; apenas marcar visualmente quando indisponível
-            if (btn) { btn.classList.toggle('disabled-visually', !showImprimir); btn.removeAttribute('aria-disabled'); }
+            if (btn) { 
+                btn.disabled = !showImprimir;
+                btn.classList.toggle('active', state.imprimir === 1);
+                if (btn.disabled) { 
+                    btn.classList.add('disabled-visually'); 
+                    btn.setAttribute('aria-disabled','true'); 
+                } else { 
+                    btn.classList.remove('disabled-visually'); 
+                    btn.removeAttribute('aria-disabled'); 
+                } 
+            }
         });
 
         row.querySelectorAll('.btn-outline-warning').forEach(el => {
@@ -787,7 +804,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         row.querySelectorAll('.btn-outline-primary').forEach(el => {
             el.style.display = 'inline-block';
-            // Manter edit clicável e autochecar; apenas indicar visualmente
             if (!showEdit) { el.classList.add('disabled-visually'); el.setAttribute('aria-disabled','true'); } else { el.classList.remove('disabled-visually'); el.removeAttribute('aria-disabled'); }
         });
     };
