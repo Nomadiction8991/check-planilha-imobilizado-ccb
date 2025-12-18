@@ -931,8 +931,10 @@ if ($action === 'process') {
         $processedByComum = [];
 
         $transactionStarted = false;
-        $conexao->beginTransaction();
-        $transactionStarted = true;
+        $transactionStarted = $conexao->beginTransaction();
+        if (!$transactionStarted) {
+            throw new Exception('Não foi possível iniciar a transação de importação.');
+        }
         ip_append_log($job, 'info', 'Processando lote a partir da linha ' . ($inicio + 1) . '. Items: ' . count($batchItems) . '.');
 
         foreach ($batchItems as $item) {
@@ -1164,7 +1166,9 @@ SQL;
             ip_cleanup_processed_ids($conexao, $jobId);
         }
 
-        $conexao->commit();
+        if ($transactionStarted && $conexao->inTransaction()) {
+            $conexao->commit();
+        }
 
         $job['cursor'] = $fim;
         $job['codigos_processados'] = $codigos_processados;
