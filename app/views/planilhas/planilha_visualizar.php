@@ -779,49 +779,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const updateActionButtons = (row, state) => {
-        // Botão de check sempre habilitado quando item estiver ativo
-        const showCheck = state.ativo === 1;
-        // Liberar impressão assim que estiver ativo e checado
-        const showImprimir = state.ativo === 1 && state.checado === 1;
-        const showObs = state.ativo === 1;
-        // Permitir editar quando o item estiver ativo
-        const showEdit = state.ativo === 1;
+        // Estado básico
+        const active = state.ativo === 1;
+        const isEdited = Number(state.editado) === 1;
 
+        // Se editado, forçar checado e imprimir como ativos e bloqueados para alteração manual
+        const checkActive = isEdited ? true : state.checado === 1;
+        const checkDisabled = isEdited ? true : !active;
+
+        const imprimirActive = isEdited ? true : state.imprimir === 1;
+        const imprimirDisabled = isEdited ? true : !(active && state.checado === 1);
+
+        const showObs = active;
+        const showEdit = active; // Editar sempre disponível quando ativo
+
+        // Check
         row.querySelectorAll('.action-check').forEach(el => {
             el.style.display = 'inline-block';
             const btn = el.querySelector('button');
-            if (btn) { 
-                btn.disabled = !showCheck; 
-                btn.classList.toggle('active', state.checado === 1);
-                if (btn.disabled) { 
-                    btn.setAttribute('aria-disabled','true'); 
-                } else { 
-                    btn.removeAttribute('aria-disabled'); 
-                } 
+            if (btn) {
+                btn.disabled = checkDisabled;
+                btn.classList.toggle('active', checkActive);
+                if (checkDisabled) {
+                    btn.setAttribute('aria-disabled','true');
+                    btn.title = isEdited ? 'IMPOSSÍVEL DESMARCAR: PRODUTO COM ALTERAÇÕES EDITADAS' : (btn.title || 'Marcar como checado');
+                } else {
+                    btn.removeAttribute('aria-disabled');
+                    btn.title = btn.title || (checkActive ? 'Desmarcar checado' : 'Marcar como checado');
+                }
             }
         });
 
+        // Imprimir
         row.querySelectorAll('.action-imprimir').forEach(el => {
             el.style.display = 'inline-block';
             const btn = el.querySelector('button');
-            if (btn) { 
-                btn.disabled = !showImprimir;
-                btn.classList.toggle('active', state.imprimir === 1);
-                if (btn.disabled) { 
-                    btn.classList.add('disabled-visually'); 
-                    btn.setAttribute('aria-disabled','true'); 
-                } else { 
-                    btn.classList.remove('disabled-visually'); 
-                    btn.removeAttribute('aria-disabled'); 
-                } 
+            if (btn) {
+                btn.disabled = imprimirDisabled;
+                btn.classList.toggle('active', imprimirActive);
+                if (imprimirDisabled) {
+                    btn.classList.add('disabled-visually');
+                    btn.setAttribute('aria-disabled','true');
+                    btn.title = isEdited ? 'IMPOSSÍVEL REMOVER: PRODUTO COM ALTERAÇÕES EDITADAS' : (btn.title || 'Etiqueta');
+                } else {
+                    btn.classList.remove('disabled-visually');
+                    btn.removeAttribute('aria-disabled');
+                    btn.title = btn.title || 'Etiqueta';
+                }
             }
         });
 
+        // Observação
         row.querySelectorAll('.btn-outline-warning').forEach(el => {
             el.style.display = 'inline-block';
             if (!showObs) { el.classList.add('disabled'); el.setAttribute('aria-disabled','true'); } else { el.classList.remove('disabled'); el.removeAttribute('aria-disabled'); }
         });
 
+        // Editar
         row.querySelectorAll('.btn-outline-primary').forEach(el => {
             el.style.display = 'inline-block';
             if (!showEdit) { el.classList.add('disabled-visually'); el.setAttribute('aria-disabled','true'); } else { el.classList.remove('disabled-visually'); el.removeAttribute('aria-disabled'); }
@@ -830,8 +844,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyState = (row, updates = {}) => {
         const state = { ...getRowState(row), ...updates };
-        // Se o produto estiver marcado como editado, forçar checado = 1
-        if (Number(state.editado) === 1) state.checado = 1;
+        // Se o produto estiver marcado como editado, forçar checado = 1 e imprimir = 1
+        if (Number(state.editado) === 1) {
+            state.checado = 1;
+            state.imprimir = 1;
+        }
         row.dataset.ativo = state.ativo;
         row.dataset.checado = state.checado;
         row.dataset.imprimir = state.imprimir;

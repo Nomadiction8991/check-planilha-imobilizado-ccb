@@ -54,6 +54,21 @@ try {
             header('Location: ' . $buildRedirect($msg));
             exit;
         }
+
+    // Impedir remoção da etiqueta se produto estiver editado
+    $stmt_check = $conexao->prepare('SELECT COALESCE(editado,0) AS editado FROM produtos WHERE id_produto = :id_produto AND comum_id = :comum_id');
+    $stmt_check->bindValue(':id_produto', $produto_id, PDO::PARAM_INT);
+    $stmt_check->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
+    $stmt_check->execute();
+    $info = $stmt_check->fetch(PDO::FETCH_ASSOC);
+    if (($info['editado'] ?? 0) == 1 && $imprimir === 0) {
+        $msg = 'NÃO É POSSÍVEL REMOVER A ETIQUETA ENQUANTO HOUVER ALTERAÇÕES EDITADAS (REMOVA AS ALTERAÇÕES PARA REMOVER)';
+        if (is_ajax_request()) {
+            json_response(['success' => false, 'message' => $msg], 422);
+        }
+        header('Location: ' . $buildRedirect($msg));
+        exit;
+    }
     }
 
     // Atualizar flag diretamente em produtos
