@@ -104,7 +104,7 @@ if (isAdmin()) {
                 </a>
             </li>
             <li>
-                <a class="dropdown-item" href="../planilhas/PRODUTO_copiar_etiquetas.php?id=' . $id_planilha . '&comum_id=' . $comum_id . '">
+                <a class="dropdown-item" href="../planilhas/produto_copiar_etiquetas.php?id=' . $id_planilha . '&comum_id=' . $comum_id . '">
                     <i class="bi bi-tags me-2"></i>Copiar Etiquetas
                 </a>
             </li>
