@@ -443,6 +443,7 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     $dep_norm_unicas = [];
     $dep_raw_unicas = [];
     $localidades_unicas = [];
+    $codigos_unicos_norm = $job['codigos_unicos_norm'] ?? [];
     $registros_candidatos = 0;
     $total_linhas = 0;
     $valor_data = '';
@@ -464,6 +465,10 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
         $codigo_tmp = isset($linha[$idx_codigo]) ? trim((string)$linha[$idx_codigo]) : '';
         if ($codigo_tmp !== '') {
             $registros_candidatos++;
+            $codigo_norm = pp_normaliza($codigo_tmp);
+            if ($codigo_norm !== '') {
+                $codigos_unicos_norm[$codigo_norm] = true;
+            }
         }
 
         if (isset($linha[$idx_dependencia])) {
@@ -558,6 +563,7 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     $job['total_linhas'] = $total_linhas;
     $job['cursor'] = $pulo_linhas; // próxima linha útil a processar (0-based)
     $job['status'] = 'ready';
+    $job['codigos_unicos_norm'] = $codigos_unicos_norm;
 
     return $job;
 }
@@ -621,6 +627,7 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
         $comum_processado_id = $job['comum_processado_id'];
         $registros_candidatos = $job['registros_candidatos'];
         $linhas = [];
+        $codigos_unicos_norm = $job['codigos_unicos_norm'] ?? [];
     } else {
         $posicao_data_ref = strtoupper(trim($posicao_data));
         if (!preg_match('/^([A-Z]+)(\d+)$/', $posicao_data_ref, $matches)) {
@@ -842,6 +849,7 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
     $job['map_comum_ids'] = $job['map_comum_ids'] ?? $map_comum_ids;
     $job['is_csv'] = $isCsv;
     $job['total_linhas'] = $job['total_linhas'] ?? ($total_linhas ?? 0);
+    $job['codigos_unicos_norm'] = $codigos_unicos_norm;
 
     ip_append_log($job, 'info', 'Leitura inicial concluída. Total estimado de linhas úteis: ' . $job['registros_candidatos'] . '.');
 
@@ -1080,6 +1088,9 @@ if ($action === 'process') {
                 }
 
                 $descricao_completa_calc = pp_montar_descricao(1, $tipo_bem_codigo, $tipo_bem_desc, $ben, $complemento_limpo, $dependencia_rotulo, $pp_config);
+                $descricao_upper = ip_to_uppercase($descricao_completa_calc);
+                $bem_upper = ip_to_uppercase($ben);
+                $complemento_upper = ip_to_uppercase($complemento_limpo);
 
                 $tem_erro_parsing = ($tipo_bem_id === 0 && $codigo_detectado !== null) || ($tipo_bem_id > 0 && $ben !== '' && !$ben_valido);
 
@@ -1089,29 +1100,46 @@ if ($action === 'process') {
                 }
 
                 if ($prodExist) {
-                    $sql_update_prod = 'UPDATE produtos SET '
-                        . 'descricao_completa = :descricao_completa, '
-                        . 'complemento = :complemento, '
-                        . 'bem = :bem, '
-                        . 'dependencia_id = :dependencia_id, '
-                        . 'editado_dependencia_id = 0, '
-                        . 'tipo_bem_id = :tipo_bem_id, '
-                        . 'comum_id = :comum_id '
-                        . 'WHERE id_produto = :id_produto';
-                    $stmtUp = $conexao->prepare($sql_update_prod);
-                    $stmtUp->bindValue(':descricao_completa', ip_to_uppercase($descricao_completa_calc));
-                    $stmtUp->bindValue(':complemento', ip_to_uppercase($complemento_limpo));
-                    $stmtUp->bindValue(':bem', ip_to_uppercase($ben));
-                    $stmtUp->bindValue(':dependencia_id', $dependencia_id, PDO::PARAM_INT);
-                    $stmtUp->bindValue(':tipo_bem_id', $tipo_bem_id, PDO::PARAM_INT);
-                    $stmtUp->bindValue(':comum_id', $comum_destino_id, PDO::PARAM_INT);
-                    $stmtUp->bindValue(':id_produto', $prodExist['id_produto'], PDO::PARAM_INT);
-                    if ($stmtUp->execute()) {
-                        $stats['atualizados']++;
-                        $processedByComum[$comum_destino_id][] = (int)$prodExist['id_produto'];
+                    $descricao_existente = ip_to_uppercase(trim((string)$prodExist['descricao_completa']));
+                    $bem_existente = ip_to_uppercase(trim((string)$prodExist['bem']));
+                    $complemento_existente = ip_to_uppercase(trim((string)$prodExist['complemento']));
+                    $comum_existente = (int)($prodExist['comum_id'] ?? 0);
+                    $tipo_existente = (int)($prodExist['tipo_bem_id'] ?? 0);
+                    $dependencia_existente = (int)($prodExist['dependencia_id'] ?? 0);
+                    $dados_diferem = $comum_existente !== $comum_destino_id
+                        || $tipo_existente !== $tipo_bem_id
+                        || $descricao_existente !== $descricao_upper
+                        || $bem_existente !== $bem_upper
+                        || $complemento_existente !== $complemento_upper
+                        || $dependencia_existente !== $dependencia_id;
+
+                    if ($dados_diferem) {
+                        $sql_update_prod = 'UPDATE produtos SET '
+                            . 'descricao_completa = :descricao_completa, '
+                            . 'complemento = :complemento, '
+                            . 'bem = :bem, '
+                            . 'dependencia_id = :dependencia_id, '
+                            . 'editado_dependencia_id = 0, '
+                            . 'tipo_bem_id = :tipo_bem_id, '
+                            . 'comum_id = :comum_id '
+                            . 'WHERE id_produto = :id_produto';
+                        $stmtUp = $conexao->prepare($sql_update_prod);
+                        $stmtUp->bindValue(':descricao_completa', $descricao_upper);
+                        $stmtUp->bindValue(':complemento', $complemento_upper);
+                        $stmtUp->bindValue(':bem', $bem_upper);
+                        $stmtUp->bindValue(':dependencia_id', $dependencia_id, PDO::PARAM_INT);
+                        $stmtUp->bindValue(':tipo_bem_id', $tipo_bem_id, PDO::PARAM_INT);
+                        $stmtUp->bindValue(':comum_id', $comum_destino_id, PDO::PARAM_INT);
+                        $stmtUp->bindValue(':id_produto', $prodExist['id_produto'], PDO::PARAM_INT);
+                        if ($stmtUp->execute()) {
+                            $stats['atualizados']++;
+                            $processedByComum[$comum_destino_id][] = (int)$prodExist['id_produto'];
+                        } else {
+                            $err = $stmtUp->errorInfo();
+                            throw new Exception($err[2] ?? 'Erro ao atualizar produto existente');
+                        }
                     } else {
-                        $err = $stmtUp->errorInfo();
-                        throw new Exception($err[2] ?? 'Erro ao atualizar produto existente');
+                        $processedByComum[$comum_destino_id][] = (int)$prodExist['id_produto'];
                     }
                 } else {
                     $obs_prefix = $tem_erro_parsing ? '[REVISAR] ' : '';
@@ -1136,10 +1164,10 @@ SQL;
                     $stmt_prod->bindValue(':comum_id', $comum_destino_id, PDO::PARAM_INT);
                     $stmt_prod->bindValue(':id_produto', $id_produto_sequencial, PDO::PARAM_INT);
                     $stmt_prod->bindValue(':codigo', $codigo);
-                    $stmt_prod->bindValue(':descricao_completa', ip_to_uppercase($descricao_completa_calc));
+                    $stmt_prod->bindValue(':descricao_completa', $descricao_upper);
                     $stmt_prod->bindValue(':tipo_bem_id', $tipo_bem_id, PDO::PARAM_INT);
-                    $stmt_prod->bindValue(':bem', ip_to_uppercase($ben));
-                    $stmt_prod->bindValue(':complemento', ip_to_uppercase($complemento_limpo));
+                    $stmt_prod->bindValue(':bem', $bem_upper);
+                    $stmt_prod->bindValue(':complemento', $complemento_upper);
                     $stmt_prod->bindValue(':dependencia_id', $dependencia_id, PDO::PARAM_INT);
                     $stmt_prod->bindValue(':imprimir_14_1', 0, PDO::PARAM_INT);
                     $stmt_prod->bindValue(':observacao', mb_strtoupper($obs_prefix, 'UTF-8'));
