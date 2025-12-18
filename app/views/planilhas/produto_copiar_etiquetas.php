@@ -22,11 +22,11 @@ try {
     $sql_dependencias = "
         SELECT DISTINCT d.descricao as dependencia FROM PRODUTOS p
         LEFT JOIN dependencias d ON COALESCE(p.editado_dependencia_id, p.dependencia_id) = d.id
-        WHERE p.planilha_id = :id_planilha AND d.descricao IS NOT NULL
+        WHERE p.comum_id = :comum_id AND d.descricao IS NOT NULL
         ORDER BY dependencia
     ";
     $stmt_dependencias = $conexao->prepare($sql_dependencias);
-    $stmt_dependencias->bindValue(':id_planilha', $id_planilha);
+    $stmt_dependencias->bindValue(':comum_id', $id_planilha);
     $stmt_dependencias->execute();
     $dependencias = $stmt_dependencias->fetchAll(PDO::FETCH_COLUMN);
 } catch (Exception $e) { $dependencias = []; }
@@ -39,7 +39,7 @@ try {
                      FROM PRODUTOS p 
                      LEFT JOIN dependencias d_orig ON p.dependencia_id = d_orig.id
                      LEFT JOIN dependencias d_edit ON p.editado_dependencia_id = d_edit.id
-                     WHERE p.planilha_id = :id_planilha AND COALESCE(p.imprimir_etiqueta, 0) = 1";
+                     WHERE p.comum_id = :comum_id AND COALESCE(p.imprimir_etiqueta, 0) = 1";
     if (!empty($dependencia_selecionada)) {
         $sql_PRODUTOS .= " AND (
             (COALESCE(d_edit.descricao, d_orig.descricao) = :dependencia)
@@ -47,7 +47,7 @@ try {
     }
     $sql_PRODUTOS .= " ORDER BY p.codigo";
     $stmt_PRODUTOS = $conexao->prepare($sql_PRODUTOS);
-    $stmt_PRODUTOS->bindValue(':id_planilha', $id_planilha);
+    $stmt_PRODUTOS->bindValue(':comum_id', $id_planilha);
     if (!empty($dependencia_selecionada)) { $stmt_PRODUTOS->bindValue(':dependencia', $dependencia_selecionada); }
     $stmt_PRODUTOS->execute();
     $PRODUTOS = $stmt_PRODUTOS->fetchAll(PDO::FETCH_ASSOC);
@@ -57,7 +57,7 @@ try {
     // $sql_novos = "SELECT pc.codigo, d.descricao as dependencia
     // FROM PRODUTOS_cadastro pc
     // LEFT JOIN dependencias d ON pc.id_dependencia = d.id
-    // WHERE pc.id_planilha = :id_planilha 
+    // WHERE pc.id_planilha = :comum_id 
     // AND pc.codigo IS NOT NULL 
     // AND pc.codigo != ''";
     // if (!empty($dependencia_selecionada)) {
@@ -65,7 +65,7 @@ try {
     // }
     // $sql_novos .= " ORDER BY pc.codigo";
     // $stmt_novos = $conexao->prepare($sql_novos);
-    // $stmt_novos->bindValue(':id_planilha', $id_planilha);
+    // $stmt_novos->bindValue(':comum_id', $id_planilha);
     // if (!empty($dependencia_selecionada)) { $stmt_novos->bindValue(':dependencia', $dependencia_selecionada); }
     // $stmt_novos->execute();
     // $PRODUTOS_novos = $stmt_novos->fetchAll(PDO::FETCH_ASSOC);
@@ -85,7 +85,7 @@ try {
 }
 
 $pageTitle = 'Copiar Etiquetas';
-$backUrl = '../planilhas/planilha_visualizar.php?id=' . urlencode($id_planilha);
+$backUrl = '../planilhas/planilha_visualizar.php?id=' . urlencode($comum_id) . '&comum_id=' . urlencode($comum_id);
 $headerActions = '
     <div class="dropdown">
         <button class="btn-header-action" type="button" id="menuEtiquetas" data-bs-toggle="dropdown" aria-expanded="false">
@@ -93,7 +93,7 @@ $headerActions = '
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuEtiquetas">
             <li>
-                <a class="dropdown-item" href="../planilhas/planilha_visualizar.php?id=' . $id_planilha . '">
+                <a class="dropdown-item" href="../planilhas/planilha_visualizar.php?id=' . $comum_id . '&comum_id=' . $comum_id . '">
                     <i class="bi bi-eye me-2"></i>VISUALIZAR Planilha
                 </a>
             </li>
