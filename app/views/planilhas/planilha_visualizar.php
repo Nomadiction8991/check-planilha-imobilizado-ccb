@@ -761,7 +761,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateActionButtons = (row, state) => {
         // Sempre mostrar os botões, apenas controlar o estado (disabled / active)
         const showCheck = !(state.ativo === 0) && !(state.imprimir === 1 || state.editado === 1);
-        const showImprimir = state.ativo === 1 && state.checado === 1 && state.editado === 0;
+        // Liberar impressão assim que estiver ativo e checado (ignora flag editado)
+        const showImprimir = state.ativo === 1 && state.checado === 1;
         const showObs = state.ativo === 1;
         // Permitir editar quando o item estiver ativo — também será liberado ao marcar como checado
         const showEdit = state.ativo === 1;
