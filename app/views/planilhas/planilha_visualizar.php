@@ -840,17 +840,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ev.preventDefault();
         // submeter o check via AJAX e, se ok, re-submeter o formulário de imprimir
         const checkForm = document.querySelector(`.PRODUTO-action-form.action-check[data-produto-id="${prodId}"]`);
-        if (!checkForm) { showAlert('danger','Formulário de checado não encontrado'); return; }
+        if (!checkForm) { showAlert('danger','FORMULÁRIO DE CHECADO NÃO ENCONTRADO'); return; }
         const fd = new FormData(checkForm);
         fetch(checkForm.action, { method: 'POST', body: fd, headers: { 'X-Requested-With':'XMLHttpRequest','Accept':'application/json' } })
             .then(r=>r.json().catch(()=>({})))
             .then(j=>{
-                if (j.success === false) { showAlert('danger', j.message || 'Falha ao marcar como checado'); return; }
+                if (j.success === false) { showAlert('danger', j.message || 'FALHA AO MARCAR COMO CHECADO'); return; }
                 // atualizar estado local e reenviar o form original
                 applyState(row, { checado: 1 });
                 // re-enviar o form de imprimir
                 form.requestSubmit ? form.requestSubmit() : form.submit();
-            }).catch(err=>{ showAlert('danger', err.message || 'Erro no servidor'); });
+            }).catch(err=>{ showAlert('danger', err.message || 'ERRO NO SERVIDOR'); });
     }, true);
 
     // Interceptar cliques em editar para garantir checado antes de redirecionar
@@ -865,16 +865,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.checado === 1) return; // já checado
         ev.preventDefault();
         const checkForm = document.querySelector(`.PRODUTO-action-form.action-check[data-produto-id="${prodId}"]`);
-        if (!checkForm) { showAlert('danger','Formulário de checado não encontrado'); return; }
+        if (!checkForm) { showAlert('danger','FORMULÁRIO DE CHECADO NÃO ENCONTRADO'); return; }
         const fd = new FormData(checkForm);
         fetch(checkForm.action, { method: 'POST', body: fd, headers: { 'X-Requested-With':'XMLHttpRequest','Accept':'application/json' } })
             .then(r=>r.json().catch(()=>({})))
             .then(j=>{
-                if (j.success === false) { showAlert('danger', j.message || 'Falha ao marcar como checado'); return; }
+                if (j.success === false) { showAlert('danger', j.message || 'FALHA AO MARCAR COMO CHECADO'); return; }
                 applyState(row, { checado: 1 });
                 // Redirecionar para edição
                 window.location.href = a.href;
-            }).catch(err=>{ showAlert('danger', err.message || 'Erro no servidor'); });
+            }).catch(err=>{ showAlert('danger', err.message || 'ERRO NO SERVIDOR'); });
     });
 
     // Observador para mudanças em data-checado: se virar 0, desmarcar imprimir e limpar edições
@@ -961,10 +961,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     applyState(row, stateUpdates);
                 }
 
-                showAlert('success', data.message || 'STATUS atualizado.');
+                showAlert('success', data.message || 'STATUS ATUALIZADO COM SUCESSO');
             })
             .catch(err => {
-                showAlert('danger', err.message || 'Erro ao processar aÃƒÂ§ÃƒÂ£o.');
+                showAlert('danger', err.message || 'ERRO AO PROCESSAR AÇÃO');
             });
         });
     });

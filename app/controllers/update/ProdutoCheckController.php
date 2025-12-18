@@ -29,7 +29,7 @@ $buildRedirect = function (string $erro = '') use ($redirectBase, $comum_id, $fi
 };
 
 if ($produto_id <= 0 || $comum_id <= 0) {
-    $msg = 'ParÃ¢metros invÃ¡lidos para marcar o produto.';
+    $msg = 'PARÂMETROS INVÁLIDOS PARA MARCAR O PRODUTO';
     if (is_ajax_request()) {
         json_response(['success' => false, 'message' => $msg], 400);
     }
@@ -49,7 +49,7 @@ try {
 
     // Regras de validaÃ§Ã£o
     if ($checado === 1 && $status && $status['ativo'] == 0) {
-        $msg = 'NÃ£o Ã© possÃ­vel marcar como checado enquanto o produto estiver no DR.';
+        $msg = 'NÃO É POSSÍVEL MARCAR COMO CHECADO ENQUANTO O PRODUTO ESTIVER NO DR';
         if (is_ajax_request()) {
             json_response(['success' => false, 'message' => $msg], 422);
         }
@@ -58,7 +58,7 @@ try {
     }
 
     if ($checado === 0 && $status && ($status['ativo'] == 0 || $status['imprimir'] == 1)) {
-        $msg = 'NÃ£o Ã© possÃ­vel desmarcar o check se o produto estiver no DR ou marcado para impressÃ£o.';
+        $msg = 'NÃO É POSSÍVEL DESMARCAR O CHECK SE O PRODUTO ESTIVER NO DR OU MARCADO PARA IMPRESSÃO';
         if (is_ajax_request()) {
             json_response(['success' => false, 'message' => $msg], 422);
         }
@@ -78,7 +78,7 @@ try {
             'success' => true,
             'produto_id' => $produto_id,
             'checado' => $checado,
-            'message' => $checado ? 'Produto marcado como checado.' : 'Produto desmarcado.'
+            'message' => $checado ? 'PRODUTO MARCADO COMO CHECADO' : 'PRODUTO DESMARCADO'
         ]);
     }
     
@@ -86,7 +86,7 @@ try {
     exit;
     
 } catch (Exception $e) {
-    $msg = 'Erro ao processar check: ' . $e->getMessage();
+    $msg = 'ERRO AO PROCESSAR CHECK: ' . $e->getMessage();
     if (is_ajax_request()) {
         json_response(['success' => false, 'message' => $msg], 500);
     }

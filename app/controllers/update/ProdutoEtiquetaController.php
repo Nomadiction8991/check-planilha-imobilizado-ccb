@@ -29,7 +29,7 @@ $buildRedirect = function (string $erro = '') use ($redirectBase, $comum_id, $fi
 };
 
 if ($produto_id <= 0 || $comum_id <= 0) {
-    $msg = 'ParÃ¢metros invÃ¡lidos para marcar etiqueta.';
+    $msg = 'PARÂMETROS INVÁLIDOS PARA MARCAR ETIQUETA';
     if (is_ajax_request()) {
         json_response(['success' => false, 'message' => $msg], 400);
     }
@@ -47,7 +47,7 @@ try {
         $produto_info = $stmt_verifica->fetch(PDO::FETCH_ASSOC);
 
         if (!$produto_info || ($produto_info['checado'] ?? 0) == 0) {
-            $msg = 'SÃ³ Ã© possÃ­vel marcar para impressÃ£o produtos que estejam checados.';
+            $msg = 'SÓ É POSSÍVEL MARCAR PARA IMPRESSÃO PRODUTOS QUE ESTEJAM CHECADOS';
             if (is_ajax_request()) {
                 json_response(['success' => false, 'message' => $msg], 422);
             }
@@ -68,7 +68,7 @@ try {
             'success' => true,
             'produto_id' => $produto_id,
             'imprimir' => $imprimir,
-            'message' => $imprimir ? 'Produto marcado para etiqueta.' : 'Produto removido das etiquetas.'
+            'message' => $imprimir ? 'PRODUTO MARCADO PARA ETIQUETA' : 'PRODUTO REMOVIDO DAS ETIQUETAS'
         ]);
     }
     
@@ -76,7 +76,7 @@ try {
     exit;
     
 } catch (Exception $e) {
-    $msg = 'Erro ao processar impressÃ£o: ' . $e->getMessage();
+    $msg = 'ERRO AO PROCESSAR IMPRESSÃO: ' . $e->getMessage();
     if (is_ajax_request()) {
         json_response(['success' => false, 'message' => $msg], 500);
     }
