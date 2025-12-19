@@ -38,23 +38,6 @@ if ($produto_id <= 0 || $comum_id <= 0) {
 }
 
 try {
-    // Validar se pode marcar para impressÃ£o (deve estar checado)
-    if ($imprimir === 1) {
-        $stmt_verifica = $conexao->prepare('SELECT checado FROM produtos WHERE id_produto = :id_produto AND comum_id = :comum_id');
-        $stmt_verifica->bindValue(':id_produto', $produto_id, PDO::PARAM_INT);
-        $stmt_verifica->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
-        $stmt_verifica->execute();
-        $produto_info = $stmt_verifica->fetch(PDO::FETCH_ASSOC);
-
-        if (!$produto_info || ($produto_info['checado'] ?? 0) == 0) {
-            $msg = 'SÓ É POSSÍVEL MARCAR PARA IMPRESSÃO PRODUTOS QUE ESTEJAM CHECADOS';
-            if (is_ajax_request()) {
-                json_response(['success' => false, 'message' => $msg], 422);
-            }
-            header('Location: ' . $buildRedirect($msg));
-            exit;
-        }
-
     // Impedir remoção da etiqueta se produto estiver editado
     $stmt_check = $conexao->prepare('SELECT COALESCE(editado,0) AS editado FROM produtos WHERE id_produto = :id_produto AND comum_id = :comum_id');
     $stmt_check->bindValue(':id_produto', $produto_id, PDO::PARAM_INT);
@@ -69,14 +52,20 @@ try {
         header('Location: ' . $buildRedirect($msg));
         exit;
     }
-    }
 
-    // Atualizar flag diretamente em produtos
-    $stmt = $conexao->prepare('UPDATE produtos SET imprimir_etiqueta = :imprimir WHERE id_produto = :id_produto AND comum_id = :comum_id');
-    $stmt->bindValue(':imprimir', $imprimir, PDO::PARAM_INT);
-    $stmt->bindValue(':id_produto', $produto_id, PDO::PARAM_INT);
-    $stmt->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
-    $stmt->execute();
+    // Se for marcar para imprimir, garantir que o produto fique marcado como checado automaticamente.
+    // Se for desmarcar, não alterar o campo 'checado' (permanece como está).
+    if ($imprimir === 1) {
+        $stmt = $conexao->prepare('UPDATE produtos SET imprimir_etiqueta = 1, checado = 1 WHERE id_produto = :id_produto AND comum_id = :comum_id');
+        $stmt->bindValue(':id_produto', $produto_id, PDO::PARAM_INT);
+        $stmt->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
+        $stmt->execute();
+    } else {
+        $stmt = $conexao->prepare('UPDATE produtos SET imprimir_etiqueta = 0 WHERE id_produto = :id_produto AND comum_id = :comum_id');
+        $stmt->bindValue(':id_produto', $produto_id, PDO::PARAM_INT);
+        $stmt->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     
     if (is_ajax_request()) {
         json_response([

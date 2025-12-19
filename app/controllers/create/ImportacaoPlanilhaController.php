@@ -4,15 +4,21 @@ require_once dirname(__DIR__, 2) . '/bootstrap.php';
 require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 require_once dirname(__DIR__, 2) . '/services/produto_parser_service.php';
-$pp_config = require dirname(__DIR__, 3) . '/config/parser/produto_parser_config.php';
+$pp_config = require_once dirname(__DIR__, 3) . '/config/parser/produto_parser_config.php';
 
 use voku\helper\UTF8;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 const IP_BATCH_SIZE = 200;
+const IP_WS_PATTERN = '/\s+/';
 const IP_JOB_DIR = __DIR__ . '/../../../storage/tmp';
 const IP_LOG_LIMIT = 300;
+
+// SQL / param constants used locally in this controller
+const IP_SQL_SELECT_COMUM_BY_COD = 'SELECT id FROM comums WHERE codigo = :codigo';
+const IP_SQL_PARAM_CODIGO = ':codigo';
+const IP_SQL_PARAM_DESCRICAO = ':descricao';
 const IP_LOCK_FILE = IP_JOB_DIR . '/importacao.lock';
 
 class ImportacaoReadFilter implements IReadFilter
@@ -38,31 +44,48 @@ class ImportacaoReadFilter implements IReadFilter
     }
 }
 
+// Exceção dedicada para erros de importação
+class ImportacaoException extends RuntimeException {}
+
 // --- Funções utilitárias ---
-function ip_corrige_encoding($texto) {
-    if ($texto === null) return '';
+function ip_corrige_encoding($texto)
+{
+    if ($texto === null) {
+        return '';
+    }
     $texto = trim((string)$texto);
-    if ($texto === '') return '';
+    if ($texto === '') {
+        return '';
+    }
     $texto = UTF8::fix_utf8($texto);
     $texto = UTF8::remove_invisible_characters($texto);
-    $texto = preg_replace('/\s+/', ' ', $texto);
+    $texto = preg_replace(IP_WS_PATTERN, ' ', $texto);
     return trim($texto);
 }
 
-function ip_fix_mojibake($texto) {
-    if ($texto === null) return '';
+function ip_fix_mojibake($texto)
+{
+    if ($texto === null) {
+        return '';
+    }
     $texto = (string)$texto;
-    if ($texto === '') return '';
+    if ($texto === '') {
+        return '';
+    }
     return UTF8::fix_utf8($texto);
 }
 
-function ip_to_uppercase($texto) {
-    if ($texto === null || $texto === '') return '';
+function ip_to_uppercase($texto)
+{
+    if ($texto === null || $texto === '') {
+        return '';
+    }
     $texto = UTF8::fix_utf8((string)$texto);
     return UTF8::strtoupper($texto);
 }
 
-function ip_append_log(array &$job, string $level, string $message): void {
+function ip_append_log(array &$job, string $level, string $message): void
+{
     if (!isset($job['log']) || !is_array($job['log'])) {
         $job['log'] = [];
     }
@@ -76,7 +99,8 @@ function ip_append_log(array &$job, string $level, string $message): void {
     }
 }
 
-function ip_parse_planilha_data($valor): ?string {
+function ip_parse_planilha_data($valor): ?string
+{
     if ($valor instanceof DateTimeInterface) {
         return $valor->format('Y-m-d');
     }
@@ -111,7 +135,8 @@ function ip_parse_planilha_data($valor): ?string {
     return null;
 }
 
-function ip_obter_codigo_comum($valor): int {
+function ip_obter_codigo_comum($valor): int
+{
     $texto = trim((string)$valor);
     if ($texto === '') {
         return 0;
@@ -130,11 +155,13 @@ function ip_obter_codigo_comum($valor): int {
     return (int)$apenas_digitos;
 }
 
-function ip_job_path(string $jobId): string {
+function ip_job_path(string $jobId): string
+{
     return IP_JOB_DIR . '/import_job_' . preg_replace('/[^a-zA-Z0-9_\-]/', '', $jobId) . '.json';
 }
 
-function ip_acquire_import_lock(bool $nonBlocking = true) {
+function ip_acquire_import_lock(bool $nonBlocking = true)
+{
     if (!is_dir(IP_JOB_DIR)) {
         @mkdir(IP_JOB_DIR, 0775, true);
     }
@@ -159,14 +186,16 @@ function ip_acquire_import_lock(bool $nonBlocking = true) {
     return $fp;
 }
 
-function ip_release_import_lock($fp): void {
+function ip_release_import_lock($fp): void
+{
     if (is_resource($fp)) {
         @flock($fp, LOCK_UN);
         @fclose($fp);
     }
 }
 
-function ip_save_job(array $job): void {
+function ip_save_job(array $job): void
+{
     if (!is_dir(IP_JOB_DIR)) {
         @mkdir(IP_JOB_DIR, 0775, true);
     }
@@ -184,7 +213,8 @@ function ip_save_job(array $job): void {
     @rename($tmp, $path);
 }
 
-function ip_load_job(string $jobId): ?array {
+function ip_load_job(string $jobId): ?array
+{
     $path = ip_job_path($jobId);
     if (!is_file($path)) {
         return null;
@@ -197,29 +227,34 @@ function ip_load_job(string $jobId): ?array {
     return $data;
 }
 
-function ip_remove_job(string $jobId): void {
+function ip_remove_job(string $jobId): void
+{
     $path = ip_job_path($jobId);
     if (is_file($path)) {
         @unlink($path);
     }
 }
 
-function ip_response_json(array $payload, int $status = 200): void {
+function ip_response_json(array $payload, int $status = 200): void
+{
     json_response($payload, $status);
 }
 
-function ip_response_and_release($lock, array $payload, int $status = 200): void {
+function ip_response_and_release($lock, array $payload, int $status = 200): void
+{
     if (isset($lock)) {
         ip_release_import_lock($lock);
     }
     ip_response_json($payload, $status);
 }
 
-function ip_is_csv(string $filePath): bool {
+function ip_is_csv(string $filePath): bool
+{
     return strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv';
 }
 
-function ip_detect_csv_delimiter(string $filePath): string {
+function ip_detect_csv_delimiter(string $filePath): string
+{
     $candidates = [',', ';', "\t", '|'];
     $best = ',';
     $bestMedian = -1;
@@ -269,7 +304,8 @@ function ip_detect_csv_delimiter(string $filePath): string {
     return $best;
 }
 
-function ip_ensure_processed_table(PDO $conexao): void {
+function ip_ensure_processed_table(PDO $conexao): void
+{
     $conexao->exec('CREATE TABLE IF NOT EXISTS import_job_processed (
         job_id VARCHAR(128) NOT NULL,
         id_produto INT NOT NULL,
@@ -279,7 +315,8 @@ function ip_ensure_processed_table(PDO $conexao): void {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
 
-function ip_track_processed_ids(PDO $conexao, string $jobId, array $ids, int $comumId): void {
+function ip_track_processed_ids(PDO $conexao, string $jobId, array $ids, int $comumId): void
+{
     $ids = array_values(array_filter(array_unique($ids), fn($pid) => (int)$pid > 0));
     if (empty($ids)) {
         return;
@@ -305,13 +342,15 @@ function ip_track_processed_ids(PDO $conexao, string $jobId, array $ids, int $co
     }
 }
 
-function ip_cleanup_processed_ids(PDO $conexao, string $jobId): void {
+function ip_cleanup_processed_ids(PDO $conexao, string $jobId): void
+{
     $stmt = $conexao->prepare('DELETE FROM import_job_processed WHERE job_id = :job');
     $stmt->bindValue(':job', $jobId);
     $stmt->execute();
 }
 
-function ip_read_csv_batch(string $filePath, string $delimiter, int $startLine, int $batchSize): array {
+function ip_read_csv_batch(string $filePath, string $delimiter, int $startLine, int $batchSize): array
+{
     $file = new SplFileObject($filePath, 'r');
     $file->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
     $file->setCsvControl($delimiter);
@@ -338,18 +377,36 @@ function ip_read_csv_batch(string $filePath, string $delimiter, int $startLine, 
     return [$rows, $file->key(), $file->eof()];
 }
 
-function ip_bulk_upsert_produtos(PDO $conexao, array $rows, int $chunkSize = 500): void {
+function ip_bulk_upsert_produtos(PDO $conexao, array $rows, int $chunkSize = 500): void
+{
     if (empty($rows)) {
         return;
     }
 
     $cols = [
-        'comum_id','id_produto','codigo','descricao_completa','editado_descricao_completa',
-        'tipo_bem_id','editado_tipo_bem_id','bem','editado_bem',
-        'complemento','editado_complemento','dependencia_id','editado_dependencia_id',
-        'checado','editado','imprimir_etiqueta','imprimir_14_1',
-        'observacao','ativo','novo','condicao_14_1',
-        'administrador_acessor_id','doador_conjugue_id'
+        'comum_id',
+        'id_produto',
+        'codigo',
+        'descricao_completa',
+        'editado_descricao_completa',
+        'tipo_bem_id',
+        'editado_tipo_bem_id',
+        'bem',
+        'editado_bem',
+        'complemento',
+        'editado_complemento',
+        'dependencia_id',
+        'editado_dependencia_id',
+        'checado',
+        'editado',
+        'imprimir_etiqueta',
+        'imprimir_14_1',
+        'observacao',
+        'ativo',
+        'novo',
+        'condicao_14_1',
+        'administrador_acessor_id',
+        'doador_conjugue_id'
     ];
 
     foreach (array_chunk($rows, $chunkSize) as $chunk) {
@@ -364,7 +421,7 @@ function ip_bulk_upsert_produtos(PDO $conexao, array $rows, int $chunkSize = 500
 
         $sql = 'INSERT INTO produtos (' . implode(',', $cols) . ')
                 VALUES ' . implode(',', $placeholders) . '
-                ON DUPLICATE KEY UPDATE 
+                ON DUPLICATE KEY UPDATE
                     descricao_completa = VALUES(descricao_completa),
                     complemento = VALUES(complemento),
                     bem = VALUES(bem),
@@ -381,7 +438,8 @@ function ip_bulk_upsert_produtos(PDO $conexao, array $rows, int $chunkSize = 500
     }
 }
 
-function ip_delete_unprocessed(PDO $conexao, string $jobId): int {
+function ip_delete_unprocessed(PDO $conexao, string $jobId): int
+{
     ip_ensure_processed_table($conexao);
     $sql = 'DELETE p FROM produtos p
             JOIN (SELECT DISTINCT comum_id FROM import_job_processed WHERE job_id = :job_main) c ON c.comum_id = p.comum_id
@@ -394,7 +452,8 @@ function ip_delete_unprocessed(PDO $conexao, string $jobId): int {
     return (int)$stmt->rowCount();
 }
 
-function ip_fetch_existentes_batch(PDO $conexao, array $codigos_norm, array $comum_ids): array {
+function ip_fetch_existentes_batch(PDO $conexao, array $codigos_norm, array $comum_ids): array
+{
     if (empty($codigos_norm)) {
         return [];
     }
@@ -423,7 +482,8 @@ function ip_fetch_existentes_batch(PDO $conexao, array $codigos_norm, array $com
     return $map;
 }
 
-function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
+function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array
+{
     $filePath = $job['file_path'];
     $delimiter = $job['delimiter'] ?? ip_detect_csv_delimiter($filePath);
     $pulo_linhas = (int)($job['pulo_linhas'] ?? 25);
@@ -453,14 +513,20 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     $file->setCsvControl($delimiter);
 
     foreach ($file as $linha_idx => $linha) {
-        if ($linha === null) { continue; }
+        if ($linha === null) {
+            continue;
+        }
         $total_linhas++;
         $linha_num = $linha_idx + 1; // 1-based
         if ($linha_num === $data_row && isset($linha[$idx_data])) {
             $valor_data = $linha[$idx_data];
         }
-        if ($linha_num <= $pulo_linhas) { continue; }
-        if (empty(array_filter((array)$linha, fn($v) => trim((string)$v) !== ''))) { continue; }
+        if ($linha_num <= $pulo_linhas) {
+            continue;
+        }
+        if (empty(array_filter((array)$linha, fn($v) => trim((string)$v) !== ''))) {
+            continue;
+        }
 
         $codigo_tmp = isset($linha[$idx_codigo]) ? trim((string)$linha[$idx_codigo]) : '';
         if ($codigo_tmp !== '') {
@@ -489,28 +555,28 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     }
 
     if ($registros_candidatos === 0) {
-        throw new Exception('Nenhuma linha de produto encontrada após o cabeçalho. Verifique o mapeamento de colunas e o número de linhas a pular.');
+        throw new ImportacaoException('Nenhuma linha de produto encontrada após o cabeçalho. Verifique o mapeamento de colunas e o número de linhas a pular.');
     }
 
     $data_mysql = ip_parse_planilha_data($valor_data);
     $hoje = date('Y-m-d');
     if ($data_mysql === null || $data_mysql === '') {
-        throw new Exception('Data da planilha não encontrada na posição ' . $posicao_data . '. Valor lido: "' . trim((string)$valor_data) . '".');
+        throw new ImportacaoException('Data da planilha não encontrada na posição ' . $posicao_data . '. Valor lido: "' . trim((string)$valor_data) . '".');
     }
     if ($data_mysql !== $hoje) {
-        throw new Exception('Data da planilha (' . $data_mysql . ') difere da data de hoje (' . $hoje . '). Importação cancelada.');
+        throw new ImportacaoException('Data da planilha (' . $data_mysql . ') difere da data de hoje (' . $hoje . '). Importação cancelada.');
     }
 
     foreach ($dep_raw_unicas as $dep_desc) {
         try {
             $dep_desc_upper = ip_to_uppercase($dep_desc);
             $stmtDep = $conexao->prepare('SELECT id FROM dependencias WHERE descricao = :descricao');
-            $stmtDep->bindValue(':descricao', $dep_desc_upper);
+            $stmtDep->bindValue(IP_SQL_PARAM_DESCRICAO, $dep_desc_upper);
             $stmtDep->execute();
             $existeDep = $stmtDep->fetch(PDO::FETCH_ASSOC);
             if (!$existeDep) {
                 $stmtInsertDep = $conexao->prepare('INSERT INTO dependencias (descricao) VALUES (:descricao)');
-                $stmtInsertDep->bindValue(':descricao', $dep_desc_upper);
+                $stmtInsertDep->bindValue(IP_SQL_PARAM_DESCRICAO, $dep_desc_upper);
                 $stmtInsertDep->execute();
             }
         } catch (Throwable $e) {
@@ -528,8 +594,8 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     $map_comum_ids = [];
     foreach ($localidades_unicas as $codLoc) {
         try {
-            $stmtBuscaComum = $conexao->prepare('SELECT id FROM comums WHERE codigo = :codigo');
-            $stmtBuscaComum->bindValue(':codigo', $codLoc, PDO::PARAM_INT);
+            $stmtBuscaComum = $conexao->prepare(IP_SQL_SELECT_COMUM_BY_COD);
+            $stmtBuscaComum->bindValue(IP_SQL_PARAM_CODIGO, $codLoc, PDO::PARAM_INT);
             $stmtBuscaComum->execute();
             $comumEncontrado = $stmtBuscaComum->fetch(PDO::FETCH_ASSOC);
 
@@ -551,7 +617,7 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     }
 
     if (empty($comum_processado_id)) {
-        throw new Exception('Nenhum comum válido encontrado ou criado a partir da coluna de localidade.');
+        throw new ImportacaoException('Nenhum comum válido encontrado ou criado a partir da coluna de localidade.');
     }
 
     $job['delimiter'] = $delimiter;
@@ -568,7 +634,8 @@ function ip_prescan_csv(array $job, PDO $conexao, array $pp_config): array {
     return $job;
 }
 
-function ip_purge_old_jobs(): void {
+function ip_purge_old_jobs(): void
+{
     if (!is_dir(IP_JOB_DIR)) {
         return;
     }
@@ -583,7 +650,8 @@ function ip_purge_old_jobs(): void {
     }
 }
 
-function ip_cleanup_job_resources(array $job): void {
+function ip_cleanup_job_resources(array $job): void
+{
     if (!empty($job['file_path']) && is_file($job['file_path'])) {
         @unlink($job['file_path']);
     }
@@ -592,7 +660,8 @@ function ip_cleanup_job_resources(array $job): void {
     }
 }
 
-function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
+function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array
+{
     $posicao_data = $job['posicao_data'] ?? 'D13';
     $pulo_linhas = (int)($job['pulo_linhas'] ?? 25);
     $coluna_localidade = strtoupper(trim($job['coluna_localidade'] ?? 'K'));
@@ -631,7 +700,7 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
     } else {
         $posicao_data_ref = strtoupper(trim($posicao_data));
         if (!preg_match('/^([A-Z]+)(\d+)$/', $posicao_data_ref, $matches)) {
-            $matches = ['','D','13'];
+            $matches = ['', 'D', '13'];
         }
         $data_column = $matches[1] ?: 'D';
         $data_row = max(1, (int)$matches[2]);
@@ -663,7 +732,7 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
 
         if ($data_mysql === null || $data_mysql === '') {
             $valor_debug = trim((string)$valor_data);
-            throw new Exception('Data da planilha não encontrada na célula ' . $posicao_data . '. Valor lido: "' . $valor_debug . '". Importação cancelada.');
+            throw new ImportacaoException('Data da planilha não encontrada na célula ' . $posicao_data . '. Valor lido: "' . $valor_debug . '". Importação cancelada.');
         }
 
         $hoje = date('Y-m-d');
@@ -679,8 +748,12 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
 
         foreach ($linhas as $linha) {
             $linha_atual++;
-            if ($linha_atual <= $pulo_linhas) { continue; }
-            if (empty(array_filter($linha))) { continue; }
+            if ($linha_atual <= $pulo_linhas) {
+                continue;
+            }
+            if (empty(array_filter($linha))) {
+                continue;
+            }
             $codigo_tmp = isset($linha[$idx_codigo]) ? trim((string)$linha[$idx_codigo]) : '';
             if ($codigo_tmp !== '') {
                 $registros_candidatos++;
@@ -707,11 +780,11 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
         }
 
         if ($registros_candidatos === 0) {
-            throw new Exception('Nenhuma linha de produto encontrada após o cabeçalho. Verifique o mapeamento de colunas e o número de linhas a pular.');
+            throw new ImportacaoException('Nenhuma linha de produto encontrada após o cabeçalho. Verifique o mapeamento de colunas e o número de linhas a pular.');
         }
 
         if (empty($localidades_unicas)) {
-            throw new Exception('Nenhum código de localidade encontrado na coluna ' . $coluna_localidade . '.');
+            throw new ImportacaoException('Nenhum código de localidade encontrado na coluna ' . $coluna_localidade . '.');
         }
 
         foreach ($dependencias_unicas as $dep_desc) {
@@ -745,8 +818,8 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
 
         foreach ($localidades_unicas as $codLoc) {
             try {
-                $stmtBuscaComum = $conexao->prepare('SELECT id FROM comums WHERE codigo = :codigo');
-                $stmtBuscaComum->bindValue(':codigo', $codLoc, PDO::PARAM_INT);
+                $stmtBuscaComum = $conexao->prepare(IP_SQL_SELECT_COMUM_BY_COD);
+                $stmtBuscaComum->bindValue(IP_SQL_PARAM_CODIGO, $codLoc, PDO::PARAM_INT);
                 $stmtBuscaComum->execute();
                 $comumEncontrado = $stmtBuscaComum->fetch(PDO::FETCH_ASSOC);
 
@@ -770,9 +843,8 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
         }
 
         if (empty($comum_processado_id)) {
-            throw new Exception('Nenhum comum válido encontrado ou criado a partir da coluna de localidade.');
+            throw new ImportacaoException('Nenhum comum válido encontrado ou criado a partir da coluna de localidade.');
         }
-
     }
 
     $mapeamento_colunas_str = 'codigo=' . $mapeamento_codigo . ';complemento=' . $mapeamento_complemento . ';dependencia=' . $mapeamento_dependencia . ';localidade=' . $coluna_localidade;
@@ -787,7 +859,7 @@ function ip_prepare_job(array $job, PDO $conexao, array $pp_config): array {
     $stmtCfg->execute();
 
     if ($data_mismatch) {
-        throw new Exception('Data da planilha (' . $data_mysql . ') difere da data de hoje (' . $hoje . '). Importação cancelada.');
+        throw new ImportacaoException('Data da planilha (' . $data_mysql . ') difere da data de hoje (' . $hoje . '). Importação cancelada.');
     }
 
     $tipos_bens = [];
@@ -950,7 +1022,7 @@ if ($action === 'process') {
         $transactionStarted = false;
         $transactionStarted = $conexao->beginTransaction();
         if (!$transactionStarted) {
-            throw new Exception('Não foi possível iniciar a transação de importação.');
+            throw new ImportacaoException('Não foi possível iniciar a transação de importação.');
         }
         ip_append_log($job, 'info', 'Processando lote a partir da linha ' . ($inicio + 1) . '. Items: ' . count($batchItems) . '.');
 
@@ -979,8 +1051,8 @@ if ($action === 'process') {
                 if ($codigo_localidade > 0) {
                     if (!isset($map_comum_ids[$codigo_localidade])) {
                         try {
-                            $stmtBuscaComum = $conexao->prepare('SELECT id FROM comums WHERE codigo = :codigo');
-                            $stmtBuscaComum->bindValue(':codigo', $codigo_localidade, PDO::PARAM_INT);
+                            $stmtBuscaComum = $conexao->prepare(IP_SQL_SELECT_COMUM_BY_COD);
+                            $stmtBuscaComum->bindValue(IP_SQL_PARAM_CODIGO, $codigo_localidade, PDO::PARAM_INT);
                             $stmtBuscaComum->execute();
                             $comumEncontrado = $stmtBuscaComum->fetch(PDO::FETCH_ASSOC);
                             if ($comumEncontrado) {
@@ -1031,8 +1103,8 @@ if ($action === 'process') {
                 }
 
                 [$ben_raw, $comp_raw] = pp_extrair_ben_complemento($texto_pos_tipo, $aliases_tipo_atual ?: [], $aliases_originais, $tipo_bem_desc);
-                $ben = ip_to_uppercase(preg_replace('/\s+/', ' ', trim(ip_fix_mojibake(ip_corrige_encoding($ben_raw)))));
-                $complemento_limpo = ip_to_uppercase(preg_replace('/\s+/', ' ', trim(ip_fix_mojibake(ip_corrige_encoding($comp_raw)))));
+                $ben = ip_to_uppercase(preg_replace(IP_WS_PATTERN, ' ', trim(ip_fix_mojibake(ip_corrige_encoding($ben_raw)))));
+                $complemento_limpo = ip_to_uppercase(preg_replace(IP_WS_PATTERN, ' ', trim(ip_fix_mojibake(ip_corrige_encoding($comp_raw)))));
 
                 $ben_valido = false;
                 if ($ben !== '' && $tipo_bem_id > 0 && $aliases_tipo_atual) {
@@ -1051,7 +1123,7 @@ if ($action === 'process') {
                             $tokens = array_map('trim', preg_split('/\s*\/\s*/', $tipo_bem_desc));
                             foreach ($tokens as $tok) {
                                 if (pp_normaliza($tok) === $alias_norm) {
-                                    $ben = ip_to_uppercase(preg_replace('/\s+/', ' ', trim(ip_fix_mojibake(ip_corrige_encoding($tok)))));
+                                    $ben = ip_to_uppercase(preg_replace(IP_WS_PATTERN, ' ', trim(ip_fix_mojibake(ip_corrige_encoding($tok)))));
                                     $ben_valido = true;
                                     break 2;
                                 }
@@ -1061,9 +1133,9 @@ if ($action === 'process') {
                 }
 
                 if ($ben === '' && $complemento_limpo === '') {
-                    $complemento_limpo = ip_to_uppercase(preg_replace('/\s+/', ' ', trim(ip_fix_mojibake(ip_corrige_encoding($texto_sem_prefixo)))));
+                    $complemento_limpo = ip_to_uppercase(preg_replace(IP_WS_PATTERN, ' ', trim(ip_fix_mojibake(ip_corrige_encoding($texto_sem_prefixo)))));
                     if ($complemento_limpo === '') {
-                        $complemento_limpo = ip_to_uppercase(preg_replace('/\s+/', ' ', trim(ip_fix_mojibake(ip_corrige_encoding($complemento_original)))));
+                        $complemento_limpo = ip_to_uppercase(preg_replace(IP_WS_PATTERN, ' ', trim(ip_fix_mojibake(ip_corrige_encoding($complemento_original)))));
                     }
                 }
 
@@ -1136,7 +1208,7 @@ if ($action === 'process') {
                             $processedByComum[$comum_destino_id][] = (int)$prodExist['id_produto'];
                         } else {
                             $err = $stmtUp->errorInfo();
-                            throw new Exception($err[2] ?? 'Erro ao atualizar produto existente');
+                            throw new ImportacaoException($err[2] ?? 'Erro ao atualizar produto existente');
                         }
                     } else {
                         $processedByComum[$comum_destino_id][] = (int)$prodExist['id_produto'];
@@ -1286,15 +1358,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'start') {
     try {
         $lock = ip_acquire_import_lock(true);
         if (!$lock) {
-            throw new Exception('Já existe uma importação em andamento. Aguarde finalizar para iniciar outra.');
+            throw new ImportacaoException('Já existe uma importação em andamento. Aguarde finalizar para iniciar outra.');
         }
 
         if (!$arquivo_csv || $arquivo_csv['error'] !== UPLOAD_ERR_OK) {
-            throw new Exception('Selecione um arquivo CSV válido.');
+            throw new ImportacaoException('Selecione um arquivo CSV válido.');
         }
         $extensao = strtolower(pathinfo($arquivo_csv['name'], PATHINFO_EXTENSION));
         if ($extensao !== 'csv') {
-            throw new Exception('Apenas arquivos CSV são permitidos.');
+            throw new ImportacaoException('Apenas arquivos CSV são permitidos.');
         }
 
         ip_purge_old_jobs();
@@ -1305,7 +1377,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'start') {
         }
         $destino = IP_JOB_DIR . '/upload_' . $jobId . '.csv';
         if (!move_uploaded_file($arquivo_csv['tmp_name'], $destino)) {
-            throw new Exception('Não foi possível armazenar o arquivo enviado.');
+            throw new ImportacaoException('Não foi possível armazenar o arquivo enviado.');
         }
         ip_normalizar_csv_encoding($destino);
         $job = [

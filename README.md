@@ -43,3 +43,14 @@ Projeto PHP focado em gestÃ£o de planilhas com importaÃ§Ã£o e conferÃªnc
 - Revisar textos estÃ¡ticos para corrigir eventuais resÃ­duos de encoding legado.
 - Adicionar testes automatizados para os fluxos de importaÃ§Ã£o e atualizaÃ§Ãµes AJAX.
 
+## Qualidade / Lint ✅
+
+O repositório inclui um workflow do GitHub Actions que executa uma verificação de sintaxe PHP (php -l) em todos os arquivos PHP sob push e pull-requests. Para rodar localmente você pode executar uma checagem rápida com:
+
+```bash
+# verifica sintaxe em todos os arquivos PHP listados no git
+for f in $(git ls-files '*.php' | grep -v '^vendor/'); do php -l "$f"; done
+```
+
+Adicionar checks adicionais (PHPStan/PHPCS) é recomendado como próximo passo.
+

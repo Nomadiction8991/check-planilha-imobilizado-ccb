@@ -1,0 +1,34 @@
+name: PHP Lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  php-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: PHP Syntax Check
+        run: |
+          set -e
+          # find PHP files excluding vendor and storage
+          files=$(git ls-files '*.php' | grep -v '^vendor/' || true)
+          if [ -z "$files" ]; then
+            echo "No PHP files found."
+            exit 0
+          fi
+          echo "$files" | tr ' ' '\n' | while read -r f; do
+            echo "Checking $f"
+            php -l "$f"
+          done
