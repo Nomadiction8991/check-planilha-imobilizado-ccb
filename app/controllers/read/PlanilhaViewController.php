@@ -8,7 +8,7 @@ if ($comum_id <= 0) {
     exit;
 }
 
-// Verificar se hÃ¡ mensagem de erro recebida pela URL
+// Verificar se há mensagem de erro recebida pela URL
 $erro = $_GET['erro'] ?? '';
 if ($erro !== '') {
     echo "<script>alert('" . addslashes($erro) . "');</script>";
@@ -16,7 +16,7 @@ if ($erro !== '') {
 
 $comum = obter_comum_por_id($conexao, $comum_id);
 if (!$comum) {
-    die('Comum nÃ£o encontrado.');
+    die('Comum não encontrado.');
 }
 $planilha = [
     'comum_id' => $comum_id,
@@ -35,7 +35,7 @@ $mensagem_bloqueio = '';
 $hoje_cuiaba = (new DateTime('now', new DateTimeZone('America/Cuiaba')))->format('Y-m-d');
 if ($data_importacao !== $hoje_cuiaba) {
     $acesso_bloqueado = true;
-    $mensagem_bloqueio = 'A planilha nÃ£o estÃ¡ atualizada para o dia de hoje. Importe um arquivo atualizado para continuar.';
+    $mensagem_bloqueio = 'A planilha não está atualizada para o dia de hoje. Importe um arquivo atualizado para continuar.';
 }
 
 if ($acesso_bloqueado) {
@@ -232,6 +232,3 @@ try {
 } catch (Exception $e) {
     $dependencia_options = [];
 }
-?>
-
-
