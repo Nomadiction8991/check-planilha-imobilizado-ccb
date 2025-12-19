@@ -1,5 +1,5 @@
 ﻿<?php
- // AutenticaÃ§Ã£o
+// AutenticaÃ§Ã£o
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -66,7 +66,7 @@ try {
         $stmt->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
         $stmt->execute();
     }
-    
+
     if (is_ajax_request()) {
         json_response([
             'success' => true,
@@ -75,10 +75,9 @@ try {
             'message' => $imprimir ? 'PRODUTO MARCADO PARA ETIQUETA' : 'PRODUTO REMOVIDO DAS ETIQUETAS'
         ]);
     }
-    
+
     header('Location: ' . $buildRedirect());
     exit;
-    
 } catch (Exception $e) {
     $msg = 'ERRO AO PROCESSAR IMPRESSÃO: ' . $e->getMessage();
     if (is_ajax_request()) {
@@ -87,6 +86,3 @@ try {
     header('Location: ' . $buildRedirect($msg));
     exit;
 }
-
-
-
