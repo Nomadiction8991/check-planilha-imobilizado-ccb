@@ -896,6 +896,9 @@ ob_start();
             row.querySelectorAll('.action-check').forEach(el => {
                 el.style.display = 'inline-block';
                 const btn = el.querySelector('button');
+                // Sincronizar input escondido do formulário de check para garantir que o valor enviado esteja coerente com o estado exibido
+                const checkForm = row.querySelector('.PRODUTO-action-form.action-check');
+                const checkInput = checkForm ? checkForm.querySelector('input[name="checado"]') : null;
                 if (btn) {
                     btn.disabled = checkDisabled;
                     btn.classList.toggle('active', checkActive);
@@ -907,24 +910,34 @@ ob_start();
                         btn.title = btn.title || (checkActive ? 'Desmarcar checado' : 'Marcar como checado');
                     }
                 }
+                if (checkInput) {
+                    // se atualmente está ativo (checado), o valor do input deve ser '0' para que o próximo clique desmarque; do contrário '1'
+                    checkInput.value = checkActive ? '0' : '1';
+                }
             });
 
             // Imprimir
             row.querySelectorAll('.action-imprimir').forEach(el => {
                 el.style.display = 'inline-block';
                 const btn = el.querySelector('button');
+                const imprimirFormEl = row.querySelector('.PRODUTO-action-form.action-imprimir');
+                const imprimirInput = imprimirFormEl ? imprimirFormEl.querySelector('input[name="imprimir"]') : null;
                 if (btn) {
                     btn.disabled = imprimirDisabled;
                     btn.classList.toggle('active', imprimirActive);
                     if (imprimirDisabled) {
                         btn.setAttribute('aria-disabled', 'true');
                         btn.classList.add('disabled-visually');
-                        btn.title = 'Etiqueta indisponível enquanto o produto estiver editado';
+                        btn.title = isEdited ? 'Etiqueta indisponível enquanto o produto estiver editado' : 'Etiqueta indisponível';
                     } else {
                         btn.removeAttribute('aria-disabled');
                         btn.classList.remove('disabled-visually');
                         btn.title = btn.title || 'Etiqueta';
                     }
+                }
+                if (imprimirInput) {
+                    // se atualmente está ativo (imprimir), o valor do input deve ser '0' para que o próximo clique desmarque; do contrário '1'
+                    imprimirInput.value = imprimirActive ? '0' : '1';
                 }
             });
 
