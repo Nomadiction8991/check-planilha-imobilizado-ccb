@@ -1,5 +1,5 @@
 ﻿<?php
- // AutenticaÃ§Ã£o
+// AutenticaÃ§Ã£o
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 // FunÃ§Ãµes de montagem de descriÃ§Ã£o
 require_once dirname(__DIR__, 2) . '/services/produto_parser_service.php';
@@ -50,11 +50,11 @@ try {
     $stmt_produto->bindValue(':comum_id', $comum_id);
     $stmt_produto->execute();
     $produto = $stmt_produto->fetch();
-    
+
     if (!$produto) {
         throw new Exception('Produto nÃ£o encontrado.');
     }
-    
+
     // PrÃ©-preencher com ediÃ§Ãµes se existirem (senÃ£o usa original)
     // Tipo de bem: usar editado_tipo_bem_id se > 0, senÃ£o tipo_bem_id
     $novo_tipo_bem_id = 0;
@@ -63,14 +63,13 @@ try {
     } elseif (!empty($produto['tipo_bem_id']) && (int)$produto['tipo_bem_id'] > 0) {
         $novo_tipo_bem_id = (int)$produto['tipo_bem_id'];
     }
-    
+
     $novo_bem = $produto['editado_bem'] !== '' ? $produto['editado_bem'] : ($produto['bem'] ?? '');
     $novo_complemento = $produto['editado_complemento'] !== '' ? $produto['editado_complemento'] : ($produto['complemento'] ?? '');
     // DependÃªncia: usar editado se > 0, senÃ£o usar original
-    $nova_dependencia_id = (!empty($produto['editado_dependencia_id']) && (int)$produto['editado_dependencia_id'] > 0) 
-        ? (int)$produto['editado_dependencia_id'] 
+    $nova_dependencia_id = (!empty($produto['editado_dependencia_id']) && (int)$produto['editado_dependencia_id'] > 0)
+        ? (int)$produto['editado_dependencia_id']
         : (int)($produto['dependencia_id'] ?? 0);
-    
 } catch (Exception $e) {
     $mensagem = "Erro ao carregar produto: " . $e->getMessage();
     $tipo_mensagem = 'error';
@@ -102,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $novo_bem = mb_strtoupper(trim($_POST['novo_bem'] ?? ''), 'UTF-8');
     $novo_complemento = mb_strtoupper(trim($_POST['novo_complemento'] ?? ''), 'UTF-8');
     $nova_dependencia_id = trim($_POST['nova_dependencia_id'] ?? '');
-    
+
     // Receber filtros do POST tambÃ©m
     $pagina = $_POST['pagina'] ?? 1;
     $filtro_nome = $_POST['nome'] ?? '';
@@ -112,8 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Determinar campos originais para fallback (usar editado se existir, senÃ£o original)
-        $orig_tipo_id = (!empty($produto['editado_tipo_bem_id']) && (int)$produto['editado_tipo_bem_id'] > 0) 
-            ? (int)$produto['editado_tipo_bem_id'] 
+        $orig_tipo_id = (!empty($produto['editado_tipo_bem_id']) && (int)$produto['editado_tipo_bem_id'] > 0)
+            ? (int)$produto['editado_tipo_bem_id']
             : (int)$produto['tipo_bem_id'];
         $orig_bem = $produto['editado_bem'] !== '' ? $produto['editado_bem'] : ($produto['bem'] ?? '');
         $orig_comp = $produto['editado_complemento'] !== '' ? $produto['editado_complemento'] : ($produto['complemento'] ?? '');
@@ -163,7 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $final_dep_id = ($nova_dependencia_id !== '') ? (int)$nova_dependencia_id : $orig_dep_id;
 
         // Buscar dados do tipo selecionado
-        $tipo_codigo = null; $tipo_desc = '';
+        $tipo_codigo = null;
+        $tipo_desc = '';
         foreach ($tipos_bens as $tb) {
             if ((int)$tb['id'] === (int)$final_tipo_id) {
                 $tipo_codigo = $tb['codigo'];
@@ -199,6 +199,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $stmt_update->execute();
 
+        // Garantir consistência: se o produto ficou marcado como editado, certificar que os flags de impressão e checado também foram ajustados
+        $stmt_reconcile = $conexao->prepare('UPDATE produtos SET imprimir_etiqueta = 1, checado = 1 WHERE id_produto = :id_produto AND comum_id = :comum_id AND editado = 1');
+        $stmt_reconcile->bindValue(':id_produto', $id_produto, PDO::PARAM_INT);
+        $stmt_reconcile->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
+        $stmt_reconcile->execute();
+
         header('Location: ' . getReturnUrl($comum_id, $pagina, $filtro_nome, $filtro_dependencia, $filtro_codigo, $filtro_status));
         exit;
     } catch (Exception $e) {
@@ -208,7 +214,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // FunÃ§Ã£o para gerar URL de retorno com filtros
-function getReturnUrl($comum_id, $pagina, $filtro_nome, $filtro_dependencia, $filtro_codigo, $filtro_status) {
+function getReturnUrl($comum_id, $pagina, $filtro_nome, $filtro_dependencia, $filtro_codigo, $filtro_status)
+{
     $params = [
         'id' => $comum_id,
         'comum_id' => $comum_id,
@@ -220,4 +227,3 @@ function getReturnUrl($comum_id, $pagina, $filtro_nome, $filtro_dependencia, $fi
     ];
     return '../planilhas/planilha_visualizar.php?' . http_build_query($params);
 }
-?>
