@@ -648,7 +648,7 @@ ob_start();
                     <!-- EdiÃ¢â€Å“Ã‚ÂºÃ¢â€Å“ÃƒÂºo Pendente -->
                     <?php if ($tem_edicao): ?>
                         <div class="edicao-pendente">
-                            <strong>Edição:</strong><br>
+                            <strong><?php echo mb_strtoupper('Edição:', 'UTF-8'); ?></strong><br>
                             <?php
                             // Mostrar editado_descricao_completa se existir; caso contrÃ¢â€Å“ÃƒÂ­rio montar uma versÃ¢â€Å“ÃƒÂºo dinÃ¢â€Å“ÃƒÂ³mica
                             $desc_editada_visivel = trim($p['editado_descricao_completa'] ?? '');

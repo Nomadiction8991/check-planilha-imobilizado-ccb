@@ -1457,4 +1457,23 @@ if ($action === 'cancel') {
     ]);
 }
 
+if ($action === 'finish') {
+    if (!is_ajax_request()) {
+        ip_response_json(['message' => 'Acesso inválido.'], 400);
+    }
+    $jobId = $_GET['job'] ?? $_POST['job'] ?? '';
+    $job = ip_load_job($jobId);
+    if ($job) {
+        ip_append_log($job, 'info', 'Importação finalizada pelo usuário (concluir).');
+        ip_cleanup_job_resources($job);
+        $_SESSION['mensagem'] = 'Importação finalizada.';
+        $_SESSION['tipo_mensagem'] = 'success';
+    }
+
+    ip_response_json([
+        'finished' => true,
+        'redirect' => base_url('index.php'),
+    ]);
+}
+
 ip_response_json(['message' => 'Ação inválida ou método não suportado.'], 400);

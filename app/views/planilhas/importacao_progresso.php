@@ -2,7 +2,8 @@
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 $pageTitle = 'Progresso da Importação';
-$backUrl = base_url('index.php');
+// Não exibir botão voltar no cabeçalho nesta tela (fluxo assíncrono de upload)
+$backUrl = null;
 $jobId = $_GET['job'] ?? '';
 
 if ($jobId === '') {
@@ -50,8 +51,8 @@ ob_start();
         </div>
 
         <div id="done-actions" class="text-center mt-4" style="display: none;">
-            <p class="mb-2">Importação finalizada. Você pode voltar para a listagem de comuns.</p>
-            <a id="go-comuns" class="btn btn-primary">Voltar para listagem de comuns</a>
+            <p class="mb-2">Importação finalizada.</p>
+            <a id="go-comuns" class="btn btn-primary" style="display:none;">Voltar para listagem de comuns</a>
         </div>
 
         <div class="text-center mt-4" id="processing-note">
@@ -60,6 +61,7 @@ ob_start();
 
         <div class="mt-3">
             <button id="cancel-btn" type="button" class="btn btn-outline-danger w-100 py-3">Cancelar</button>
+            <button id="conclude-btn" type="button" class="btn btn-success w-100 py-3" style="display:none; margin-top:8px;">Concluir</button>
         </div>
     </div>
 </div>
@@ -172,6 +174,30 @@ ob_start();
         }
     }
 
+    async function concludeImport() {
+        const concludeBtn = document.getElementById('conclude-btn');
+        concludeBtn.disabled = true;
+        try {
+            const resp = await fetch(baseUrl + 'app/controllers/create/ImportacaoPlanilhaController.php?action=finish&job=' + encodeURIComponent(jobId), {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await resp.json();
+            if (!resp.ok) {
+                showAlert('danger', data.message || 'Falha ao finalizar importação.');
+                appendLog('erro', data.message || 'Falha ao finalizar importação.');
+                concludeBtn.disabled = false;
+                return;
+            }
+            const redirect = data.redirect || (baseUrl + 'index.php');
+            window.location.href = redirect;
+        } catch (err) {
+            showAlert('danger', 'Erro ao finalizar: ' + err);
+            appendLog('erro', 'Erro ao finalizar: ' + err);
+            concludeBtn.disabled = false;
+        }
+    }
+
     async function poll() {
         if (canceled) {
             return;
@@ -230,8 +256,20 @@ ob_start();
                 }
                 if (processingNote) processingNote.style.display = 'none';
                 if (doneActions) doneActions.style.display = '';
+                // esconder botão cancelar e exibir botão Concluir
+                try {
+                    if (cancelBtn) cancelBtn.style.display = 'none';
+                    const concludeBtn = document.getElementById('conclude-btn');
+                    if (concludeBtn) {
+                        concludeBtn.style.display = '';
+                        concludeBtn.addEventListener('click', concludeImport);
+                    }
+                } catch (e) {
+                    // noop
+                }
                 if (goComuns) {
                     goComuns.setAttribute('href', redirect);
+                    goComuns.style.display = 'inline-block';
                     goComuns.addEventListener('click', () => {
                         window.location.href = redirect;
                     });
@@ -256,6 +294,6 @@ ob_start();
 $contentHtml = ob_get_clean();
 $contentFile = __DIR__ . '/../../../temp_importar_planilha_content_' . uniqid() . '.php';
 file_put_contents($contentFile, $contentHtml);
-include __DIR__ . '/../layouts/app_wrapper.php';
+include_once __DIR__ . '/../layouts/app_wrapper.php';
 @unlink($contentFile);
 ?>
