@@ -340,6 +340,13 @@ ob_start();
         color: #fff;
     }
 
+    /* Aparência quando o botão de imprimir estiver bloqueado (produto editado) */
+    .acao-container .action-imprimir button[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+        filter: grayscale(20%);
+    }
+
     .acao-container .action-observacao {
         border-color: #FB8C00 !important;
         color: #FB8C00 !important;
@@ -633,7 +640,8 @@ ob_start();
                 }
 
                 $checkDisabled = !$show_check;
-                $imprimirDisabled = !$show_imprimir;
+                // Bloquear imprimir quando o produto estiver editado (mostrar mas sem permitir clique)
+                $imprimirDisabled = $tem_edicao || !$show_imprimir;
                 $obsDisabled = !$show_obs;
                 $editDisabled = !$show_edit;
 
