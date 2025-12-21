@@ -37,9 +37,9 @@ if (!$id_PRODUTO || !$comum_id) {
 }
 
 try {
-    // LIMPAR campos de ediÃƒÂ§ÃƒÂ£o na tabela PRODUTOS - USANDO id_PRODUTO
-    // Importante: usar valores padrÃƒÂ£o vÃƒÂ¡lidos ('' ou 0) pois colunas sÃƒÂ£o NOT NULL em alguns bancos
-    $sql_update = "UPDATE PRODUTOS 
+    // LIMPAR campos de edição na tabela produtos - USANDO id_produto
+    // Importante: usar valores padrão válidos ('' ou 0) pois colunas são NOT NULL em alguns bancos
+    $sql_update = "UPDATE produtos 
                    SET editado_tipo_bem_id = 0,
                        editado_bem = '',
                        editado_complemento = '',
@@ -47,15 +47,15 @@ try {
                        editado_descricao_completa = '',
                        imprimir_etiqueta = 0,
                        editado = 0
-                   WHERE id_PRODUTO = :id_PRODUTO 
+                   WHERE id_produto = :id_produto 
                      AND comum_id = :comum_id";
 
     $stmt_update = $conexao->prepare($sql_update);
-    $stmt_update->bindValue(':id_PRODUTO', $id_PRODUTO);
-    $stmt_update->bindValue(':comum_id', $comum_id);
+    $stmt_update->bindValue(':id_produto', (int)$id_PRODUTO, PDO::PARAM_INT);
+    $stmt_update->bindValue(':comum_id', (int)$comum_id, PDO::PARAM_INT);
     $stmt_update->execute();
 
-    $msg = 'EdiÃƒÂ§ÃƒÂµes limpas com sucesso!';
+    $msg = 'Edições limpas com sucesso!';
 
     redirectBack([
         'id' => $comum_id,
