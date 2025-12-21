@@ -7,6 +7,8 @@ if (!$id_planilha) {
   header('Location: ../../index.php');
   exit;
 }
+// Compatibilidade: algumas partes do código ainda usam $comum_id; garantir que esteja definido
+$comum_id = $id_planilha;
 
 // BUSCAR dados da planilha
 try {
@@ -110,10 +112,10 @@ try {
   $PRODUTOS = [];
   // Tratar erro de tabela ausente de forma amigável e em UPPERCASE
   if ($e instanceof PDOException && ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false)) {
-    $mensagem = to_uppercase("Erro ao carregar produtos: tabela 'produtos' não encontrada no banco de dados. Verifique a instalação ou migrações e contate o administrador.");
+    $mensagem = to_uppercase("Erro ao carregar produtos (comum_id: " . $comum_id . "): tabela 'produtos' não encontrada no banco de dados. Verifique a instalação ou migrações e contate o administrador.");
   } else {
     // Evitar vazar SQL cru — mostrar a mensagem em uppercase
-    $mensagem = to_uppercase('Erro ao carregar produtos: ' . $e->getMessage());
+    $mensagem = to_uppercase('Erro ao carregar produtos (comum_id: ' . $comum_id . '): ' . $e->getMessage());
   }
 }
 
@@ -152,6 +154,9 @@ ob_start();
   <div class="card-header">
     <i class="bi bi-tag me-2"></i>
     <?php echo htmlspecialchars(to_uppercase('Códigos para impressão de etiquetas'), ENT_QUOTES, 'UTF-8'); ?>
+    <?php if (!empty($_GET['debug'])): ?>
+      <div class="small text-muted mt-1">DEBUG: COMUM_ID = <?php echo htmlspecialchars($comum_id, ENT_QUOTES, 'UTF-8'); ?></div>
+    <?php endif; ?>
   </div>
   <div class="card-body">
     <p class="text-muted small mb-3">
