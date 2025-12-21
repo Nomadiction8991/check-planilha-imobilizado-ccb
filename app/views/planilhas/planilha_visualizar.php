@@ -1066,7 +1066,9 @@ ob_start();
                         })
                         .then(r => r.json().catch(() => ({}))).then(j => {
                             if (j.success !== false) applyState(row, {
-                                editado: 0
+                                editado: 0,
+                                imprimir: 0,
+                                checado: 0
                             });
                         }).catch(() => {});
                 }
