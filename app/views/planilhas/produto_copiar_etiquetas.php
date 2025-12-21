@@ -18,9 +18,24 @@ try {
   if (!$planilha) throw new Exception('Planilha não encontrada.');
 } catch (PDOException $e) {
   if ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false) {
-    die("Erro: tabela 'planilhas' não encontrada no banco de dados. Importe `anvycomb_checkplanilha.sql` (raiz do projeto) ou verifique `config/database.php`.");
+    // Tabela 'planilhas' ausente: tentar usar 'comums' como fallback
+    try {
+      $stmt = $conexao->prepare('SELECT id, descricao as comum FROM comums WHERE id = :id');
+      $stmt->bindValue(':id', $id_planilha, PDO::PARAM_INT);
+      $stmt->execute();
+      $comum = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($comum) {
+        $planilha = ['id' => (int)$comum['id'], 'comum' => $comum['comum'], 'comum_id' => (int)$comum['id'], 'ativo' => 1];
+        $using_comum_fallback = true;
+      } else {
+        die('Comum não encontrada.');
+      }
+    } catch (Exception $ex) {
+      die('Erro ao carregar planilha/comum: ' . $ex->getMessage());
+    }
+  } else {
+    die('Erro ao carregar planilha: ' . $e->getMessage());
   }
-  die('Erro ao carregar planilha: ' . $e->getMessage());
 } catch (Exception $e) {
   die('Erro ao carregar planilha: ' . $e->getMessage());
 }

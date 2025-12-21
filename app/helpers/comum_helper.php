@@ -3,7 +3,8 @@
 /**
  * Remove tudo que nÇœo for dÇ­gito do CNPJ informado.
  */
-function normalizar_cnpj_valor($cnpj_raw) {
+function normalizar_cnpj_valor($cnpj_raw)
+{
     $cnpj = trim((string)$cnpj_raw);
     return preg_replace('/\D+/', '', $cnpj);
 }
@@ -17,7 +18,8 @@ function normalizar_cnpj_valor($cnpj_raw) {
  * @param int|null $ignorar_id ID que pode repetir (para updates)
  * @return string CNPJ pronto para persistir, garantidamente Ç§nico
  */
-function gerar_cnpj_unico($conexao, $cnpj_base, $codigo, $ignorar_id = null) {
+function gerar_cnpj_unico($conexao, $cnpj_base, $codigo, $ignorar_id = null)
+{
     $cnpj_limpo = normalizar_cnpj_valor($cnpj_base);
     $base = $cnpj_limpo === '' ? 'SEM-CNPJ-' . $codigo : $cnpj_limpo;
     $cnpj_final = $base;
@@ -45,7 +47,8 @@ function gerar_cnpj_unico($conexao, $cnpj_base, $codigo, $ignorar_id = null) {
  * Garante que exista um registro de comum pelo codigo informado.
  * Se nao existir, insere com placeholders basicos.
  */
-function garantir_comum_por_codigo($conexao, $codigo, $dados = []) {
+function garantir_comum_por_codigo($conexao, $codigo, $dados = [])
+{
     $codigo = (int)$codigo;
     if ($codigo <= 0) {
         throw new Exception('Codigo do comum invalido.');
@@ -136,9 +139,10 @@ function garantir_comum_por_codigo($conexao, $codigo, $dados = []) {
  * @param string $comum_text Texto completo do comum
  * @return int Código numérico
  */
-function extrair_codigo_comum($comum_text) {
+function extrair_codigo_comum($comum_text)
+{
     $comum_text = trim($comum_text);
-    
+
     // Aceita variações como "BR 09-0040", "BR09 0040", "09-0040"
     if (preg_match('/BR\s*(\d{2})\D?(\d{4})/i', $comum_text, $matches)) {
         return (int)($matches[1] . $matches[2]);
@@ -146,7 +150,7 @@ function extrair_codigo_comum($comum_text) {
     if (preg_match('/(\d{2})\D?(\d{4})/', $comum_text, $matches)) {
         return (int)($matches[1] . $matches[2]);
     }
-    
+
     return 0;
 }
 
@@ -158,22 +162,25 @@ function extrair_codigo_comum($comum_text) {
  * @param string $comum_text Texto completo do comum
  * @return string Descrição
  */
-function extrair_descricao_comum($comum_text) {
+function extrair_descricao_comum($comum_text)
+{
     $comum_text = trim($comum_text);
-    
+
     // Aceita variações de separador (hífen, barra ou espaço)
-    if (preg_match('/BR\s*\d{2}\D?\d{4}\s*[-\/]?\s*(.+)$/i', $comum_text, $matches) ||
-        preg_match('/\d{2}\D?\d{4}\s*[-\/]?\s*(.+)$/', $comum_text, $matches)) {
+    if (
+        preg_match('/BR\s*\d{2}\D?\d{4}\s*[-\/]?\s*(.+)$/i', $comum_text, $matches) ||
+        preg_match('/\d{2}\D?\d{4}\s*[-\/]?\s*(.+)$/', $comum_text, $matches)
+    ) {
         $descricao = trim($matches[1]);
-        
+
         if (strpos($descricao, '-') !== false) {
             $partes = array_map('trim', explode('-', $descricao));
             $descricao = end($partes);
         }
-        
+
         return $descricao;
     }
-    
+
     return '';
 }
 
@@ -185,24 +192,25 @@ function extrair_descricao_comum($comum_text) {
  * @param array $dados Array com: cnpj, administracao, cidade, setor (opcional)
  * @return int ID do comum inserido ou existente
  */
-function processar_comum($conexao, $comum_text, $dados = []) {
+function processar_comum($conexao, $comum_text, $dados = [])
+{
     if (empty($comum_text)) {
         throw new Exception('Comum vazio ou nao informado.');
     }
-    
+
     $codigo = extrair_codigo_comum($comum_text);
     $descricao = extrair_descricao_comum($comum_text);
-    
+
     if (empty($codigo) || empty($descricao)) {
         throw new Exception("Formato de comum invalido: '{$comum_text}'.");
     }
-    
+
     $cnpj_final = null;
     $cnpj_informado = $dados['cnpj'] ?? '';
     $administracao = $dados['administracao'] ?? '';
     $cidade = $dados['cidade'] ?? '';
     $setor = $dados['setor'] ?? 0;
-    
+
     try {
         // Verificar se ja existe
         $sql_check = "SELECT id, cnpj FROM comums WHERE codigo = :codigo";
@@ -210,16 +218,16 @@ function processar_comum($conexao, $comum_text, $dados = []) {
         $stmt_check->bindValue(':codigo', $codigo);
         $stmt_check->execute();
         $resultado = $stmt_check->fetch();
-        
+
         if ($resultado) {
             $comum_id = $resultado['id'];
-            
+
             // Se fornecidos dados adicionais, atualizar
             if (!empty($dados)) {
                 $sql_update = "UPDATE comums SET ";
                 $updates = [];
                 $params = [':id' => $comum_id];
-                
+
                 if (!empty($dados['cnpj'])) {
                     $cnpj_final = gerar_cnpj_unico($conexao, $dados['cnpj'], $codigo, $comum_id);
                     if ($cnpj_final !== $resultado['cnpj']) {
@@ -239,7 +247,7 @@ function processar_comum($conexao, $comum_text, $dados = []) {
                     $updates[] = "setor = :setor";
                     $params[':setor'] = $setor;
                 }
-                
+
                 if (!empty($updates)) {
                     $sql_update .= implode(', ', $updates) . " WHERE id = :id";
                     $stmt_update = $conexao->prepare($sql_update);
@@ -249,13 +257,13 @@ function processar_comum($conexao, $comum_text, $dados = []) {
                     $stmt_update->execute();
                 }
             }
-            
+
             return $comum_id;
         }
-        
+
         // Se nao existe, inserir
         $cnpj_final = gerar_cnpj_unico($conexao, $cnpj_informado, $codigo);
-        
+
         $sql_insert = "INSERT INTO comums (codigo, cnpj, descricao, administracao, cidade, setor) 
                        VALUES (:codigo, :cnpj, :descricao, :administracao, :cidade, :setor)";
         $stmt_insert = $conexao->prepare($sql_insert);
@@ -266,9 +274,8 @@ function processar_comum($conexao, $comum_text, $dados = []) {
         $stmt_insert->bindValue(':cidade', $cidade);
         $stmt_insert->bindValue(':setor', $setor, PDO::PARAM_INT);
         $stmt_insert->execute();
-        
+
         return $conexao->lastInsertId();
-        
     } catch (Exception $e) {
         // Tentar capturar duplicidade de CNPJ ou outros detalhes
         $msg = $e->getMessage();
@@ -293,7 +300,8 @@ function processar_comum($conexao, $comum_text, $dados = []) {
  * @param PDO $conexao Conexão com banco de dados
  * @return array Lista de comuns
  */
-function obter_todos_comuns($conexao) {
+function obter_todos_comuns($conexao)
+{
     try {
         $sql = "SELECT id, codigo, cnpj, descricao, administracao, cidade, setor FROM comums ORDER BY codigo ASC";
         $stmt = $conexao->prepare($sql);
@@ -312,7 +320,8 @@ function obter_todos_comuns($conexao) {
  * @param int $id ID do comum
  * @return array|null Dados do comum
  */
-function obter_comum_por_id($conexao, $id) {
+function obter_comum_por_id($conexao, $id)
+{
     try {
         $sql = "SELECT id, codigo, cnpj, descricao, administracao, cidade, setor FROM comums WHERE id = :id";
         $stmt = $conexao->prepare($sql);
@@ -328,7 +337,8 @@ function obter_comum_por_id($conexao, $id) {
 /**
  * Retorna a planilha ativa/mais recente vinculada ao comum.
  */
-function obter_planilha_ativa_por_comum(PDO $conexao, int $comum_id): ?array {
+function obter_planilha_ativa_por_comum(PDO $conexao, int $comum_id): ?array
+{
     try {
         $sql = "SELECT * FROM planilhas WHERE comum_id = :comum_id ORDER BY data_posicao DESC, id DESC LIMIT 1";
         $stmt = $conexao->prepare($sql);
@@ -336,6 +346,20 @@ function obter_planilha_ativa_por_comum(PDO $conexao, int $comum_id): ?array {
         $stmt->execute();
         $planilha = $stmt->fetch(PDO::FETCH_ASSOC);
         return $planilha ?: null;
+    } catch (PDOException $e) {
+        // Tabela 'planilhas' pode não existir: fallback simples para trabalhar com 'comum' existente
+        if ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false) {
+            // Retorna um objeto mimetizando uma planilha vinculada ao comum (não persiste no banco)
+            return [
+                'id' => $comum_id,
+                'comum_id' => $comum_id,
+                'data_posicao' => null,
+                'ativo' => 1,
+                'mapeamento_colunas' => null
+            ];
+        }
+        error_log("Erro ao obter planilha ativa: " . $e->getMessage());
+        return null;
     } catch (Exception $e) {
         error_log("Erro ao obter planilha ativa: " . $e->getMessage());
         return null;
@@ -345,7 +369,8 @@ function obter_planilha_ativa_por_comum(PDO $conexao, int $comum_id): ?array {
 /**
  * Resolve o ID da planilha a partir do ID do comum.
  */
-function resolver_planilha_id_por_comum(PDO $conexao, int $comum_id): ?int {
+function resolver_planilha_id_por_comum(PDO $conexao, int $comum_id): ?int
+{
     $planilha = obter_planilha_ativa_por_comum($conexao, $comum_id);
     return $planilha ? (int) $planilha['id'] : null;
 }
@@ -357,7 +382,8 @@ function resolver_planilha_id_por_comum(PDO $conexao, int $comum_id): ?int {
  * @param int $comum_id ID do comum
  * @return int Quantidade de planilhas
  */
-function contar_planilhas_por_comum($conexao, $comum_id) {
+function contar_planilhas_por_comum($conexao, $comum_id)
+{
     try {
         $sql = "SELECT COUNT(*) as total FROM planilhas WHERE comum_id = :comum_id";
         $stmt = $conexao->prepare($sql);
@@ -378,7 +404,8 @@ function contar_planilhas_por_comum($conexao, $comum_id) {
  * @param int $comum_id ID do comum
  * @return int Quantidade de produtos
  */
-function contar_produtos_por_comum($conexao, $comum_id) {
+function contar_produtos_por_comum($conexao, $comum_id)
+{
     try {
         $sql = "SELECT COUNT(p.id_produto) as total 
                 FROM produtos p 
@@ -389,6 +416,23 @@ function contar_produtos_por_comum($conexao, $comum_id) {
         $stmt->execute();
         $resultado = $stmt->fetch();
         return $resultado['total'] ?? 0;
+    } catch (PDOException $e) {
+        // Se tabela 'planilhas' não existir, contar diretamente por planilha_id assumindo que foi gravado o comum id em planilha_id
+        if ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false) {
+            try {
+                $sql2 = "SELECT COUNT(id_produto) as total FROM produtos WHERE planilha_id = :comum_id";
+                $stmt2 = $conexao->prepare($sql2);
+                $stmt2->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
+                $stmt2->execute();
+                $r2 = $stmt2->fetch();
+                return $r2['total'] ?? 0;
+            } catch (Exception $ex) {
+                error_log("Fallback contar produtos falhou: " . $ex->getMessage());
+                return 0;
+            }
+        }
+        error_log("Erro ao contar produtos: " . $e->getMessage());
+        return 0;
     } catch (Exception $e) {
         error_log("Erro ao contar produtos: " . $e->getMessage());
         return 0;
@@ -402,7 +446,8 @@ function contar_produtos_por_comum($conexao, $comum_id) {
  * @param int $comum_id ID do comum
  * @return array Lista de planilhas
  */
-function obter_planilhas_por_comum($conexao, $comum_id) {
+function obter_planilhas_por_comum($conexao, $comum_id)
+{
     try {
         $sql = "SELECT p.id, p.comum_id, p.data_posicao, p.ativo, 
                        COUNT(pr.id_produto) as total_produtos
@@ -415,6 +460,19 @@ function obter_planilhas_por_comum($conexao, $comum_id) {
         $stmt->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Fallback quando tabela 'planilhas' não existir: retornar um registro gerado a partir do próprio comum
+        if ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false) {
+            return [[
+                'id' => $comum_id,
+                'comum_id' => $comum_id,
+                'data_posicao' => null,
+                'ativo' => 1,
+                'total_produtos' => contar_produtos_por_comum($conexao, $comum_id)
+            ]];
+        }
+        error_log("Erro ao obter planilhas: " . $e->getMessage());
+        return [];
     } catch (Exception $e) {
         error_log("Erro ao obter planilhas: " . $e->getMessage());
         return [];
@@ -429,7 +487,8 @@ function obter_planilhas_por_comum($conexao, $comum_id) {
  * @param string $termo Texto informado pelo usuário
  * @return array Lista de comuns filtrada
  */
-function buscar_comuns($conexao, $termo = '') {
+function buscar_comuns($conexao, $termo = '')
+{
     $termo = trim((string) $termo);
 
     if ($termo === '') {
@@ -477,7 +536,8 @@ function buscar_comuns($conexao, $termo = '') {
  * @param string $termo
  * @return int
  */
-function contar_comuns($conexao, $termo = '') {
+function contar_comuns($conexao, $termo = '')
+{
     $termo = trim((string) $termo);
     if ($termo === '') {
         try {
@@ -534,7 +594,8 @@ function contar_comuns($conexao, $termo = '') {
  * @param int $offset
  * @return array
  */
-function buscar_comuns_paginated($conexao, $termo = '', $limite = null, $offset = 0) {
+function buscar_comuns_paginated($conexao, $termo = '', $limite = null, $offset = 0)
+{
     $termo = trim((string) $termo);
     $like = '%' . $termo . '%';
     $digits = preg_replace('/\D+/', '', $termo);
@@ -589,5 +650,3 @@ function buscar_comuns_paginated($conexao, $termo = '', $limite = null, $offset 
         return [];
     }
 }
-
-?>

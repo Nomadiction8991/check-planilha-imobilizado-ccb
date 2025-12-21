@@ -20,15 +20,31 @@ try {
     throw new Exception('Planilha não encontrada.');
   }
 } catch (PDOException $e) {
-  // Table not found (SQLSTATE 42S02 / error 1146) - provide actionable message
+  // Se tabela 'planilhas' não existir, tentar usar 'comums' (trabalhar com o que já existe)
   if ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false) {
-    die("Erro: tabela 'planilhas' não encontrada no banco de dados.\n\nSolução: importe o schema do banco de dados com o arquivo `anvycomb_checkplanilha.sql` na raiz do projeto (ex: mysql -u user -p anvycomb_checkplanilha < anvycomb_checkplanilha.sql) ou verifique as configurações em `config/database.php`.");
+    try {
+      $stmt = $conexao->prepare('SELECT id, descricao as comum FROM comums WHERE id = :id');
+      $stmt->bindValue(':id', $id_planilha, PDO::PARAM_INT);
+      $stmt->execute();
+      $comum = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($comum) {
+        // Criar um objeto mínimo representando a planilha com base no comum
+        $planilha = ['id' => (int)$comum['id'], 'comum' => $comum['comum'], 'comum_id' => (int)$comum['id'], 'ativo' => 1];
+        $using_comum_fallback = true;
+      } else {
+        throw new Exception('Comum não encontrada.');
+      }
+    } catch (Exception $ex) {
+      die("Erro ao carregar planilha/comum: " . $ex->getMessage());
+    }
+  } else {
+    die("Erro ao carregar planilha: " . $e->getMessage());
   }
-  die("Erro ao carregar planilha: " . $e->getMessage());
 } catch (Exception $e) {
   die("Erro ao carregar planilha: " . $e->getMessage());
 }
 
+// Variáveis de filtros/visões
 $mostrar_pendentes = isset($_GET['mostrar_pendentes']);
 $mostrar_checados = isset($_GET['mostrar_checados']);
 $mostrar_observacao = isset($_GET['mostrar_observacao']);
