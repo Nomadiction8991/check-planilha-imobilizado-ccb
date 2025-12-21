@@ -1,6 +1,6 @@
 ﻿<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AutenticaÃ§Ã£o
+// AutenticaÃ§Ã£o
 $id_planilha = $_GET['id'] ?? null;
 
 if (!$id_planilha) {
@@ -17,30 +17,30 @@ ob_start();
 ?>
 
 <style>
-.menu-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-}
+    .menu-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 
-.menu-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
-}
+    .menu-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
 
-.menu-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+    .menu-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-.menu-card.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+    .menu-card.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 
-.menu-card.disabled:hover {
-    transform: none;
-}
+    .menu-card.disabled:hover {
+        transform: none;
+    }
 </style>
 
 <div class="menu-grid">
@@ -49,66 +49,66 @@ ob_start();
             <div class="card-body">
                 <h5 class="card-title">
                     <i class="bi bi-plus-circle-fill me-2" style="color: #28a745;"></i>
-                    Cadastrar Produto
+                    <?php echo htmlspecialchars(to_uppercase('Cadastrar Produto'), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
                 <p class="card-text small text-muted">Adicionar novo produto manualmente</p>
             </div>
         </div>
     </a>
-    
+
     <a href="../planilhas/planilha_importar.php" class="text-decoration-none">
         <div class="card menu-card">
             <div class="card-body">
                 <h5 class="card-title">
                     <i class="bi bi-file-earmark-arrow-up-fill me-2" style="color: #28a745;"></i>
-                    Importar Nova Planilha
+                    <?php echo htmlspecialchars(to_uppercase('Importar Nova Planilha'), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
                 <p class="card-text small text-muted">Importar uma nova planilha CSV</p>
             </div>
         </div>
     </a>
-    
+
     <a href="../planilhas/relatorio141_view.php?id=<?php echo $id_planilha; ?>" class="text-decoration-none">
         <div class="card menu-card">
             <div class="card-body">
                 <h5 class="card-title">
                     <i class="bi bi-printer-fill me-2" style="color: #17a2b8;"></i>
-                    Imprimir 14.1
+                    <?php echo htmlspecialchars(to_uppercase('Imprimir 14.1'), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
                 <p class="card-text small text-muted">Gerar relatÃ³rio 14.1</p>
             </div>
         </div>
     </a>
-    
+
     <a href="../planilhas/produto_copiar_etiquetas.php?id=<?php echo $id_planilha; ?>" class="text-decoration-none">
         <div class="card menu-card">
             <div class="card-body">
                 <h5 class="card-title">
                     <i class="bi bi-tags-fill me-2" style="color: #ff9800;"></i>
-                    Copiar Etiquetas
+                    <?php echo htmlspecialchars(to_uppercase('Copiar Etiquetas'), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
                 <p class="card-text small text-muted">Copiar etiquetas selecionadas</p>
             </div>
         </div>
     </a>
-    
+
     <a href="../planilhas/relatorio_imprimir_alteracao.php?id=<?php echo $id_planilha; ?>" class="text-decoration-none">
         <div class="card menu-card">
             <div class="card-body">
                 <h5 class="card-title">
                     <i class="bi bi-file-earmark-diff-fill me-2" style="color: #9c27b0;"></i>
-                    Imprimir AlteraÃ§Ãµes
+                    <?php echo htmlspecialchars(to_uppercase('Imprimir Alterações'), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
                 <p class="card-text small text-muted">RelatÃ³rio de alteraÃ§Ãµes realizadas</p>
             </div>
         </div>
     </a>
-    
+
     <div class="card menu-card disabled">
         <div class="card-body">
             <h5 class="card-title">
                 <i class="bi bi-gear-fill me-2" style="color: #6c757d;"></i>
-                Em Desenvolvimento
+                <?php echo htmlspecialchars(to_uppercase('Em Desenvolvimento'), ENT_QUOTES, 'UTF-8'); ?>
             </h5>
             <p class="card-text small text-muted">Funcionalidade em breve</p>
         </div>
@@ -130,5 +130,3 @@ include __DIR__ . '/../layouts/app_wrapper.php';
 // Limpar arquivo temporÃ¡rio
 unlink($tempFile);
 ?>
-
-

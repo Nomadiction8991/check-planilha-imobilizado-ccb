@@ -102,7 +102,7 @@ if (isAdmin()) {
     $headerActions .= '
             <li>
                 <a class="dropdown-item" href="../produtos/produtos_listar.php?comum_id=' . $comum_id . '">
-                    <i class="bi bi-list-ul me-2"></i>Listagem de PRODUTOS
+                    <i class="bi bi-list-ul me-2"></i>' . htmlspecialchars(to_uppercase('Listagem de Produtos'), ENT_QUOTES, 'UTF-8') . '
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
@@ -113,7 +113,7 @@ if (isAdmin()) {
             </li>
             <li>
                 <a class="dropdown-item" href="../planilhas/produto_copiar_etiquetas.php?id=' . $id_planilha . '&comum_id=' . $comum_id . '">
-                    <i class="bi bi-tags me-2"></i>Copiar Etiquetas
+                    <i class="bi bi-tags me-2"></i>' . htmlspecialchars(to_uppercase('Copiar Etiquetas'), ENT_QUOTES, 'UTF-8') . '
                 </a>
             </li>
             <li>
@@ -464,7 +464,7 @@ ob_start();
 
 <?php if (!empty($_GET['sucesso'])): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <?php echo htmlspecialchars($_GET['sucesso']); ?>
+        <?php echo htmlspecialchars(to_uppercase($_GET['sucesso']), ENT_QUOTES, 'UTF-8'); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
@@ -1128,10 +1128,10 @@ ob_start();
                             applyState(row, stateUpdates);
                         }
 
-                        showAlert('success', data.message || 'STATUS ATUALIZADO COM SUCESSO');
+                        showAlert('success', (data.message || 'STATUS ATUALIZADO COM SUCESSO').toUpperCase());
                     })
                     .catch(err => {
-                        showAlert('danger', err.message || 'ERRO AO PROCESSAR AÇÃO');
+                        showAlert('danger', (err.message || 'ERRO AO PROCESSAR AÇÃO').toUpperCase());
                     });
             });
         });
@@ -1210,7 +1210,7 @@ ob_start();
                     showAlert('success', data.message || 'Observação atualizada');
                     obsModal.hide();
                 }).catch(err => {
-                    showAlert('danger', err.message || 'Erro ao salvar observação');
+                    showAlert('danger', (err.message || 'Erro ao salvar observação').toUpperCase());
                 }).finally(() => {
                     saveBtn.disabled = false;
                 });
