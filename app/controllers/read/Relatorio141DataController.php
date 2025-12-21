@@ -1,5 +1,5 @@
 ﻿<?php
- // AutenticaÃ§Ã£o
+// AutenticaÃ§Ã£o
 // Incluir arquivo de conexÃ£o
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
@@ -8,9 +8,8 @@ $id_planilha = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Buscar dados da planilha com JOIN na tabela comums
 $sql_planilha = "SELECT c.descricao as comum, c.cnpj, c.administracao, c.cidade, c.codigo as comum_codigo, c.descricao as comum_descricao 
-                 FROM planilhas p
-                 LEFT JOIN comums c ON p.comum_id = c.id
-                 WHERE p.id = :id_planilha";
+                 FROM comums c
+                 WHERE c.id = :id_planilha"; // adaptado para usar 'comums' diretamente (plano: remover tabela 'planilhas')
 $stmt_planilha = $conexao->prepare($sql_planilha);
 $stmt_planilha->bindValue(':id_planilha', $id_planilha);
 $stmt_planilha->execute();
@@ -128,6 +127,3 @@ if (!empty($produtos)) {
 
 // As variÃ¡veis $produtos e $comum_planilha estarÃ£o disponÃ­veis para o HTML
 // Expor variÃ¡veis adicionais: $cnpj_planilha, $numero_relatorio_auto, $casa_oracao_auto
-?>
-
-

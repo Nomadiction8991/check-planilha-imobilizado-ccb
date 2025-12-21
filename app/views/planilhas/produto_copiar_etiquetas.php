@@ -10,7 +10,7 @@ if (!$id_planilha) {
 
 // BUSCAR dados da planilha
 try {
-  $sql_planilha = "SELECT * FROM planilhas WHERE id = :id";
+  $sql_planilha = "SELECT id, descricao as comum, cnpj, administracao, cidade FROM comums WHERE id = :id"; // refatorado para usar 'comums' diretamente
   $stmt_planilha = $conexao->prepare($sql_planilha);
   $stmt_planilha->bindValue(':id', $id_planilha);
   $stmt_planilha->execute();

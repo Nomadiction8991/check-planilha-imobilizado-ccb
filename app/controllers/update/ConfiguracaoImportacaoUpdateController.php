@@ -1,5 +1,5 @@
 ﻿<?php
- // AutenticaÃ§Ã£o
+// AutenticaÃ§Ã£o
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -17,26 +17,33 @@ if (!$id_planilha) {
 }
 
 try {
-    $sql_planilha = "SELECT * FROM planilhas WHERE id = :id";
-    $stmt_planilha = $conexao->prepare($sql_planilha);
-    $stmt_planilha->bindValue(':id', $id_planilha);
-    $stmt_planilha->execute();
-    $planilha = $stmt_planilha->fetch();
-    
-    if (!$planilha) {
-        throw new Exception('Planilha nÃ£o encontrada.');
+    // Obter dados do 'comum' (trocando dependência de 'planilhas' por 'comums')
+    try {
+        $sql_planilha = "SELECT * FROM comums WHERE id = :id";
+        $stmt_planilha = $conexao->prepare($sql_planilha);
+        $stmt_planilha->bindValue(':id', $id_planilha);
+        $stmt_planilha->execute();
+        $planilha = $stmt_planilha->fetch();
+
+        if (!$planilha) {
+            throw new Exception('Comum não encontrada.');
+        }
+
+        // Configurações antigas podem estar em config_planilha (uso de planilha_id); usamos o mesmo id como chave de compatibilidade
+        $sql_config = "SELECT * FROM config_planilha WHERE id_planilha = :id_planilha";
+        $stmt_config = $conexao->prepare($sql_config);
+        $stmt_config->bindValue(':id_planilha', $id_planilha);
+        $stmt_config->execute();
+        $config = $stmt_config->fetch();
+
+        if (!$config) {
+            throw new Exception('Configurações da importação não encontradas.');
+        }
+    } catch (PDOException $e) {
+        // Caso a tabela 'comums' não exista, re-lançar o erro para diagnóstico
+        throw $e;
     }
-    
-    $sql_config = "SELECT * FROM config_planilha WHERE id_planilha = :id_planilha";
-    $stmt_config = $conexao->prepare($sql_config);
-    $stmt_config->bindValue(':id_planilha', $id_planilha);
-    $stmt_config->execute();
-    $config = $stmt_config->fetch();
-    
-    if (!$config) {
-        throw new Exception('ConfiguraÃ§Ãµes da planilha nÃ£o encontradas.');
-    }
-    
+
     // Converter mapeamento de string para array
     $mapeamento_array = [];
     $mapeamentos = explode(';', $config['mapeamento_colunas']);
@@ -44,7 +51,6 @@ try {
         list($campo, $letra) = explode('=', $mapeamento);
         $mapeamento_array[$campo] = $letra;
     }
-    
 } catch (Exception $e) {
     $mensagem = "Erro ao carregar planilha: " . $e->getMessage();
     $tipo_mensagem = 'error';
@@ -64,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cidade = trim($_POST['cidade'] ?? null);
     // Setor (opcional, numÃ©rico)
     $setor = !empty($_POST['setor']) ? (int)$_POST['setor'] : null;
-    
+
     // Mapeamento simplificado
     $mapeamento = [
         'codigo' => strtoupper($_POST['codigo'] ?? 'A'),
@@ -84,14 +90,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Iniciar transaÃ§Ã£o
         $conexao->beginTransaction();
 
-    // Se um novo arquivo foi enviado, processar para obter os novos valores
-    $novo_valor_comum = $planilha['comum']; // Manter o valor atual por padrÃ£o
-    $novo_valor_data_posicao = $planilha['data_posicao']; // Manter o valor atual por padrÃ£o
-    $novo_valor_endereco = $planilha['endereco']; // Manter o valor atual por padrÃ£o
-    $novo_valor_cnpj = $planilha['cnpj']; // Manter o valor atual por padrÃ£o
-    $novo_administracao = $planilha['administracao'] ?? null;
-    $novo_cidade = $planilha['cidade'] ?? null;
-        
+        // Se um novo arquivo foi enviado, processar para obter os novos valores
+        $novo_valor_comum = $planilha['comum']; // Manter o valor atual por padrÃ£o
+        $novo_valor_data_posicao = $planilha['data_posicao']; // Manter o valor atual por padrÃ£o
+        $novo_valor_endereco = $planilha['endereco']; // Manter o valor atual por padrÃ£o
+        $novo_valor_cnpj = $planilha['cnpj']; // Manter o valor atual por padrÃ£o
+        $novo_administracao = $planilha['administracao'] ?? null;
+        $novo_cidade = $planilha['cidade'] ?? null;
+
         if (isset($_FILES['arquivo']) && $_FILES['arquivo']['error'] === UPLOAD_ERR_OK) {
             $arquivo_tmp = $_FILES['arquivo']['tmp_name'];
             $extensao = strtolower(pathinfo($_FILES['arquivo']['name'], PATHINFO_EXTENSION));
@@ -103,10 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Processar o arquivo CSV para obter os valores das cÃ©lulas
             $planilha_obj = IOFactory::load($arquivo_tmp);
             $aba_ativa = $planilha_obj->getActiveSheet();
-            
+
             // Obter o valor da cÃ©lula comum
             $novo_valor_comum = $aba_ativa->getCell($localizacao_comum)->getCalculatedValue();
-            
+
             if (empty($novo_valor_comum)) {
                 throw new Exception('A cÃ©lula ' . $localizacao_comum . ' estÃ¡ vazia no arquivo CSV.');
             }
@@ -119,14 +125,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Obter o valor da cÃ©lula data_posicao
             $valor_data_posicao = $aba_ativa->getCell($localizacao_data_posicao)->getCalculatedValue();
-            
+
             if (empty($valor_data_posicao)) {
                 throw new Exception('A cÃ©lula ' . $localizacao_data_posicao . ' estÃ¡ vazia no arquivo CSV.');
             }
 
             // Obter o valor da cÃ©lula endereco
             $novo_valor_endereco = $aba_ativa->getCell($localizacao_endereco)->getCalculatedValue();
-            
+
             if (empty($novo_valor_endereco)) {
                 throw new Exception('A cÃ©lula ' . $localizacao_endereco . ' estÃ¡ vazia no arquivo CSV.');
             }
@@ -172,28 +178,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro_detalhado = '';
 
             // FunÃ§Ã£o para converter letra da coluna para Ã­ndice numÃ©rico
-            function colunaParaIndice($coluna) {
+            function colunaParaIndice($coluna)
+            {
                 $coluna = strtoupper($coluna);
                 $indice = 0;
                 $tamanho = strlen($coluna);
-                
+
                 for ($i = 0; $i < $tamanho; $i++) {
                     $indice = $indice * 26 + (ord($coluna[$i]) - ord('A') + 1);
                 }
-                
+
                 return $indice - 1;
             }
 
             // FunÃ§Ã£o para corrigir encoding dos textos
-            function corrigirEncoding($texto) {
+            function corrigirEncoding($texto)
+            {
                 if (empty($texto)) return $texto;
-                
+
                 $encoding = mb_detect_encoding($texto, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
-                
+
                 if ($encoding !== 'UTF-8') {
                     $texto = mb_convert_encoding($texto, 'UTF-8', $encoding);
                 }
-                
+
                 return $texto;
             }
 
@@ -206,7 +214,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Verificar se a linha estÃ¡ vazia
-                if (empty(array_filter($linha, function($v) { return $v !== null && $v !== ''; }))) {
+                if (empty(array_filter($linha, function ($v) {
+                    return $v !== null && $v !== '';
+                }))) {
                     continue;
                 }
 
@@ -214,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Obter valores baseado no mapeamento simplificado
                     $indice_codigo = colunaParaIndice($mapeamento['codigo']);
                     $codigo = isset($linha[$indice_codigo]) ? trim($linha[$indice_codigo]) : '';
-                    
+
                     // Pular linha se nÃ£o tiver cÃ³digo
                     if (empty($codigo)) {
                         continue;
@@ -245,7 +255,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $erro_detalhado = "Erro SQL: " . $errorInfo[2] . " na linha " . $linha_atual;
                         error_log($erro_detalhado);
                     }
-
                 } catch (Exception $e) {
                     $registros_erros++;
                     $erro_detalhado = "Erro na linha {$linha_atual}: " . $e->getMessage();
@@ -273,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($cidade) || $cidade === "") {
             $novo_cidade = $cidade;
         }
-        
+
         // Atualizar setor se foi fornecido
         $novo_setor = $planilha['setor'] ?? null;
         if (isset($_POST['setor'])) {
@@ -286,16 +295,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Atualizar dados da planilha com os novos valores (se aplicÃ¡vel)
-    $sql_update_planilha = "UPDATE planilhas SET ativo = :ativo, comum = :comum, data_posicao = :data_posicao, endereco = :endereco, cnpj = :cnpj, administracao = :administracao, cidade = :cidade, setor = :setor WHERE id = :id";
+        $sql_update_planilha = "UPDATE planilhas SET ativo = :ativo, comum = :comum, data_posicao = :data_posicao, endereco = :endereco, cnpj = :cnpj, administracao = :administracao, cidade = :cidade, setor = :setor WHERE id = :id";
         $stmt_update_planilha = $conexao->prepare($sql_update_planilha);
         $stmt_update_planilha->bindValue(':ativo', $ativo);
         $stmt_update_planilha->bindValue(':comum', $novo_valor_comum);
         $stmt_update_planilha->bindValue(':data_posicao', $novo_valor_data_posicao);
         $stmt_update_planilha->bindValue(':endereco', $novo_valor_endereco);
         $stmt_update_planilha->bindValue(':cnpj', $novo_valor_cnpj);
-    $stmt_update_planilha->bindValue(':administracao', $novo_administracao);
-    $stmt_update_planilha->bindValue(':cidade', $novo_cidade);
-    $stmt_update_planilha->bindValue(':setor', $novo_setor, PDO::PARAM_INT);
+        $stmt_update_planilha->bindValue(':administracao', $novo_administracao);
+        $stmt_update_planilha->bindValue(':cidade', $novo_cidade);
+        $stmt_update_planilha->bindValue(':setor', $novo_setor, PDO::PARAM_INT);
         $stmt_update_planilha->bindValue(':id', $id_planilha);
         $stmt_update_planilha->execute();
 
@@ -321,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conexao->commit();
 
         $mensagem = "Planilha atualizada com sucesso!";
-        
+
         if (isset($registros_importados)) {
             $mensagem .= "<br>Valor obtido da cÃ©lula " . htmlspecialchars($localizacao_comum) . ": " . htmlspecialchars($novo_valor_comum);
             $mensagem .= "<br>Valor obtido da cÃ©lula " . htmlspecialchars($localizacao_data_posicao) . ": " . htmlspecialchars($novo_valor_data_posicao);
@@ -329,34 +338,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mensagem .= "<br>Valor obtido da cÃ©lula " . htmlspecialchars($localizacao_cnpj) . ": " . htmlspecialchars($novo_valor_cnpj);
             $mensagem .= "<br>Registros importados: {$registros_importados}<br>Erros: {$registros_erros}";
         }
-        
+
         $tipo_mensagem = 'success';
 
         // Recarregar dados atualizados
         $stmt_planilha->execute();
         $planilha = $stmt_planilha->fetch();
-        
+
         $stmt_config->execute();
         $config = $stmt_config->fetch();
-        
+
         $mapeamento_array = [];
         $mapeamentos = explode(';', $config['mapeamento_colunas']);
         foreach ($mapeamentos as $mapeamento) {
             list($campo, $letra) = explode('=', $mapeamento);
             $mapeamento_array[$campo] = $letra;
         }
-
     } catch (Exception $e) {
         if ($conexao->inTransaction()) {
             $conexao->rollBack();
         }
         $mensagem = "Erro na atualizaÃ§Ã£o: " . $e->getMessage();
         $tipo_mensagem = 'error';
-        
+
         error_log("ERRO ATUALIZACAO: " . $e->getMessage());
         error_log("Trace: " . $e->getTraceAsString());
     }
 }
-?>
-
-

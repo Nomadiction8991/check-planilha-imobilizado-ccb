@@ -1,5 +1,5 @@
 ﻿<?php
- // AutenticaÃ§Ã£o
+// AutenticaÃ§Ã£o
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 // ParÃ¢metros da paginaÃ§Ã£o
@@ -18,7 +18,7 @@ $filtro_data_fim = isset($_GET['data_fim']) ? $_GET['data_fim'] : '';
 $sql = "SELECT p.*, 
     (SELECT COUNT(*) FROM produtos pr WHERE pr.planilha_id = p.id) AS total_produtos,
     (SELECT COUNT(*) FROM produtos pr WHERE pr.planilha_id = p.id AND COALESCE(pr.checado, 0) = 0) AS total_pendentes
-    FROM planilhas p WHERE 1=1";
+    FROM comums p WHERE 1=1"; // NOTE: substituído para usar 'comums' como fonte primária (refactor para remover dependência de 'planilhas')
 $params = [];
 
 // Aplicar filtro de comum
@@ -92,12 +92,9 @@ unset($pl);
 
 // Aplicar filtro de status calculado (se fornecido)
 if (!empty($filtro_status)) {
-    $planilhas = array_filter($planilhas, function($pl) use ($filtro_status) {
+    $planilhas = array_filter($planilhas, function ($pl) use ($filtro_status) {
         return ($pl['status_calc'] ?? '') === $filtro_status;
     });
     // Reindexar array apÃ³s filtro
     $planilhas = array_values($planilhas);
 }
-?>
-
-

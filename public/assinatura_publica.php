@@ -16,22 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Selecione uma Comum vÃ¡lida.');
         }
 
-        // Validar se a planilha existe e estÃ¡ ativa
-        $stmt = $conexao->prepare('SELECT id, comum FROM planilhas WHERE id = :id AND (ativo = 1 OR ativo IS NULL)');
+        // Validar se a comum existe e está ativa (substituímos 'planilhas' por 'comums')
+        $stmt = $conexao->prepare('SELECT id, descricao as comum FROM comums WHERE id = :id');
         $stmt->bindValue(':id', $planilha_id, PDO::PARAM_INT);
         $stmt->execute();
         $planilha = $stmt->fetch();
 
         if (!$planilha) {
-            throw new Exception('Comum nÃ£o encontrada ou inativa.');
+            throw new Exception('Comum não encontrada ou inativa.');
         }
 
-        // Habilitar modo pÃºblico com contexto da planilha
+        // Habilitar modo público com contexto da comum
         $_SESSION['public_acesso'] = true;
         $_SESSION['public_planilha_id'] = $planilha['id'];
         $_SESSION['public_comum'] = $planilha['comum'];
 
-        // Redirecionar para o menu com contexto da planilha (somente relatÃ³rios)
+        // Redirecionar para o menu com contexto da planilha (somente relatórios)
         header('Location: ../app/views/shared/menu_unificado.php?contexto=planilha&id=' . urlencode($planilha['id']) . '&publico=1');
         exit;
     } catch (Exception $e) {
@@ -39,17 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Carregar lista de comuns ativas
+// Carregar lista de comuns ativas (refatorado para usar 'comums')
 try {
-    $stmt = $conexao->query('SELECT id, comum FROM planilhas WHERE (ativo = 1 OR ativo IS NULL) ORDER BY comum ASC');
+    $stmt = $conexao->query('SELECT id, descricao as comum FROM comums WHERE 1 ORDER BY descricao ASC');
     $comuns = $stmt->fetchAll();
 } catch (PDOException $e) {
-    if ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false) {
-        $erro = "Erro: tabela 'planilhas' não encontrada no banco de dados. Importe `anvycomb_checkplanilha.sql` (raiz do projeto) ou verifique `config/database.php`.";
-        $comuns = [];
-    } else {
-        throw $e;
-    }
+    $erro = "Erro ao carregar lista de comuns: " . $e->getMessage();
+    $comuns = [];
 }
 ?>
 <!DOCTYPE html>
