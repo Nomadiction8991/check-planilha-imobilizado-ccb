@@ -64,7 +64,7 @@ try {
                      FROM PRODUTOS p 
                      LEFT JOIN dependencias d_orig ON p.dependencia_id = d_orig.id
                      LEFT JOIN dependencias d_edit ON p.editado_dependencia_id = d_edit.id
-                     WHERE p.comum_id = :comum_id AND COALESCE(p.imprimir_etiqueta, 0) = 1";
+                     WHERE p.planilha_id = :comum_id AND COALESCE(p.imprimir_etiqueta, 0) = 1"; // usar planilha_id (coluna real da tabela) para filtrar os produtos
   if (!empty($dependencia_selecionada)) {
     $sql_PRODUTOS .= " AND (
             (COALESCE(d_edit.descricao, d_orig.descricao) = :dependencia)
@@ -118,7 +118,8 @@ try {
 }
 
 $pageTitle = 'Copiar Etiquetas';
-$backUrl = '../planilhas/planilha_visualizar.php?id=' . urlencode($comum_id) . '&comum_id=' . urlencode($comum_id);
+// Garantir que o back link use o ID recebido (tratado como planilha/comum)
+$backUrl = '../planilhas/planilha_visualizar.php?id=' . urlencode($id_planilha) . '&comum_id=' . urlencode($id_planilha);
 $headerActions = '
     <div class="dropdown">
         <button class="btn-header-action" type="button" id="menuEtiquetas" data-bs-toggle="dropdown" aria-expanded="false">
@@ -126,14 +127,14 @@ $headerActions = '
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuEtiquetas">
             <li>
-                <a class="dropdown-item" href="../planilhas/planilha_visualizar.php?id=' . $comum_id . '&comum_id=' . $comum_id . '">
-                    <i class="bi bi-eye me-2"></i>VISUALIZAR Planilha
+                <a class="dropdown-item" href="../planilhas/planilha_visualizar.php?id=' . $id_planilha . '&comum_id=' . $id_planilha . '">
+                    <i class="bi bi-eye me-2"></i>VISUALIZAR PLANILHA
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
                 <a class="dropdown-item" href="../../../logout.php">
-                    <i class="bi bi-box-arrow-right me-2"></i>Sair
+                    <i class="bi bi-box-arrow-right me-2"></i>SAIR
                 </a>
             </li>
         </ul>
