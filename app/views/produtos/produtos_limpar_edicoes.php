@@ -1,6 +1,6 @@
 ﻿<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AutenticaÃƒÂ§ÃƒÂ£o
+// AutenticaÃƒÂ§ÃƒÂ£o
 
 // ParÃƒÂ¢metros
 $id_PRODUTO = $_GET['id_PRODUTO'] ?? null;
@@ -13,7 +13,8 @@ $filtro_dependencia = $_GET['dependencia'] ?? '';
 $filtro_codigo = $_GET['filtro_codigo'] ?? '';
 $filtro_STATUS = $_GET['STATUS'] ?? '';
 
-function redirectBack($params) {
+function redirectBack($params)
+{
     $qs = http_build_query($params);
     header('Location: ../planilhas/planilha_visualizar.php?' . $qs);
     exit;
@@ -26,9 +27,11 @@ if (!$id_PRODUTO || !$comum_id) {
         'pagina' => $pagina,
         'nome' => $filtro_nome,
         'dependencia' => $filtro_dependencia,
+        'filtro_codigo' => $filtro_codigo,
         'codigo' => $filtro_codigo,
+        'status' => $filtro_STATUS,
         'STATUS' => $filtro_STATUS,
-        'erro' => 'Par?metros inv?lidos'
+        'erro' => 'Parâmetros inválidos'
     ]);
 }
 
@@ -45,12 +48,12 @@ try {
                        editado = 0
                    WHERE id_PRODUTO = :id_PRODUTO 
                      AND comum_id = :comum_id";
-    
+
     $stmt_update = $conexao->prepare($sql_update);
     $stmt_update->bindValue(':id_PRODUTO', $id_PRODUTO);
     $stmt_update->bindValue(':comum_id', $comum_id);
     $stmt_update->execute();
-    
+
     $msg = 'EdiÃƒÂ§ÃƒÂµes limpas com sucesso!';
 
     redirectBack([
@@ -59,11 +62,12 @@ try {
         'pagina' => $pagina,
         'nome' => $filtro_nome,
         'dependencia' => $filtro_dependencia,
+        'filtro_codigo' => $filtro_codigo,
         'codigo' => $filtro_codigo,
+        'status' => $filtro_STATUS,
         'STATUS' => $filtro_STATUS,
         'sucesso' => $msg
     ]);
-
 } catch (Exception $e) {
     redirectBack([
         'id' => $comum_id,
@@ -71,9 +75,10 @@ try {
         'pagina' => $pagina,
         'nome' => $filtro_nome,
         'dependencia' => $filtro_dependencia,
+        'filtro_codigo' => $filtro_codigo,
         'codigo' => $filtro_codigo,
+        'status' => $filtro_STATUS,
         'STATUS' => $filtro_STATUS,
-        'erro' => 'Erro ao limpar ediÃƒÂ§ÃƒÂµes: ' . $e->getMessage()
+        'erro' => 'Erro ao limpar edições: ' . $e->getMessage()
     ]);
 }
-?>
