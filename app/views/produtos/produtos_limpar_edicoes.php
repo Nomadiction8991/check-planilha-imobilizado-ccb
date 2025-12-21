@@ -46,7 +46,6 @@ try {
                        editado_dependencia_id = 0,
                        editado_descricao_completa = '',
                        imprimir_etiqueta = 0,
-                       imprimir = 0,
                        checado = 0,
                        editado = 0
                    WHERE id_produto = :id_produto 
