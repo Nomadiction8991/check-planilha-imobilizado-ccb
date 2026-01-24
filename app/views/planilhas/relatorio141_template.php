@@ -1,29 +1,3 @@
-<!DOCTYPE html>
-require_once dirname(__DIR__, 2) . '/bootstrap.php';
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário 14.1 - Template</title>
-    <!-- CSS externo removido para evitar interferência; estilos devem vir do HTML/inline quando necessário -->
-</head>
-<body>
-
-<!-- 
-    TEMPLATE DO RELATÓRIO 14.1
-    
-    Variáveis disponíveis para preenchimento:
-    {{CNPJ}} - CNPJ da planilha
-    {{NUMERO_RELATORIO}} - NÚMERO do relatório
-    {{CASA_ORACAO}} - Nome da casa de oração
-    {{PRODUTOS}} - Array de PRODUTOS com:
-        - codigo: CÓDIGO do PRODUTO
-        - descricao: DESCRIÇÃO do PRODUTO
-        - obs: Observações
-        
-    Cada PRODUTO gera uma página A4 completa
--->
-
 <?php
  // AUTENTICAÇÃO
 // Se $PRODUTOS NÃO foi definido, usar array vazio

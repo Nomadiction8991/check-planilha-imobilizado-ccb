@@ -11,6 +11,26 @@ if (file_exists($autoload)) {
     require_once $autoload;
 }
 
+// Se a classe não existir (deploy sem dependências), define um fallback mínimo para evitar erro fatal
+if (!class_exists('voku\\helper\\UTF8')) {
+    $code = <<<'PHP'
+namespace voku\helper;
+class UTF8 {
+    public static function fix_utf8($s) { return $s; }
+    public static function strtoupper($s) { return mb_strtoupper($s, 'UTF-8'); }
+    public static function strtolower($s) { return mb_strtolower($s, 'UTF-8'); }
+    public static function to_ascii($s) {
+        $out = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
+        if ($out === false) {
+            return preg_replace('/[^\x20-\x7E]/u','',$s);
+        }
+        return preg_replace('/[^\x20-\x7E]/u','',$out);
+    }
+}
+PHP;
+    eval($code);
+}
+
 use voku\helper\UTF8;
 
 // Se a classe não existir (deploy sem dependências), define um fallback mínimo para evitar erro fatal
@@ -31,6 +51,18 @@ class UTF8 {
 }
 PHP;
     eval($code);
+}
+
+/**
+ * Helper interno para remover acentos, usando método correto da biblioteca voku
+ */
+function _utf8_remove_accents($text)
+{
+    if (empty($text)) {
+        return $text;
+    }
+    // A biblioteca voku/portable-utf8 usa to_ascii para remover acentos
+    return UTF8::to_ascii($text);
 }
 
 /**
@@ -94,7 +126,7 @@ function normalize_text($text, $remove_accents = false)
 
     if ($remove_accents) {
         // Remove acentos e converte para uppercase
-        $text = UTF8::remove_accents($text);
+        $text = _utf8_remove_accents($text);
     }
 
     return to_uppercase($text);
@@ -123,11 +155,7 @@ function to_lowercase($value)
  */
 function remove_accents($text)
 {
-    if (empty($text)) {
-        return $text;
-    }
-
-    return UTF8::remove_accents($text);
+    return _utf8_remove_accents($text);
 }
 
 /**

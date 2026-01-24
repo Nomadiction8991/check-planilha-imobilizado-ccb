@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 $comum_id = isset($_GET['comum_id']) ? (int)$_GET['comum_id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);

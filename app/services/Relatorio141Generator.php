@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Gerador de RelatÃ³rios 14.1

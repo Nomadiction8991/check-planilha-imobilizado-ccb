@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // AutenticaÃ§Ã£o
 // Incluir arquivo de conexÃ£o
 require_once dirname(__DIR__, 2) . '/bootstrap.php';

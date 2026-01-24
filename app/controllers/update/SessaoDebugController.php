@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 header('Content-Type: text/plain; charset=utf-8');

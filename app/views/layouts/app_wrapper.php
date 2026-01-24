@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 // Detectar ambiente (produÃ§Ã£o ou desenvolvimento)
 $ambiente_manifest = 'prod'; // padrÃ£o produÃ§Ã£o

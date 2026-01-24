@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Se for registro pÃºblico, nÃ£o exige autenticaÃ§Ã£o
 if (!defined('PUBLIC_REGISTER')) {
      // AutenticaÃ§Ã£o apenas para admins
