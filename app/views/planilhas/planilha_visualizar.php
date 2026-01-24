@@ -608,7 +608,7 @@ ob_start();
 
                 if ($p['ativo'] == 0) {
                     $classe = 'linha-dr';
-                } elseif ($p['imprimir'] == 1 && $p['checado'] == 1) {
+                } elseif ($p['imprimir'] == 1) {
                     $classe = 'linha-imprimir';
                 } elseif ($p['checado'] == 1) {
                     $classe = 'linha-checado';
@@ -858,7 +858,7 @@ ob_start();
         const linhaClasses = ['linha-dr', 'linha-imprimir', 'linha-checado', 'linha-observacao', 'linha-editado', 'linha-pendente'];
         const computeRowClass = (state) => {
             if (state.ativo === 0) return 'linha-dr';
-            if (state.imprimir === 1 && state.checado === 1) return 'linha-imprimir';
+            if (state.imprimir === 1) return 'linha-imprimir';
             if (state.checado === 1) return 'linha-checado';
             if ((state.observacao || '').trim() !== '') return 'linha-observacao';
             if (state.editado === 1) return 'linha-editado';

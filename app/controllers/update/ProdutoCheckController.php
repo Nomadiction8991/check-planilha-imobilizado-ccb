@@ -1,5 +1,5 @@
 <?php
- // AutenticaÃ§Ã£o
+// AutenticaÃ§Ã£o
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -66,7 +66,7 @@ try {
         header('Location: ' . $buildRedirect($msg));
         exit;
     }
-    
+
     // Atualizar coluna checado na tabela produtos
     $sql = "UPDATE produtos SET checado = :checado WHERE id_produto = :produto_id";
     $stmt = $conexao->prepare($sql);
@@ -82,10 +82,9 @@ try {
             'message' => $checado ? 'PRODUTO MARCADO COMO CHECADO' : 'PRODUTO DESMARCADO'
         ]);
     }
-    
+
     header('Location: ' . $buildRedirect());
     exit;
-    
 } catch (Exception $e) {
     $msg = 'ERRO AO PROCESSAR CHECK: ' . $e->getMessage();
     if (is_ajax_request()) {
@@ -94,6 +93,3 @@ try {
     header('Location: ' . $buildRedirect($msg));
     exit;
 }
-
-
-
