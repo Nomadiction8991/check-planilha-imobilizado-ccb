@@ -1,6 +1,12 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
+// Evitar cache do navegador para garantir dados atualizados
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // Usamos o ID da comum como parametro principal
 $comum_id = 0;
 if (isset($_GET['comum_id'])) {
