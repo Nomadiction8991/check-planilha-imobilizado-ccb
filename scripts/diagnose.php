@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Script de diagnóstico para identificar problemas no servidor
  * Acesse: https://checkplanilha.anvy.com.br/scripts/diagnose.php?debug=1
@@ -58,7 +59,7 @@ try {
     if (isset($conexao) && $conexao instanceof PDO) {
         $result = $conexao->query("SELECT 1")->fetchColumn();
         echo "   - Conexão: ✓ OK (SELECT 1 = $result)\n";
-        
+
         // Testar tabela comums/comuns
         echo "\n6. Verificando tabela comums/comuns:\n";
         foreach (['comums', 'comuns'] as $table) {
