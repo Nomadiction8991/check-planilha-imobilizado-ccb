@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfiles/Dockerfile
+    image: checkplanilha:local
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./Dockerfiles/php.ini:/usr/local/etc/php/conf.d/dev.ini:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
