@@ -125,18 +125,17 @@ try {
   $dependencia_options = [];
 }
 
-// Mapear ID -> descri+Ã¯Â¿Â½+Ã¯Â¿Â½o/c+Ã¯Â¿Â½digo para exibir label amig+Ã¯Â¿Â½vel no filtro
+// Mapear ID -> descrição para exibir label amigável no filtro
 $dependencias_map = [];
 if (!empty($dependencia_options)) {
   $placeholders = implode(',', array_fill(0, count($dependencia_options), '?'));
-  $stmtDepMap = $conexao->prepare("SELECT id, codigo, descricao FROM dependencias WHERE id IN ($placeholders)");
+  $stmtDepMap = $conexao->prepare("SELECT id, descricao FROM dependencias WHERE id IN ($placeholders)");
   foreach ($dependencia_options as $idx => $depId) {
     $stmtDepMap->bindValue($idx + 1, (int)$depId, PDO::PARAM_INT);
   }
   if ($stmtDepMap->execute()) {
     foreach ($stmtDepMap->fetchAll(PDO::FETCH_ASSOC) as $d) {
       $dependencias_map[(int)$d['id']] = [
-        'codigo' => $d['codigo'],
         'descricao' => $d['descricao']
       ];
     }

@@ -59,7 +59,7 @@ if (!empty($comum_descricao)) {
     $casa_oracao_auto = (string)$comum_descricao;
 }
 
-// Consultar produtos que devem imprimir o relatÃ³rio 14.1
+// Consultar produtos que devem imprimir o relatório 14.1
 $sql = "SELECT 
             p.id_produto,
             p.tipo_bem_id,
@@ -77,18 +77,15 @@ $sql = "SELECT
             admin.nome as administrador_nome,
             admin.cpf as administrador_cpf,
             admin.rg as administrador_rg,
-            admin.assinatura as administrador_assinatura,
             doador.nome as doador_nome,
             doador.cpf as doador_cpf,
             doador.rg as doador_rg,
             doador.rg_igual_cpf as doador_rg_igual_cpf,
-            doador.assinatura as doador_assinatura,
             doador.casado as doador_casado,
             doador.nome_conjuge as doador_nome_conjuge,
             doador.cpf_conjuge as doador_cpf_conjuge,
             doador.rg_conjuge as doador_rg_conjuge,
             doador.rg_conjuge_igual_cpf as doador_rg_conjuge_igual_cpf,
-            doador.assinatura_conjuge as doador_assinatura_conjuge,
             doador.endereco_cep as doador_endereco_cep,
             doador.endereco_logradouro as doador_endereco_logradouro,
             doador.endereco_numero as doador_endereco_numero,
