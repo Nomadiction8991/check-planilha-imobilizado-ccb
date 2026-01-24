@@ -65,8 +65,11 @@ try {
                      CAST(p.editado AS SIGNED) as editado, 
                      p.editado_descricao_completa as nome_editado, 
                      p.editado_dependencia_id as dependencia_editada,
+                     COALESCE(d_edit.descricao, d_orig.descricao, '') as dependencia,
                      'comum' as origem
-                     FROM produtos p 
+                     FROM produtos p
+                     LEFT JOIN dependencias d_orig ON p.dependencia_id = d_orig.id
+                     LEFT JOIN dependencias d_edit ON p.editado_dependencia_id = d_edit.id
                      WHERE p.comum_id = :id_comum";
   $params = [':id_comum' => $id_planilha];
   if (!empty($filtro_dependencia)) {
