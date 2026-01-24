@@ -31,9 +31,9 @@ if ($_REQUEST_METHOD === 'POST') {
     }
 
     try {
-        // BUSCAR STATUS atual no novo schema (PRODUTOS) - USANDO id_PRODUTO
-        $stmt_STATUS = $conexao->prepare('SELECT checado, imprimir_etiqueta, imprimir_14_1 FROM produtos WHERE id_PRODUTO = :id_PRODUTO AND comum_id = :comum_id');
-        $stmt_STATUS->bindValue(':id_PRODUTO', $PRODUTO_id, PDO::PARAM_INT);
+        // BUSCAR STATUS atual no novo schema (produtos) - USANDO id_produto
+        $stmt_STATUS = $conexao->prepare('SELECT checado, imprimir_etiqueta, imprimir_14_1 FROM produtos WHERE id_produto = :id_produto AND comum_id = :comum_id');
+        $stmt_STATUS->bindValue(':id_produto', $PRODUTO_id, PDO::PARAM_INT);
         $stmt_STATUS->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
         $stmt_STATUS->execute();
         $STATUS = $stmt_STATUS->fetch(PDO::FETCH_ASSOC);
@@ -42,21 +42,21 @@ if ($_REQUEST_METHOD === 'POST') {
             throw new Exception('PRODUTO NÃO encontrado.');
         }
 
-        // Regra: NÃO pode desmarcar checado se estiver marcado para impressÃ£o
+        // Regra: NÃO pode desmarcar checado se estiver marcado para impressão
         if ((int)$checado === 0 && (($STATUS['imprimir_etiqueta'] ?? 0) == 1 || ($STATUS['imprimir_14_1'] ?? 0) == 1)) {
             $query_string = http_build_query(array_merge(
                 ['id' => $id_planilha],
                 $filtros,
-                ['erro' => 'NÃ£o Ã© possÃ­vel desmarcar o check se o PRODUTO estiver marcado para impressÃ£o.']
+                ['erro' => 'Não é possível desmarcar o check se o produto estiver marcado para impressão.']
             ));
             header('Location: ./planilha_visualizar.php?' . $query_string);
             exit;
         }
 
-        // ATUALIZAR flag no prÃ³prio PRODUTO - USANDO id_PRODUTO
-        $stmt_up = $conexao->prepare('UPDATE produtos SET checado = :checado WHERE id_PRODUTO = :id_PRODUTO AND comum_id = :comum_id');
+        // ATUALIZAR flag no próprio produto - USANDO id_produto
+        $stmt_up = $conexao->prepare('UPDATE produtos SET checado = :checado WHERE id_produto = :id_produto AND comum_id = :comum_id');
         $stmt_up->bindValue(':checado', (int)$checado, PDO::PARAM_INT);
-        $stmt_up->bindValue(':id_PRODUTO', $PRODUTO_id, PDO::PARAM_INT);
+        $stmt_up->bindValue(':id_produto', $PRODUTO_id, PDO::PARAM_INT);
         $stmt_up->bindValue(':comum_id', $comum_id, PDO::PARAM_INT);
         $stmt_up->execute();
 

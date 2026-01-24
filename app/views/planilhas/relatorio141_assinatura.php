@@ -11,7 +11,7 @@ if (!$id_planilha) {
 
 // BUSCAR PRODUTOS que podem ser assinados (imprimir_14_1 = 1)
 $sql = "SELECT 
-            p.id_PRODUTO,
+            p.id_produto,
             p.descricao_completa,
             p.tipo_bem_id,
             p.condicao_14_1,
@@ -23,7 +23,7 @@ $sql = "SELECT
         LEFT JOIN usuarios u ON p.doador_conjugue_id = u.id
         WHERE p.comum_id = :id_comum 
         AND p.imprimir_14_1 = 1
-        ORDER BY p.id_PRODUTO ASC";
+        ORDER BY p.id_produto ASC";
 
 $stmt = $conexao->prepare($sql);
 $stmt->bindValue(':id_comum', $id_planilha);
@@ -223,22 +223,22 @@ endif; ?>
         ?>
             <div class="col-12">
                 <div class="card PRODUTO-card <?php echo $STATUS_class; ?>"
-                    data-PRODUTO-id="<?php echo $PRODUTO['id_PRODUTO']; ?>">
+                    data-PRODUTO-id="<?php echo $PRODUTO['id_produto']; ?>">
                     <div class="card-body">
                         <div class="d-flex gap-3">
                             <!-- Checkbox de seleÃƒÂ§ÃƒÂ£o -->
                             <div class="form-check">
                                 <input class="form-check-input"
                                     type="checkbox"
-                                    id="check_<?php echo $PRODUTO['id_PRODUTO']; ?>"
-                                    value="<?php echo $PRODUTO['id_PRODUTO']; ?>"
+                                    id="check_<?php echo $PRODUTO['id_produto']; ?>"
+                                    value="<?php echo $PRODUTO['id_produto']; ?>"
                                     data-assinado="<?php echo $assinado ? '1' : '0'; ?>"
                                     onchange="atualizarSelecao()"
                                     style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
                             </div>
 
                             <!-- ConteÃƒÂºdo do PRODUTO -->
-                            <div class="flex-grow-1" onclick="abrirAssinatura(<?php echo $PRODUTO['id_PRODUTO']; ?>)" style="cursor: pointer;">
+                            <div class="flex-grow-1" onclick="abrirAssinatura(<?php echo $PRODUTO['id_produto']; ?>)" style="cursor: pointer;">
                                 <?php if ($assinado): ?>
                                     <div class="doador-tag">
                                         <i class="bi bi-check-circle-fill me-1"></i>

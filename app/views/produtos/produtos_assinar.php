@@ -17,7 +17,7 @@ $coluna_assinatura = $is_admin ? 'administrador_acessor_id' : 'doador_conjugue_i
 
 // BUSCAR PRODUTOS da planilha
 $sql = "SELECT 
-            p.id_PRODUTO,
+            p.id_produto,
             p.codigo,
             p.descricao_completa,
             p.complemento,
@@ -29,7 +29,7 @@ $sql = "SELECT
         LEFT JOIN tipos_bens tb ON p.tipo_bem_id = tb.id
         LEFT JOIN dependencias d ON p.dependencia_id = d.id
         WHERE p.comum_id = :id_comum AND p.ativo = 1
-        ORDER BY p.id_PRODUTO ASC";
+        ORDER BY p.id_produto ASC";
 $stmt = $conexao->prepare($sql);
 $stmt->bindValue(':id_comum', $id_planilha);
 $stmt->execute();
@@ -99,14 +99,14 @@ ob_start();
                     $assinado_por_mim = ($PRODUTO['minha_assinatura'] == $usuario_id);
                     $pode_desassinar = $assinado_por_mim;
                     ?>
-                    <div class="card PRODUTO-card mb-2 <?php echo $assinado_por_mim ? 'assinado' : ''; ?>" data-PRODUTO-id="<?php echo $PRODUTO['id_PRODUTO']; ?>">
+                    <div class="card PRODUTO-card mb-2 <?php echo $assinado_por_mim ? 'assinado' : ''; ?>" data-PRODUTO-id="<?php echo $PRODUTO['id_produto']; ?>">
                         <div class="card-body py-2">
                             <div class="d-flex align-items-center">
                                 <div class="form-check me-3">
                                     <input class="form-check-input PRODUTO-checkbox"
                                         type="checkbox"
-                                        value="<?php echo $PRODUTO['id_PRODUTO']; ?>"
-                                        id="PRODUTO_<?php echo $PRODUTO['id_PRODUTO']; ?>">
+                                        value="<?php echo $PRODUTO['id_produto']; ?>"
+                                        id="PRODUTO_<?php echo $PRODUTO['id_produto']; ?>">
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="fw-semibold">

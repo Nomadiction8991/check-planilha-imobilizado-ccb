@@ -158,6 +158,9 @@ if (!function_exists('r141_insertSignatureImage')) {
     }
 }
 
+// Compatibilidade: $produtos (minúsculo do controller) para $PRODUTOS (maiúsculo usado na view)
+$PRODUTOS = $produtos ?? [];
+
 ob_start();
 ?>
 
@@ -405,7 +408,7 @@ ob_start();
 // Preparar dados dos produtos para JavaScript
   $PRODUTOSDataJS = json_encode(array_map(function($p){ 
      return [
-         'id_PRODUTO' => (int)($p['id_PRODUTO'] ?? ($p['id'] ?? 0)),
+         'id_produto' => (int)($p['id_produto'] ?? ($p['id'] ?? 0)),
          'condicao_14_1' => isset($p['condicao_14_1']) ? (int)$p['condicao_14_1'] : 0
      ]; 
  }, $PRODUTOS));

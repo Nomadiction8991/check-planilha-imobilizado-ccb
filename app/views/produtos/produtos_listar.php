@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
  // AUTENTICAÇÃO
-include __DIR__ . '/../../../app/controllers/read/PRODUTOListController.php';
+include __DIR__ . '/../../../app/controllers/read/ProdutoListController.php';
 
 $id_planilha = $comum_id; // compatibilidade com CÓDIGO legado
 

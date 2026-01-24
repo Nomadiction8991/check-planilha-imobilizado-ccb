@@ -2,30 +2,30 @@
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 
-$id_PRODUTO = $_GET['id'] ?? null;
-$ids_PRODUTOS = $_GET['ids'] ?? null;
+$id_produto = $_GET['id'] ?? null;
+$ids_produtos = $_GET['ids'] ?? null;
 $id_planilha = $_GET['id_planilha'] ?? null;
 
-// Determinar se ÃƒÂ© mÃƒÂºltiplo ou ÃƒÂºnico
-$PRODUTOS_ids = [];
-if ($ids_PRODUTOS) {
-    $PRODUTOS_ids = array_map('intval', explode(',', $ids_PRODUTOS));
-} elseif ($id_PRODUTO) {
-    $PRODUTOS_ids = [intval($id_PRODUTO)];
+// Determinar se é múltiplo ou único
+$produtos_ids = [];
+if ($ids_produtos) {
+    $produtos_ids = array_map('intval', explode(',', $ids_produtos));
+} elseif ($id_produto) {
+    $produtos_ids = [intval($id_produto)];
 }
 
-if (empty($PRODUTOS_ids) || !$id_planilha) {
+if (empty($produtos_ids) || !$id_planilha) {
     header('Location: ../../../index.php');
     exit;
 }
 
-$multiplo = count($PRODUTOS_ids) > 1;
+$multiplo = count($produtos_ids) > 1;
 
 // BUSCAR dados dos PRODUTOS
-$placeholders = implode(',', array_fill(0, count($PRODUTOS_ids), '?'));
-$sql = "SELECT p.id_PRODUTO, p.descricao_completa, p.condicao_14_1, p.nota_numero, p.nota_data, p.nota_valor, p.nota_fornecedor, p.doador_conjugue_id, tb.descricao as tipo_descricao, u.nome as doador_nome FROM produtos p LEFT JOIN tipos_bens tb ON p.tipo_bem_id = tb.id LEFT JOIN usuarios u ON p.doador_conjugue_id = u.id WHERE p.id_PRODUTO IN ($placeholders)";
+$placeholders = implode(',', array_fill(0, count($produtos_ids), '?'));
+$sql = "SELECT p.id_produto, p.descricao_completa, p.condicao_14_1, p.nota_numero, p.nota_data, p.nota_valor, p.nota_fornecedor, p.doador_conjugue_id, tb.descricao as tipo_descricao, u.nome as doador_nome FROM produtos p LEFT JOIN tipos_bens tb ON p.tipo_bem_id = tb.id LEFT JOIN usuarios u ON p.doador_conjugue_id = u.id WHERE p.id_produto IN ($placeholders)";
 $stmt = $conexao->prepare($sql);
-$stmt->execute($PRODUTOS_ids);
+$stmt->execute($produtos_ids);
 $PRODUTOS = $stmt->fetchAll();
 
 if (empty($PRODUTOS)) {
@@ -90,24 +90,24 @@ ob_start();
 <?php elseif($todos_assinados && !$multiplo): ?>
 <div class="alert alert-warning mb-3">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
-    Este PRODUTO jÃƒÂ¡ estÃƒÂ¡ assinado. VocÃƒÂª pode desfazer a assinatura abaixo.
+    Este produto já está assinado. Você pode desfazer a assinatura abaixo.
 </div>
 <?php endif; ?>
 
-<form id="formAssinatura" method="POST" action="../../../app/controllers/update/<?php echo $todos_assinados ? 'PRODUTODesassinar141Controller.php' : 'PRODUTOAssinar141Controller.php'; ?>">
-    <?php foreach ($PRODUTOS_ids as $pid): ?>
-    <input type="hidden" name="ids_PRODUTOS[]" value="<?php echo $pid; ?>">
+<form id="formAssinatura" method="POST" action="../../../app/controllers/update/<?php echo $todos_assinados ? 'ProdutoDesassinar141Controller.php' : 'ProdutoAssinar141Controller.php'; ?>">
+    <?php foreach ($produtos_ids as $pid): ?>
+    <input type="hidden" name="ids_produtos[]" value="<?php echo $pid; ?>">
     <?php endforeach; ?>
     <input type="hidden" name="id_planilha" value="<?php echo $id_planilha; ?>">
     
     <?php if(!$todos_assinados): ?>
     <div class="card mb-4">
-        <div class="card-header bg-primary text-white"><i class="bi bi-check2-square me-2"></i>Selecione a CondiÃƒÂ§ÃƒÂ£o do Bem</div>
+        <div class="card-header bg-primary text-white"><i class="bi bi-check2-square me-2"></i>Selecione a Condição do Bem</div>
         <div class="card-body">
             <div class="radio-card" data-value="1" onclick="selecionarCondicao(1)">
                 <div class="d-flex align-items-start gap-3">
                     <input type="radio" name="condicao_14_1" id="condicao1" value="1">
-                    <label for="condicao1"><strong>OpÃƒÂ§ÃƒÂ£o 1:</strong> O bem tem mais de cinco anos de uso e o documento fiscal de aquisiÃƒÂ§ÃƒÂ£o estÃƒÂ¡ anexo.</label>
+                    <label for="condicao1"><strong>Opção 1:</strong> O bem tem mais de cinco anos de uso e o documento fiscal de aquisição está anexo.</label>
                 </div>
             </div>
             <div class="radio-card" data-value="2" onclick="selecionarCondicao(2)">
