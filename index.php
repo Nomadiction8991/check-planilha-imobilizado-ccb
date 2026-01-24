@@ -73,8 +73,12 @@ $offset = ($pagina - 1) * $limite;
 
 // Build query string for preserving filters when linking to edit/create
 $qsArr = [];
-if ($busca !== '') { $qsArr['busca'] = $busca; }
-if (!empty($pagina) && $pagina > 1) { $qsArr['pagina'] = $pagina; }
+if ($busca !== '') {
+    $qsArr['busca'] = $busca;
+}
+if (!empty($pagina) && $pagina > 1) {
+    $qsArr['pagina'] = $pagina;
+}
 $qs = http_build_query($qsArr);
 
 // Count filtered and global totals
@@ -99,9 +103,9 @@ if (isset($_GET['ajax'])) {
     } else {
         foreach ($comums_page as $comum) {
             $cadastro_ok = trim((string) $comum['descricao']) !== ''
-                           && trim((string) $comum['cnpj']) !== ''
-                           && trim((string) $comum['administracao']) !== ''
-                           && trim((string) $comum['cidade']) !== '';
+                && trim((string) $comum['cnpj']) !== ''
+                && trim((string) $comum['administracao']) !== ''
+                && trim((string) $comum['cidade']) !== '';
 
             $rowsHtml .= '<tr>';
             $rowsHtml .= '<td class="fw-semibold text-uppercase">' . htmlspecialchars($comum['codigo']) . '</td>';
@@ -134,7 +138,8 @@ if (isset($_GET['ajax'])) {
     exit;
 }
 
-function formatar_codigo_comum($codigo) {
+function formatar_codigo_comum($codigo)
+{
     $codigo = preg_replace("/\\D/", '', (string) $codigo);
     if ($codigo === '') {
         return 'BR --';
@@ -151,8 +156,10 @@ ob_start();
 ?>
 
 <?php if (!empty($_SESSION['mensagem'])): ?>
-    <div class="alert alert-<?php echo ($_SESSION['tipo_mensagem'] ?? 'info') === 'success' ? 'success' : (($_SESSION['tipo_mensagem'] ?? 'info') === 'danger' ? 'danger' : 'info'); ?> alert-dismissible fade show" role="alert">
-        <?php echo htmlspecialchars($_SESSION['mensagem']); unset($_SESSION['mensagem'], $_SESSION['tipo_mensagem']); ?>
+    <div class="alert alert-<?php echo ($_SESSION['tipo_mensagem'] ?? 'info') === 'success' ? 'success' : (($_SESSION['tipo_mensagem'] ?? 'info') === 'danger' ? 'danger' : 'info'); ?> alert-dismissible fade show"
+        role="alert">
+        <?php echo htmlspecialchars($_SESSION['mensagem']);
+        unset($_SESSION['mensagem'], $_SESSION['tipo_mensagem']); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
@@ -167,7 +174,7 @@ ob_start();
                 <label for="busca" class="form-label">CÓDIGO OU DESCRIÇÃO</label>
                 <div class="input-group">
                     <input type="text" name="busca" id="busca" class="form-control text-uppercase"
-                           value="<?php echo htmlspecialchars($buscaDisplay); ?>">
+                        value="<?php echo htmlspecialchars($buscaDisplay); ?>">
                 </div>
             </div>
             <div class="col-12 pt-3">
@@ -210,28 +217,30 @@ ob_start();
                     <?php else: ?>
                         <?php foreach ($comums as $comum): ?>
                             <?php
-                                $cadastro_ok = trim((string) $comum['descricao']) !== ''
-                                               && trim((string) $comum['cnpj']) !== ''
-                                               && trim((string) $comum['administracao']) !== ''
-                                               && trim((string) $comum['cidade']) !== '';
+                            $cadastro_ok = trim((string) $comum['descricao']) !== ''
+                                && trim((string) $comum['cnpj']) !== ''
+                                && trim((string) $comum['administracao']) !== ''
+                                && trim((string) $comum['cidade']) !== '';
                             ?>
                             <tr>
                                 <td class="fw-semibold text-uppercase">
-                                <?php echo htmlspecialchars($comum['codigo']); ?>
-                            </td>
-                            <td class="text-uppercase">
-                                <?php echo htmlspecialchars($comum['descricao']); ?>
-                            </td>
+                                    <?php echo htmlspecialchars($comum['codigo']); ?>
+                                </td>
+                                <td class="text-uppercase">
+                                    <?php echo htmlspecialchars($comum['descricao']); ?>
+                                </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a class="btn btn-outline-primary" href="app/views/comuns/comum_editar.php?id=<?php echo (int) $comum['id']; ?><?php echo ($qs ? ('?' . $qs) : ''); ?>" title="Editar">
+                                        <a class="btn btn-outline-primary"
+                                            href="app/views/comuns/comum_editar.php?id=<?php echo (int) $comum['id']; ?><?php echo ($qs ? ('?' . $qs) : ''); ?>"
+                                            title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <a class="btn btn-outline-secondary btn-view-planilha"
-                                           href="app/views/planilhas/planilha_visualizar.php?comum_id=<?php echo (int) $comum['id']; ?>"
-                                           data-cadastro-ok="<?php echo $cadastro_ok ? '1' : '0'; ?>"
-                                           data-edit-url="app/views/comuns/comum_editar.php?id=<?php echo (int) $comum['id']; ?>"
-                                           title="Visualizar planilha">
+                                            href="app/views/planilhas/planilha_visualizar.php?comum_id=<?php echo (int) $comum['id']; ?>"
+                                            data-cadastro-ok="<?php echo $cadastro_ok ? '1' : '0'; ?>"
+                                            data-edit-url="app/views/comuns/comum_editar.php?id=<?php echo (int) $comum['id']; ?>"
+                                            title="Visualizar planilha">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                     </div>
@@ -247,16 +256,18 @@ ob_start();
 
 <nav id="comumPagination" class="mt-3" aria-label="PAGINAÇÃO COMUNS">
     <ul class="pagination pagination-sm justify-content-center mb-0">
-        <?php if($pagina > 1): ?>
-        <li class="page-item"><a class="page-link" href="#" data-page="<?php echo $pagina-1; ?>">&laquo;</a></li>
+        <?php if ($pagina > 1): ?>
+            <li class="page-item"><a class="page-link" href="#" data-page="<?php echo $pagina - 1; ?>">&laquo;</a></li>
         <?php endif; ?>
-        <?php $ini = max(1,$pagina-2); $fim = min($total_paginas,$pagina+2); for($i=$ini;$i<=$fim;$i++): ?>
-            <li class="page-item <?php echo $i==$pagina?'active':''; ?>">
+        <?php $ini = max(1, $pagina - 2);
+        $fim = min($total_paginas, $pagina + 2);
+        for ($i = $ini; $i <= $fim; $i++): ?>
+            <li class="page-item <?php echo $i == $pagina ? 'active' : ''; ?>">
                 <a class="page-link" href="#" data-page="<?php echo $i; ?>"><?php echo $i; ?></a>
             </li>
         <?php endfor; ?>
-        <?php if($pagina < $total_paginas): ?>
-        <li class="page-item"><a class="page-link" href="#" data-page="<?php echo $pagina+1; ?>">&raquo;</a></li>
+        <?php if ($pagina < $total_paginas): ?>
+            <li class="page-item"><a class="page-link" href="#" data-page="<?php echo $pagina + 1; ?>">&raquo;</a></li>
         <?php endif; ?>
     </ul>
 </nav>
@@ -272,7 +283,8 @@ require_once __DIR__ . '/app/views/layouts/app_wrapper.php';
 ?>
 
 <!-- Modal cadastro incompleto -->
-<div class="modal fade" id="cadastroIncompletoModal" tabindex="-1" aria-labelledby="cadastroIncompletoLabel" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="cadastroIncompletoModal" tabindex="-1" aria-labelledby="cadastroIncompletoLabel"
+    aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -283,7 +295,8 @@ require_once __DIR__ . '/app/views/layouts/app_wrapper.php';
                 <p>COMPLETE OS DADOS DA COMUM (DESCRIÇÃO, CNPJ, ADMINISTRAÇÃO E CIDADE) PARA VISUALIZAR A PLANILHA.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary w-47" data-bs-dismiss="modal">DEIXAR PARA DEPOIS</button>
+                <button type="button" class="btn btn-outline-secondary w-47" data-bs-dismiss="modal">DEIXAR PARA
+                    DEPOIS</button>
                 <a href="#" class="btn btn-primary btn-edit-agora w-47">
                     <i class="bi bi-pencil-square me-1"></i>EDITAR AGORA
                 </a>
@@ -293,82 +306,94 @@ require_once __DIR__ . '/app/views/layouts/app_wrapper.php';
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var modalEl = document.getElementById('cadastroIncompletoModal');
-    var modalInstance = modalEl ? new bootstrap.Modal(modalEl) : null;
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalEl = document.getElementById('cadastroIncompletoModal');
+        var modalInstance = modalEl ? new bootstrap.Modal(modalEl) : null;
 
-    // Delegated handler for view-planilha buttons (works for dynamically loaded rows)
-    document.addEventListener('click', function(e) {
-        var btn = e.target.closest('.btn-view-planilha');
-        if (!btn) return;
-        var ok = btn.getAttribute('data-cadastro-ok') === '1';
-        if (!ok) {
-            e.preventDefault();
-            if (modalInstance && modalEl) {
-                var editBtn = modalEl.querySelector('.btn-edit-agora');
-                if (editBtn) {
-                    editBtn.setAttribute('href', btn.getAttribute('data-edit-url'));
-                }
-                modalInstance.show();
-            }
-        }
-    });
-
-    // Search input (not used for live search now)
-    var input = document.getElementById('busca');
-    var timeout = null;
-
-    function doSearch(q, page) {
-        page = page || 1;
-        var url = window.location.pathname + '?ajax=1&busca=' + encodeURIComponent(q) + '&pagina=' + encodeURIComponent(page) + '&limite=' + encodeURIComponent(<?php echo $limite; ?>);
-        fetch(url, { credentials: 'same-origin' })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                var tbody = document.getElementById('comunsTbody');
-                var countEl = document.getElementById('comumCount');
-                var badge = document.getElementById('comumBadge');
-                if (tbody) tbody.innerHTML = data.rows;
-                if (countEl) countEl.textContent = (typeof data.count_all !== 'undefined' ? data.count_all : data.count) + ' COMUM(NS) ENCONTRADA(S)';
-                var rowsCount = (typeof data.rows_count !== 'undefined') ? data.rows_count : (tbody ? tbody.querySelectorAll('tr').length : 0);
-                if (badge) badge.textContent = rowsCount + ' ITENS';
-                // rebuild pagination
-                var pagination = document.getElementById('comumPagination');
-                if (pagination && data.total_pages) {
-                    var page = data.page || 1;
-                    var total = data.total_pages;
-                    var ini = Math.max(1, page - 2);
-                    var fim = Math.min(total, page + 2);
-                    var html = '<ul class="pagination pagination-sm justify-content-center mb-0">';
-                    if (page > 1) html += '<li class="page-item"><a class="page-link" href="#" data-page="' + (page-1) + '">&laquo;</a></li>';
-                    for (var i = ini; i <= fim; i++) {
-                        html += '<li class="page-item ' + (i===page? 'active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+        // Delegated handler for view-planilha buttons (works for dynamically loaded rows)
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.btn-view-planilha');
+            if (!btn) return;
+            var ok = btn.getAttribute('data-cadastro-ok') === '1';
+            if (!ok) {
+                e.preventDefault();
+                if (modalInstance && modalEl) {
+                    var editBtn = modalEl.querySelector('.btn-edit-agora');
+                    if (editBtn) {
+                        editBtn.setAttribute('href', btn.getAttribute('data-edit-url'));
                     }
-                    if (page < total) html += '<li class="page-item"><a class="page-link" href="#" data-page="' + (page+1) + '">&raquo;</a></li>';
-                    html += '</ul>';
-                    pagination.innerHTML = html;
+                    modalInstance.show();
                 }
-            })
-            .catch(function(err) {
-                console.error('Erro na busca AJAX:', err);
-            });
-    }
-
-    // (No live search) the form will submit normally when the user clicks Buscar.
-
-    // Pagination click handling (delegated)
-    var pagination = document.getElementById('comumPagination');
-    if (pagination) {
-        pagination.addEventListener('click', function(e) {
-            var a = e.target.closest('a[data-page]');
-            if (!a) return;
-            e.preventDefault();
-            var page = parseInt(a.getAttribute('data-page'), 10) || 1;
-            currentPage = page;
-            doSearch(input ? input.value.trim() : '', currentPage);
+            }
         });
-    }
 
-    // current page variable
-    var currentPage = <?php echo $pagina; ?>;
-});
+        // Search input (not used for live search now)
+        var input = document.getElementById('busca');
+        var timeout = null;
+
+        function doSearch(q, page) {
+            page = page || 1;
+            var url = window.location.pathname + '?ajax=1&busca=' + encodeURIComponent(q) + '&pagina=' +
+                encodeURIComponent(page) + '&limite=' + encodeURIComponent(<?php echo $limite; ?>);
+            fetch(url, {
+                    credentials: 'same-origin'
+                })
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(data) {
+                    var tbody = document.getElementById('comunsTbody');
+                    var countEl = document.getElementById('comumCount');
+                    var badge = document.getElementById('comumBadge');
+                    if (tbody) tbody.innerHTML = data.rows;
+                    if (countEl) countEl.textContent = (typeof data.count_all !== 'undefined' ? data.count_all :
+                        data.count) + ' COMUM(NS) ENCONTRADA(S)';
+                    var rowsCount = (typeof data.rows_count !== 'undefined') ? data.rows_count : (tbody ? tbody
+                        .querySelectorAll('tr').length : 0);
+                    if (badge) badge.textContent = rowsCount + ' ITENS';
+                    // rebuild pagination
+                    var pagination = document.getElementById('comumPagination');
+                    if (pagination && data.total_pages) {
+                        var page = data.page || 1;
+                        var total = data.total_pages;
+                        var ini = Math.max(1, page - 2);
+                        var fim = Math.min(total, page + 2);
+                        var html = '<ul class="pagination pagination-sm justify-content-center mb-0">';
+                        if (page > 1) html +=
+                            '<li class="page-item"><a class="page-link" href="#" data-page="' + (page - 1) +
+                            '">&laquo;</a></li>';
+                        for (var i = ini; i <= fim; i++) {
+                            html += '<li class="page-item ' + (i === page ? 'active' : '') +
+                                '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+                        }
+                        if (page < total) html +=
+                            '<li class="page-item"><a class="page-link" href="#" data-page="' + (page + 1) +
+                            '">&raquo;</a></li>';
+                        html += '</ul>';
+                        pagination.innerHTML = html;
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Erro na busca AJAX:', err);
+                });
+        }
+
+        // (No live search) the form will submit normally when the user clicks Buscar.
+
+        // Pagination click handling (delegated)
+        var pagination = document.getElementById('comumPagination');
+        if (pagination) {
+            pagination.addEventListener('click', function(e) {
+                var a = e.target.closest('a[data-page]');
+                if (!a) return;
+                e.preventDefault();
+                var page = parseInt(a.getAttribute('data-page'), 10) || 1;
+                currentPage = page;
+                doSearch(input ? input.value.trim() : '', currentPage);
+            });
+        }
+
+        // current page variable
+        var currentPage = <?php echo $pagina; ?>;
+    });
 </script>
