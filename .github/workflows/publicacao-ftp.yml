@@ -34,9 +34,14 @@ jobs:
             **/.git/**
             **/.git*
             **/.github/**
+            **/.vscode/**
             **/node_modules/**
             **/*.md
             **/.env*
             **/docker-compose*
             **/README*
             **/LICENSE*
+            **/__legacy_backup__/**
+            **/__pending_review__/**
+            **/scripts/**
+            **/Dockerfiles/**
