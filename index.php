@@ -85,57 +85,79 @@ $qs = http_build_query($qsArr);
 $total_count = contar_comuns($conexao, $busca);
 $total_count_all = contar_comuns($conexao, '');
 $total_paginas = $total_count > 0 ? (int) ceil($total_count / $limite) : 1;
-$comums = buscar_comuns_paginated($conexao, $busca, $limite, $offset);
-
+// Tentar carregar a página com captura de erro e logging temporário
+try {
+    $comums = buscar_comuns_paginated($conexao, $busca, $limite, $offset);
+} catch (Throwable $e) {
+    // garantir diretório de logs
+    @is_dir(__DIR__ . '/storage/logs') || @mkdir(__DIR__ . '/storage/logs', 0755, true);
+    @file_put_contents(__DIR__ . '/storage/logs/comuns_page_debug.log', date('c') . " PAGE ERROR " . json_encode(['busca' => $busca, 'message' => $e->getMessage(), 'trace' => substr($e->getTraceAsString(), 0, 1200)]) . PHP_EOL, FILE_APPEND);
+    $comums = [];
+}
 // AJAX handler: retorna as linhas da tabela e a contagem em JSON
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json; charset=utf-8');
-    // recompute pagina/limit/offset from ajax params
-    $pagina_ajax = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
-    $limite_ajax = isset($_GET['limite']) ? max(1, (int) $_GET['limite']) : $limite;
-    $offset_ajax = ($pagina_ajax - 1) * $limite_ajax;
+    try {
+        // recompute pagina/limit/offset from ajax params
+        $pagina_ajax = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
+        $limite_ajax = isset($_GET['limite']) ? max(1, (int) $_GET['limite']) : $limite;
+        $offset_ajax = ($pagina_ajax - 1) * $limite_ajax;
 
-    $comums_page = buscar_comuns_paginated($conexao, $busca, $limite_ajax, $offset_ajax);
+        $comums_page = buscar_comuns_paginated($conexao, $busca, $limite_ajax, $offset_ajax);
 
-    $rowsHtml = '';
-    if (empty($comums_page)) {
-        $rowsHtml = '<tr><td colspan="3" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-3 d-block mb-2"></i>NENHUM COMUM ENCONTRADO</td></tr>';
-    } else {
-        foreach ($comums_page as $comum) {
-            $cadastro_ok = trim((string) $comum['descricao']) !== ''
-                && trim((string) $comum['cnpj']) !== ''
-                && trim((string) $comum['administracao']) !== ''
-                && trim((string) $comum['cidade']) !== '';
+        $rowsHtml = '';
+        if (empty($comums_page)) {
+            $rowsHtml = '<tr><td colspan="3" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-3 d-block mb-2"></i>NENHUM COMUM ENCONTRADO</td></tr>';
+        } else {
+            foreach ($comums_page as $comum) {
+                $cadastro_ok = trim((string) $comum['descricao']) !== ''
+                    && trim((string) $comum['cnpj']) !== ''
+                    && trim((string) $comum['administracao']) !== ''
+                    && trim((string) $comum['cidade']) !== '';
 
-            $rowsHtml .= '<tr>';
-            $rowsHtml .= '<td class="fw-semibold text-uppercase">' . htmlspecialchars($comum['codigo']) . '</td>';
-            $rowsHtml .= '<td class="text-uppercase">' . htmlspecialchars($comum['descricao']) . '</td>';
-            $rowsHtml .= '<td>';
-            $rowsHtml .= '<div class="btn-group btn-group-sm" role="group">';
-            // preserve current busca/page when building edit links for AJAX rows
-            $editHref = 'app/views/comuns/comum_editar.php?id=' . (int) $comum['id'] . ($busca !== '' || $pagina_ajax > 1 ? ('?' . http_build_query(['busca' => $busca, 'pagina' => $pagina_ajax])) : '');
-            $viewHref = 'app/views/planilhas/planilha_visualizar.php?comum_id=' . (int) $comum['id'];
-            $rowsHtml .= '<a class="btn btn-outline-primary" href="' . $editHref . '" title="Editar"><i class="bi bi-pencil"></i></a>';
-            $rowsHtml .= '<a class="btn btn-outline-secondary btn-view-planilha" href="' . $viewHref . '" data-cadastro-ok="' . ($cadastro_ok ? '1' : '0') . '" data-edit-url="' . $editHref . '" title="Visualizar planilha"><i class="bi bi-eye"></i></a>';
-            $rowsHtml .= '</div>';
-            $rowsHtml .= '</td>';
-            $rowsHtml .= '</tr>';
+                $rowsHtml .= '<tr>';
+                $rowsHtml .= '<td class="fw-semibold text-uppercase">' . htmlspecialchars($comum['codigo']) . '</td>';
+                $rowsHtml .= '<td class="text-uppercase">' . htmlspecialchars($comum['descricao']) . '</td>';
+                $rowsHtml .= '<td>';
+                $rowsHtml .= '<div class="btn-group btn-group-sm" role="group">';
+                // preserve current busca/page when building edit links for AJAX rows
+                $editHref = 'app/views/comuns/comum_editar.php?id=' . (int) $comum['id'] . ($busca !== '' || $pagina_ajax > 1 ? ('?' . http_build_query(['busca' => $busca, 'pagina' => $pagina_ajax])) : '');
+                $viewHref = 'app/views/planilhas/planilha_visualizar.php?comum_id=' . (int) $comum['id'];
+                $rowsHtml .= '<a class="btn btn-outline-primary" href="' . $editHref . '" title="Editar"><i class="bi bi-pencil"></i></a>';
+                $rowsHtml .= '<a class="btn btn-outline-secondary btn-view-planilha" href="' . $viewHref . '" data-cadastro-ok="' . ($cadastro_ok ? '1' : '0') . '" data-edit-url="' . $editHref . '" title="Visualizar planilha"><i class="bi bi-eye"></i></a>';
+                $rowsHtml .= '</div>';
+                $rowsHtml .= '</td>';
+                $rowsHtml .= '</tr>';
+            }
         }
+
+        $total_count_ajax = contar_comuns($conexao, $busca);
+        $total_count_all_ajax = contar_comuns($conexao, '');
+        $total_pages_ajax = $total_count_ajax > 0 ? (int) ceil($total_count_ajax / $limite_ajax) : 1;
+
+        $payload = [
+            'rows' => $rowsHtml,
+            'count' => $total_count_ajax,
+            'count_all' => $total_count_all_ajax,
+            'rows_count' => count($comums_page),
+            'page' => $pagina_ajax,
+            'total_pages' => $total_pages_ajax
+        ];
+
+        // garantir diretório de logs
+        @is_dir(__DIR__ . '/storage/logs') || @mkdir(__DIR__ . '/storage/logs', 0755, true);
+        @file_put_contents(__DIR__ . '/storage/logs/comuns_ajax_debug.log', date('c') . " AJAX OK " . json_encode(['busca' => $busca, 'page' => $pagina_ajax, 'rows_count' => count($comums_page)]) . PHP_EOL, FILE_APPEND);
+
+        echo json_encode($payload);
+        exit;
+    } catch (Throwable $e) {
+        @is_dir(__DIR__ . '/storage/logs') || @mkdir(__DIR__ . '/storage/logs', 0755, true);
+        $err = ['error' => true, 'message' => $e->getMessage(), 'trace' => substr($e->getTraceAsString(), 0, 1200)];
+        @file_put_contents(__DIR__ . '/storage/logs/comuns_ajax_debug.log', date('c') . " AJAX ERROR " . json_encode($err) . PHP_EOL, FILE_APPEND);
+        http_response_code(500);
+        echo json_encode($err);
+        exit;
     }
-
-    $total_count_ajax = contar_comuns($conexao, $busca);
-    $total_count_all_ajax = contar_comuns($conexao, '');
-    $total_pages_ajax = $total_count_ajax > 0 ? (int) ceil($total_count_ajax / $limite_ajax) : 1;
-
-    echo json_encode([
-        'rows' => $rowsHtml,
-        'count' => $total_count_ajax,
-        'count_all' => $total_count_all_ajax,
-        'rows_count' => count($comums_page),
-        'page' => $pagina_ajax,
-        'total_pages' => $total_pages_ajax
-    ]);
-    exit;
 }
 
 function formatar_codigo_comum($codigo)
