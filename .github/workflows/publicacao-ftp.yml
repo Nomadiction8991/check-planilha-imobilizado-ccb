@@ -31,6 +31,7 @@ jobs:
           state-name: ftp-state-prod.json
           log-level: verbose
           dangerous-clean-slate: false
+          dry-run: false
           exclude: |
             **/.git/**
             **/.git*
@@ -55,3 +56,4 @@ jobs:
             **/ftp-state*.json
             **/.php
             **/app/config/**
+            **/app/functions/**

@@ -42,18 +42,20 @@ try {
   die('Erro ao carregar planilha: ' . $e->getMessage());
 }
 
-// DependÃƒÂªncias disponÃƒÂ­veis
+// Dependências disponíveis (com ID para filtro mais preciso)
 try {
   $sql_dependencias = "
-        SELECT DISTINCT d.descricao as dependencia FROM produtos p
+        SELECT DISTINCT d.id, d.descricao as dependencia FROM produtos p
         LEFT JOIN dependencias d ON COALESCE(p.editado_dependencia_id, p.dependencia_id) = d.id
-        WHERE p.comum_id = :comum_id AND d.descricao IS NOT NULL
-        ORDER BY dependencia
+        WHERE p.comum_id = :comum_id 
+          AND d.descricao IS NOT NULL
+          AND COALESCE(p.imprimir_etiqueta, 0) = 1
+        ORDER BY d.descricao
     ";
   $stmt_dependencias = $conexao->prepare($sql_dependencias);
   $stmt_dependencias->bindValue(':comum_id', $id_planilha);
   $stmt_dependencias->execute();
-  $dependencias = $stmt_dependencias->fetchAll(PDO::FETCH_COLUMN);
+  $dependencias = $stmt_dependencias->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
   $dependencias = [];
 }
@@ -66,17 +68,15 @@ try {
                      FROM produtos p 
                      LEFT JOIN dependencias d_orig ON p.dependencia_id = d_orig.id
                      LEFT JOIN dependencias d_edit ON p.editado_dependencia_id = d_edit.id
-                     WHERE p.comum_id = :comum_id AND COALESCE(p.imprimir_etiqueta, 0) = 1"; // usar comum_id (coluna real da tabela) para filtrar os produtos
+                     WHERE p.comum_id = :comum_id AND COALESCE(p.imprimir_etiqueta, 0) = 1";
   if (!empty($dependencia_selecionada)) {
-    $sql_PRODUTOS .= " AND (
-            (COALESCE(d_edit.descricao, d_orig.descricao) = :dependencia)
-        )";
+    $sql_PRODUTOS .= " AND COALESCE(p.editado_dependencia_id, p.dependencia_id) = :dependencia_id";
   }
   $sql_PRODUTOS .= " ORDER BY p.codigo";
   $stmt_PRODUTOS = $conexao->prepare($sql_PRODUTOS);
   $stmt_PRODUTOS->bindValue(':comum_id', $id_planilha);
   if (!empty($dependencia_selecionada)) {
-    $stmt_PRODUTOS->bindValue(':dependencia', $dependencia_selecionada);
+    $stmt_PRODUTOS->bindValue(':dependencia_id', (int)$dependencia_selecionada, PDO::PARAM_INT);
   }
   $stmt_PRODUTOS->execute();
   $PRODUTOS = $stmt_PRODUTOS->fetchAll(PDO::FETCH_ASSOC);
@@ -172,9 +172,9 @@ ob_start();
           <option value="">
             <?php echo htmlspecialchars(to_uppercase('Todas as dependências'), ENT_QUOTES, 'UTF-8'); ?></option>
           <?php foreach ($dependencias as $dep): ?>
-            <option value="<?php echo htmlspecialchars($dep); ?>"
-              <?php echo ($dependencia_selecionada === $dep) ? 'selected' : ''; ?>>
-              <?php echo htmlspecialchars($dep); ?></option>
+            <option value="<?php echo htmlspecialchars($dep['id']); ?>"
+              <?php echo ($dependencia_selecionada == $dep['id']) ? 'selected' : ''; ?>>
+              <?php echo htmlspecialchars(to_uppercase($dep['dependencia']), ENT_QUOTES, 'UTF-8'); ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -219,8 +219,18 @@ ob_start();
       <div class="alert alert-warning mt-3 text-center">
         <strong><?php echo htmlspecialchars(to_uppercase('Nenhum produto disponível para etiquetas.'), ENT_QUOTES, 'UTF-8'); ?></strong>
         <?php if (!empty($dependencia_selecionada)): ?>
+          <?php 
+            // Buscar nome da dependência selecionada
+            $dep_nome = '';
+            foreach ($dependencias as $d) {
+              if ($d['id'] == $dependencia_selecionada) {
+                $dep_nome = $d['dependencia'];
+                break;
+              }
+            }
+          ?>
           <div class="small">
-            <?php echo htmlspecialchars(to_uppercase('Não há produtos marcados ou cadastrados com código na dependência "' . $dependencia_selecionada . '".'), ENT_QUOTES, 'UTF-8'); ?>
+            <?php echo htmlspecialchars(to_uppercase('Não há produtos marcados para etiqueta na dependência "' . $dep_nome . '".'), ENT_QUOTES, 'UTF-8'); ?>
           </div>
         <?php else: ?>
           <div class="small">
