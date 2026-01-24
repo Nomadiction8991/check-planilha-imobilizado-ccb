@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Script de debug para verificar o salvamento das assinaturas
 
 require_once dirname(__DIR__, 2) . '/bootstrap.php';

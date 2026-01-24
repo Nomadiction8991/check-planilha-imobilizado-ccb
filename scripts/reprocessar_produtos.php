@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Script de MigraÃ§Ã£o: Reprocessar Produtos com Parser Atualizado

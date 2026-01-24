@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
  // AUTENTICAÇÃO
 require_once __DIR__ . '/../../../app/controllers/read/Relatorio141DataController.php';

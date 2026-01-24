@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
  // AUTENTICAÇÃO
 include __DIR__ . '/../../../app/controllers/create/PRODUTOCreateController.php';

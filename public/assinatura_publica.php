@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 define('SKIP_AUTH', true);
 session_start();
 require_once __DIR__ . '/../app/bootstrap.php';

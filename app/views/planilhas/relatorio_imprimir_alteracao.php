@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 // Autentica+Ã¯Â¿Â½+Ã¯Â¿Â½o
 // Agora: p+Ã¯Â¿Â½gina integrada ao layout app-wrapper (Bootstrap 5, 400px)

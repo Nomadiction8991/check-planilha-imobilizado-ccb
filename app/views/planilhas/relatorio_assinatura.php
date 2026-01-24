@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
  // AUTENTICAÇÃO
 // PÃ¡gina dedicada para captura de assinatura em modo paisagem.

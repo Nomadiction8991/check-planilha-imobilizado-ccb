@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
  // AutenticaÃ§Ã£o
 // Preenche o PDF relatorios/relatorio-14-1.pdf (ou variaÃ§Ãµes) com o campo de formulÃ¡rio "dataemissao"

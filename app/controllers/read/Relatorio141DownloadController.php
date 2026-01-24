@@ -1,4 +1,4 @@
-﻿<?php
+<?php
  // AutenticaÃ§Ã£o
 /**
  * Gera o RelatÃ³rio 14.1 em PDF 100% via Composer (mPDF), sem depender de pdftk

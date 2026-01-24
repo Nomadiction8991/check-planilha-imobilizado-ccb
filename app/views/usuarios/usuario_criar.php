@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 // Detectar se Ã© registro pÃºblico via parÃ¢metro GET
 if (isset($_GET['public']) && $_GET['public'] == '1') {

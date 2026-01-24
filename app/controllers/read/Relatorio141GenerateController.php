@@ -1,4 +1,4 @@
-﻿<?php
+<?php
  // AutenticaÃ§Ã£o
 /**
  * PÃ¡gina para gerar RelatÃ³rio 14.1 automaticamente

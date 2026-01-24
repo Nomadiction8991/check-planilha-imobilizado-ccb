@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AutenticaÃƒÂ§ÃƒÂ£o
+// AutenticaÃƒÂ§ÃƒÂ£o
 
 
 // ConfiguraÃƒÂ§ÃƒÂµes da pÃƒÂ¡gina
@@ -8,8 +8,12 @@ $pageTitle = 'Gerenciar Comuns';
 $backUrl = '../shared/menu_planilha.php';
 // Preserve current filters (if any) when navigating to edit/create
 $qsArr = [];
-if (!empty($_GET['busca'])) { $qsArr['busca'] = $_GET['busca']; }
-if (!empty($pagina) && $pagina > 1) { $qsArr['pagina'] = $pagina; }
+if (!empty($_GET['busca'])) {
+    $qsArr['busca'] = $_GET['busca'];
+}
+if (!empty($pagina) && $pagina > 1) {
+    $qsArr['pagina'] = $pagina;
+}
 $qs = http_build_query($qsArr);
 $headerActions = '
     <a href="../shared/menu_planilha.php" class="btn-header-action" title="Menu">
@@ -18,7 +22,7 @@ $headerActions = '
 ';
 
 // PaginaÃƒÂ§ÃƒÂ£o de comuns
-$pagina = isset($_GET['pagina']) ? max(1,(int)$_GET['pagina']) : 1;
+$pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
 $limite = 20;
 $offset = ($pagina - 1) * $limite;
 
@@ -48,8 +52,8 @@ ob_start();
     <div class="card">
         <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
             <span>
-            <i class="bi bi-building me-2"></i>
-            <?php echo htmlspecialchars(to_uppercase('Lista de Comuns'), ENT_QUOTES, 'UTF-8'); ?>
+                <i class="bi bi-building me-2"></i>
+                <?php echo htmlspecialchars(to_uppercase('Lista de Comuns'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <span class="badge bg-white text-dark"><?php echo (int)$total_registros; ?> ITENS (PÁG. <?php echo $pagina; ?>/<?php echo $total_paginas ?: 1; ?>)</span>
         </div>
@@ -61,7 +65,7 @@ ob_start();
                 </div>
                 <?php unset($_SESSION['mensagem'], $_SESSION['tipo_mensagem']); ?>
             <?php endif; ?>
-            
+
             <?php if (!empty($erro)): ?>
                 <div class="alert alert-danger" role="alert">
                     <i class="bi bi-exclamation-triangle me-2"></i>
@@ -87,9 +91,9 @@ ob_start();
                         </thead>
                         <tbody>
                             <?php foreach ($comuns as $comum): ?>
-                                <?php 
-                                    $total_PRODUTOS = contar_PRODUTOS_por_comum($conexao, $comum['id']);
-                                    $badge_class = $total_PRODUTOS > 0 ? 'badge-success' : 'badge-secondary';
+                                <?php
+                                $total_PRODUTOS = contar_PRODUTOS_por_comum($conexao, $comum['id']);
+                                $badge_class = $total_PRODUTOS > 0 ? 'badge-success' : 'badge-secondary';
                                 ?>
                                 <tr>
                                     <td>
@@ -105,14 +109,14 @@ ob_start();
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="./comum_editar.php?id=<?php echo $comum['id']; ?><?php echo ($qs ? '&' . $qs : ''); ?>" 
-                                               class="btn btn-outline-primary" 
-                                               title="EDITAR">
+                                            <a href="./comum_editar.php?id=<?php echo $comum['id']; ?><?php echo ($qs ? '&' . $qs : ''); ?>"
+                                                class="btn btn-outline-primary"
+                                                title="EDITAR">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <a href="./configuracoes_importacao.php?comum_id=<?php echo $comum['id']; ?>" 
-                                               class="btn btn-outline-secondary" 
-                                               title="VISUALIZAR">
+                                            <a href="./configuracoes_importacao.php?comum_id=<?php echo $comum['id']; ?>"
+                                                class="btn btn-outline-secondary"
+                                                title="VISUALIZAR">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         </div>
@@ -130,22 +134,24 @@ ob_start();
                     </span>
                 </div>
 
-                <?php if($total_paginas > 1): ?>
-                <nav class="mt-2" aria-label="PaginaÃƒÂ§ÃƒÂ£o comuns">
-                  <ul class="pagination pagination-sm justify-content-center mb-0">
-                    <?php if($pagina > 1): ?>
-                    <li class="page-item"><a class="page-link" href="?<?php echo http_build_query(array_merge($_GET,['pagina'=>$pagina-1])); ?>">&laquo;</a></li>
-                    <?php endif; ?>
-                    <?php $ini = max(1,$pagina-2); $fim = min($total_paginas,$pagina+2); for($i=$ini;$i<=$fim;$i++): ?>
-                      <li class="page-item <?php echo $i==$pagina?'active':''; ?>">
-                        <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET,['pagina'=>$i])); ?>"><?php echo $i; ?></a>
-                      </li>
-                    <?php endfor; ?>
-                    <?php if($pagina < $total_paginas): ?>
-                    <li class="page-item"><a class="page-link" href="?<?php echo http_build_query(array_merge($_GET,['pagina'=>$pagina+1])); ?>">&raquo;</a></li>
-                    <?php endif; ?>
-                  </ul>
-                </nav>
+                <?php if ($total_paginas > 1): ?>
+                    <nav class="mt-2" aria-label="PaginaÃƒÂ§ÃƒÂ£o comuns">
+                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                            <?php if ($pagina > 1): ?>
+                                <li class="page-item"><a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['pagina' => $pagina - 1])); ?>">&laquo;</a></li>
+                            <?php endif; ?>
+                            <?php $ini = max(1, $pagina - 2);
+                            $fim = min($total_paginas, $pagina + 2);
+                            for ($i = $ini; $i <= $fim; $i++): ?>
+                                <li class="page-item <?php echo $i == $pagina ? 'active' : ''; ?>">
+                                    <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['pagina' => $i])); ?>"><?php echo $i; ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            <?php if ($pagina < $total_paginas): ?>
+                                <li class="page-item"><a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['pagina' => $pagina + 1])); ?>">&raquo;</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
                 <?php endif; ?>
             <?php endif; ?>
 
