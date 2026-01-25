@@ -9,44 +9,44 @@ $basePath = __DIR__ . '/../app/views';
 // Lista de substituições com prioridade de encoding + uppercase
 $replacements = [
     // ENCODING FIXES (muito comum)
-    'AutenticaÃ§Ã£o' => 'AUTENTICAÇÃO',
-    'autenticaÃ§Ã£o' => 'AUTENTICAÇÃO',
-    'Autenticação' => 'AUTENTICAÇÃO',
-    'autenticação' => 'AUTENTICAÇÃO',
+    'Autenticação' => 'AUTENTICAÇÁO',
+    'autenticação' => 'AUTENTICAÇÁO',
+    'Autenticação' => 'AUTENTICAÇÁO',
+    'autenticação' => 'AUTENTICAÇÁO',
     
-    'CÃ³digo' => 'CÓDIGO',
-    'cÃ³digo' => 'CÓDIGO',
+    'Código' => 'CÓDIGO',
+    'código' => 'CÓDIGO',
     'Código' => 'CÓDIGO',
     'código' => 'CÓDIGO',
     
-    'DependÃªncia' => 'DEPENDÊNCIA',
-    'dependÃªncia' => 'DEPENDÊNCIA',
+    'Dependência' => 'DEPENDÊNCIA',
+    'dependência' => 'DEPENDÊNCIA',
     'Dependência' => 'DEPENDÊNCIA',
     'dependência' => 'DEPENDÊNCIA',
     
-    'CondiÃ§Ã£o' => 'CONDIÇÃO',
-    'condição' => 'CONDIÇÃO',
-    'Condição' => 'CONDIÇÃO',
-    'CondiÃ§ao' => 'CONDIÇÃO',
+    'Condição' => 'CONDIÇÁO',
+    'condição' => 'CONDIÇÁO',
+    'Condição' => 'CONDIÇÁO',
+    'Condiçao' => 'CONDIÇÁO',
     
-    'nÃ£o' => 'NÃO',
-    'Não' => 'NÃO',
-    'não' => 'NÃO',
+    'não' => 'NÁO',
+    'Não' => 'NÁO',
+    'não' => 'NÁO',
     
-    'serÃ¡' => 'SERÁ',
+    'será' => 'SERÁ',
     'será' => 'SERÁ',
     'Será' => 'SERÁ',
     
-    'incluÃ­do' => 'INCLUÍDO',
+    'incluído' => 'INCLUÍDO',
     'incluído' => 'INCLUÍDO',
     
-    'descriÃ§Ã£o' => 'DESCRIÇÃO',
-    'descrição' => 'DESCRIÇÃO',
-    'Descrição' => 'DESCRIÇÃO',
+    'descrição' => 'DESCRIÇÁO',
+    'descrição' => 'DESCRIÇÁO',
+    'Descrição' => 'DESCRIÇÁO',
     
-    'funÃ§Ã£o' => 'FUNÇÃO',
-    'função' => 'FUNÇÃO',
-    'Função' => 'FUNÇÃO',
+    'função' => 'FUNÇÁO',
+    'função' => 'FUNÇÁO',
+    'Função' => 'FUNÇÁO',
     
     // UPPERCASE conversions (já tratados em alguns arquivos)
     'Dados Básicos' => 'DADOS BÁSICOS',

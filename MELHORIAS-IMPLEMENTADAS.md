@@ -1,46 +1,46 @@
-﻿# ðŸŽ‰ Parser de Produtos - Melhorias Implementadas
+#  Parser de Produtos - Melhorias Implementadas
 
-## ðŸ“Š Status Final
+##  Status Final
 
-**Taxa de Sucesso: 100%** (12/12 testes passando) âœ…
+**Taxa de Sucesso: 100%** (12/12 testes passando) 
 
-EvoluÃ§Ã£o: 58.3% â†’ 66.7% â†’ 75% â†’ **100%**
+Evolução: 58.3%  66.7%  75%  **100%**
 
-## âœ¨ Funcionalidades Implementadas
+##  Funcionalidades Implementadas
 
-### 1. **DetecÃ§Ã£o Plural/Singular (Fuzzy Matching)** âœ…
+### 1. **Detecção Plural/Singular (Fuzzy Matching)** 
 
-Agora o parser reconhece automaticamente variaÃ§Ãµes de plural e singular:
+Agora o parser reconhece automaticamente variações de plural e singular:
 
 ```
-EQUIPAMENTO â†” EQUIPAMENTOS
-CADEIRA â†” CADEIRAS
-ESTANTE â†” ESTANTES
-ARMÃRIO â†” ARMÃRIOS
+EQUIPAMENTO  EQUIPAMENTOS
+CADEIRA  CADEIRAS
+ESTANTE  ESTANTES
+ARMÁRIO  ARMÁRIOS
 ```
 
-**ImplementaÃ§Ã£o:**
-- `pp_gerar_variacoes()` - Gera variaÃ§Ãµes automÃ¡ticas
-- `pp_match_fuzzy()` - Compara considerando variaÃ§Ãµes
-- `pp_normaliza_char()` - Normaliza caracteres preservando espaÃ§os
+**Implementação:**
+- `pp_gerar_variacoes()` - Gera variações automáticas
+- `pp_match_fuzzy()` - Compara considerando variações
+- `pp_normaliza_char()` - Normaliza caracteres preservando espaços
 
-### 2. **Escolha Inteligente de Alias (DetecÃ§Ã£o de RepetiÃ§Ã£o)** âœ…
+### 2. **Escolha Inteligente de Alias (Detecção de Repetição)** 
 
 Quando um alias aparece repetido no texto, ele tem prioridade:
 
 ```
-Input:  "PRATELEIRA / ESTANTE ESTANTE METÃLICA..."
-Output: BEN = "ESTANTE" (detectou a repetiÃ§Ã£o)
+Input:  "PRATELEIRA / ESTANTE ESTANTE METÁLICA..."
+Output: BEN = "ESTANTE" (detectou a repetição)
 ```
 
-**ImplementaÃ§Ã£o:**
-- DetecÃ§Ã£o com `preg_match_all` usando word boundaries (`\b`)
-- PriorizaÃ§Ã£o no `usort` baseada em contagem de repetiÃ§Ãµes
+**Implementação:**
+- Detecção com `preg_match_all` usando word boundaries (`\b`)
+- Priorização no `usort` baseada em contagem de repetições
 - Escolhe o alias que aparece 2+ vezes
 
-### 3. **RemoÃ§Ã£o Inteligente do Tipo Desc** âœ…
+### 3. **Remoção Inteligente do Tipo Desc** 
 
-Remove a descriÃ§Ã£o completa do tipo apenas quando necessÃ¡rio:
+Remove a descrição completa do tipo apenas quando necessário:
 
 ```
 Input:  "ESTANTES MUSICAIS E DE PARTITURAS / QUADRO MUSICAL QUADRO MUSICAL LOUSA BRANCA"
@@ -51,81 +51,81 @@ Fica:   "QUADRO MUSICAL LOUSA BRANCA"
 Result: BEN = "QUADRO MUSICAL", Complemento = "LOUSA BRANCA"
 ```
 
-**LÃ³gica:**
-1. Verifica se texto comeÃ§a com tipo desc completo
-2. Verifica se apÃ³s remover, hÃ¡ um alias no inÃ­cio
-3. Se SIM, remove o tipo desc; se NÃƒO, mantÃ©m
+**Lógica:**
+1. Verifica se texto começa com tipo desc completo
+2. Verifica se após remover, há um alias no início
+3. Se SIM, remove o tipo desc; se NO, mantém
 
-### 4. **ExtraÃ§Ã£o Precisa com Acentos** âœ…
+### 4. **Extração Precisa com Acentos** 
 
 Preserva acentos, til, cedilha corretamente:
 
 ```
-Input:  "EQUIPAMENTOS DE CLIMATIZAÃ‡ÃƒO AR CONDICIONADO"
-BEN:    "EQUIPAMENTOS DE CLIMATIZAÃ‡ÃƒO" (preserva Ã‡ e Ãƒ)
-Compl:  "AR CONDICIONADO" (nÃ£o perde "AR")
+Input:  "EQUIPAMENTOS DE CLIMATIZAO AR CONDICIONADO"
+BEN:    "EQUIPAMENTOS DE CLIMATIZAO" (preserva  e )
+Compl:  "AR CONDICIONADO" (não perde "AR")
 ```
 
-**SoluÃ§Ã£o:**
-- NormalizaÃ§Ã£o caractere por caractere com `pp_normaliza_char()`
-- AcumulaÃ§Ã£o de string normalizada para match exato
+**Solução:**
+- Normalização caractere por caractere com `pp_normaliza_char()`
+- Acumulação de string normalizada para match exato
 - `mb_strlen` e `mb_substr` para Unicode
 
-### 5. **GeraÃ§Ã£o AutomÃ¡tica de VariaÃ§Ãµes** âœ…
+### 5. **Geração Automática de Variações** 
 
-Aliases sÃ£o expandidos automaticamente:
+Aliases são expandidos automaticamente:
 
 ```
 Tipo: "PRATELEIRA / ESTANTE"
 Aliases gerados:
   - PRATELEIRA
-  - PRATELEIRAS (plural automÃ¡tico)
+  - PRATELEIRAS (plural automático)
   - ESTANTE
-  - ESTANTES (plural automÃ¡tico)
+  - ESTANTES (plural automático)
 ```
 
-### 6. **Suite de Testes Completa** âœ…
+### 6. **Suite de Testes Completa** 
 
 12 casos de teste cobrindo:
 
 | # | Caso | Verifica |
 |---|------|----------|
-| 1 | PRATELEIRA com aliases mÃºltiplos | Escolha do primeiro alias |
+| 1 | PRATELEIRA com aliases múltiplos | Escolha do primeiro alias |
 | 2 | EQUIPAMENTO vs EQUIPAMENTOS | Fuzzy match plural/singular |
-| 3 | CÃ³digo prefixo 68 - | ExtraÃ§Ã£o correta com cÃ³digo |
-| 4 | CADEIRA - hÃ­fen | Separador explÃ­cito |
-| 5 | ESTANTE repetida | Escolha inteligente por repetiÃ§Ã£o |
-| 6 | Texto sem hÃ­fen | ExtraÃ§Ã£o sem separador |
-| 7 | CADEIRAS (plural) | Fuzzy match na direÃ§Ã£o oposta |
-| 8 | Tipo complexo mÃºltiplos aliases | RepetiÃ§Ã£o em tipo complexo |
+| 3 | Código prefixo 68 - | Extração correta com código |
+| 4 | CADEIRA - hífen | Separador explícito |
+| 5 | ESTANTE repetida | Escolha inteligente por repetição |
+| 6 | Texto sem hífen | Extração sem separador |
+| 7 | CADEIRAS (plural) | Fuzzy match na direção oposta |
+| 8 | Tipo complexo múltiplos aliases | Repetição em tipo complexo |
 | 9 | Texto livre sem tipo | Fallback correto |
-| 10 | ARMÃRIO singular/plural | Plural bÃ¡sico |
-| 11 | CÃ³digo OT-123 | RemoÃ§Ã£o de cÃ³digo OT |
-| 12 | NÃºmero prefixo 11 - | CÃ³digo numÃ©rico |
+| 10 | ARMÁRIO singular/plural | Plural básico |
+| 11 | Código OT-123 | Remoção de código OT |
+| 12 | Número prefixo 11 - | Código numérico |
 
-## ðŸ› ï¸ Arquivos Modificados
+## ️ Arquivos Modificados
 
 ### Core
-- âœ… `app/functions/produto_parser.php` - FunÃ§Ãµes principais
-- âœ… `app/config/produto_parser_config.php` - ConfiguraÃ§Ã£o
+-  `app/functions/produto_parser.php` - Funções principais
+-  `app/config/produto_parser_config.php` - Configuração
 
 ### Testes
-- âœ… `test-parser.php` - Suite de testes (12 casos)
+-  `test-parser.php` - Suite de testes (12 casos)
 
 ### Import
-- âœ… `CRUD/CREATE/importar-planilha.php` - IntegraÃ§Ã£o do parser
-- âœ… `CRUD/READ/view-planilha.php` - ExibiÃ§Ã£o com bordas coloridas
+-  `CRUD/CREATE/importar-planilha.php` - Integração do parser
+-  `CRUD/READ/view-planilha.php` - Exibição com bordas coloridas
 
 ### Views
-- âœ… `app/views/planilhas/planilha_visualizar.php` - Visual de erros
+-  `app/views/planilhas/planilha_visualizar.php` - Visual de erros
 
 ### Scripts
-- âœ… `scripts/reprocessar_produtos.php` - Reprocessamento de produtos antigos
+-  `scripts/reprocessar_produtos.php` - Reprocessamento de produtos antigos
 
-### DocumentaÃ§Ã£o
-- âœ… `REPROCESSAMENTO-GUIA.md` - Guia de uso do script
+### Documentação
+-  `REPROCESSAMENTO-GUIA.md` - Guia de uso do script
 
-## ðŸ“ˆ Melhorias TÃ©cnicas
+##  Melhorias Técnicas
 
 ### Antes
 ```php
@@ -136,36 +136,36 @@ $ben = $palavras[0];
 
 ### Depois
 ```php
-// Inteligente: detecta tipo, repetiÃ§Ãµes, fuzzy match
+// Inteligente: detecta tipo, repetições, fuzzy match
 pp_extrair_ben_complemento($texto, $aliases, $aliases_originais, $tipo_desc);
-// â†’ Retorna BEN e complemento otimizados
+//  Retorna BEN e complemento otimizados
 ```
 
-## ðŸŽ¯ Casos de Uso Resolvidos
+##  Casos de Uso Resolvidos
 
-### Caso 1: RepetiÃ§Ã£o de Alias
+### Caso 1: Repetição de Alias
 **Antes:**
 ```
-1x [11 - PRATELEIRA / ESTANTE] PRATELEIRA - METÃLICA 5 PRATELEIRAS
+1x [11 - PRATELEIRA / ESTANTE] PRATELEIRA - METÁLICA 5 PRATELEIRAS
 ```
 
 **Depois:**
 ```
-1x [11 - PRATELEIRA / ESTANTE] ESTANTE - METÃLICA 5 PRATELEIRAS
+1x [11 - PRATELEIRA / ESTANTE] ESTANTE - METÁLICA 5 PRATELEIRAS
 ```
-âœ… Detectou "ESTANTE ESTANTE" e escolheu corretamente
+ Detectou "ESTANTE ESTANTE" e escolheu corretamente
 
 ### Caso 2: Plural/Singular
 **Antes:**
 ```
-Tipo nÃ£o detectado (EQUIPAMENTO vs EQUIPAMENTOS)
+Tipo não detectado (EQUIPAMENTO vs EQUIPAMENTOS)
 ```
 
 **Depois:**
 ```
-1x [68 - EQUIPAMENTOS DE CLIMATIZAÃ‡ÃƒO] EQUIPAMENTO DE CLIMATIZAÃ‡ÃƒO - AR CONDICIONADO VIX
+1x [68 - EQUIPAMENTOS DE CLIMATIZAO] EQUIPAMENTO DE CLIMATIZAO - AR CONDICIONADO VIX
 ```
-âœ… Fuzzy match funcionando
+ Fuzzy match funcionando
 
 ### Caso 3: Tipo Complexo
 **Antes:**
@@ -177,25 +177,25 @@ Tipo nÃ£o detectado (EQUIPAMENTO vs EQUIPAMENTOS)
 ```
 1x [58 - ESTANTES MUSICAIS E DE PARTITURAS / QUADRO MUSICAL] QUADRO MUSICAL - LOUSA BRANCA
 ```
-âœ… Removeu tipo desc e detectou repetiÃ§Ã£o
+ Removeu tipo desc e detectou repetição
 
-## ðŸš€ Como Usar
+##  Como Usar
 
-### 1. ImportaÃ§Ã£o de CSV
-O parser Ã© aplicado automaticamente durante a importaÃ§Ã£o:
+### 1. Importação de CSV
+O parser é aplicado automaticamente durante a importação:
 ```
 CRUD/CREATE/importar-planilha.php
 ```
 
 ### 2. Reprocessar Produtos Antigos
 ```bash
-# Simular (nÃ£o salva)
+# Simular (não salva)
 php scripts/reprocessar_produtos.php --dry-run
 
-# Aplicar mudanÃ§as
+# Aplicar mudanças
 php scripts/reprocessar_produtos.php
 
-# Processar planilha especÃ­fica
+# Processar planilha específica
 php scripts/reprocessar_produtos.php --planilha-id=15
 ```
 
@@ -204,22 +204,22 @@ php scripts/reprocessar_produtos.php --planilha-id=15
 php test-parser.php
 ```
 
-## ðŸ“ PrÃ³ximos Passos (Opcional)
+##  Próximos Passos (Opcional)
 
 1. **Adicionar mais testes** para casos extremos
-2. **Criar dashboard de qualidade** mostrando produtos com parsing problemÃ¡tico
-3. **Implementar sugestÃµes automÃ¡ticas** de correÃ§Ã£o no frontend
+2. **Criar dashboard de qualidade** mostrando produtos com parsing problemático
+3. **Implementar sugestões automáticas** de correção no frontend
 4. **Adicionar auditoria** de quando foi aplicado o parser (coluna `parser_version`)
 
-## ðŸŽ‰ Resultado
+##  Resultado
 
 Parser 100% funcional com:
-- âœ… 12/12 testes passando
-- âœ… DetecÃ§Ã£o inteligente
-- âœ… Fuzzy matching
-- âœ… PreservaÃ§Ã£o de acentos
-- âœ… Script de reprocessamento
-- âœ… DocumentaÃ§Ã£o completa
+-  12/12 testes passando
+-  Detecção inteligente
+-  Fuzzy matching
+-  Preservação de acentos
+-  Script de reprocessamento
+-  Documentação completa
 
-**Pronto para produÃ§Ã£o!** ðŸš€
+**Pronto para produção!** 
 

@@ -1,9 +1,9 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AUTENTICAÇÃO
+ // AUTENTICAO
 require_once __DIR__ . '/../../../app/controllers/read/Relatorio141DataController.php';
 
-$pageTitle = 'RelatÃ³rio 14.1';
+$pageTitle = 'Relatório 14.1';
 $backUrl = '../shared/menu_planilha.php?id=' . urlencode($id_planilha);
 $headerActions = '<button id="btnPrint" class="btn-header-action" title="Imprimir" onclick="window.print()"><i class="bi bi-printer"></i></button>';
 
@@ -18,7 +18,7 @@ $customCss = '
 .carousel-nav button:disabled { background: #ccc; cursor: not-allowed; }
 .carousel-info { font-weight: 600; color: #333; }
 
-/* FormulÃ¡rio valores comuns */
+/* Formulário valores comuns */
 .valores-comuns { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
 .valores-comuns h6 { margin: 0 0 10px 0; font-size: 0.9rem; font-weight: 600; }
 .form-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
@@ -39,12 +39,13 @@ $customCss = '
 }
 ';
 
+
 ob_start();
 ?>
 
 <?php if (count($PRODUTOS) > 0): ?>
 
-<!-- NavegaÃ§Ã£o do carrossel -->
+<!-- Navegação do carrossel -->
 <div class="carousel-nav">
     <button id="btnPrev" onclick="navegarCarrossel(-1)">
         <i class="bi bi-chevron-left"></i> Anterior
@@ -53,16 +54,16 @@ ob_start();
         <span id="paginaAtual">1</span> / <span id="totalPaginas"><?php echo count($PRODUTOS); ?></span>
     </div>
     <button id="btnNext" onclick="navegarCarrossel(1)">
-        PrÃ³ximo <i class="bi bi-chevron-right"></i>
+        Próximo <i class="bi bi-chevron-right"></i>
     </button>
 </div>
 
-<!-- FormulÃ¡rio de valores comuns -->
+<!-- Formulário de valores comuns -->
 <div class="valores-comuns">
     <h6><i class="bi bi-ui-checks me-1"></i> Valores Comuns para Todos</h6>
     <div class="form-grid">
         <div>
-            <label>AdministraÃ§Ã£o</label>
+            <label>Administração</label>
             <input type="text" id="admin_geral" onchange="atualizarTodos('admin')">
         </div>
         <div>
@@ -80,7 +81,7 @@ ob_start();
     </div>
 </div>
 
-<!-- Carrossel de pÃ¡ginas -->
+<!-- Carrossel de pginas -->
 <div class="carousel-container">
     <div class="carousel-track" id="carrosselTrack">
         <?php foreach($PRODUTOS as $index => $row): ?>
@@ -94,7 +95,7 @@ ob_start();
                                     <tr class="row1">
                                         <th class="col1" rowspan="3">CCB</th>
                                         <th class="col2" rowspan="3">MANUAL ADMINISTRATIVO</th>
-                                        <th class="col3">SEÃ‡ÃƒO: </th>
+                                        <th class="col3">SEO: </th>
                                         <th class="col4">14</th>
                                     </tr>
                                     <tr class="row2">
@@ -102,33 +103,33 @@ ob_start();
                                         <th class="col4">34/36</th>
                                     </tr>
                                     <tr class="row3">
-                                        <th class="col3">DATA REVISÃƒO: </th>
+                                        <th class="col3">DATA REVISO: </th>
                                         <th class="col4">24/09/2019</th>
                                     </tr>
                                     <tr class="row4">
                                         <th class="col1" rowspan="2">ASSUNTO</th>
-                                        <th class="col2" rowspan="2">PATRIMÃ”NIO - BENS MÃ“VEIS</th>
-                                        <th class="col3">EDIÃ‡ÃƒO: </th>
+                                        <th class="col2" rowspan="2">PATRIMNIO - BENS MVEIS</th>
+                                        <th class="col3">EDIO: </th>
                                         <th class="col4">6</th>
                                     </tr>
                                     <tr class="row5">
-                                        <th class="col3">REVISÃƒO: </th>
+                                        <th class="col3">REVISO: </th>
                                         <th class="col4">1</th>
                                     </tr>
                                 </table>
                             </section>
                             <section class="conteudo">
-                                <h1>FORMULÃRIO 14.1: DECLARAÃ‡ÃƒO DE DOAÃ‡ÃƒO DE BEM MÃ“VEL</h1>
+                                <h1>FORMULRIO 14.1: DECLARAO DE DOAO DE BEM MVEL</h1>
                                 <div class="conteudo">
                                     <table>
                                         <tr class="row1">
-                                            <td class="col1" colspan="2">CONGREGAÃ‡ÃƒO CRISTÃƒ NO BRASIL</td>
-                                            <td class="col2" colspan="2">FORMULÃRIO 14.1</td>
+                                            <td class="col1" colspan="2">CONGREGAO CRIST NO BRASIL</td>
+                                            <td class="col2" colspan="2">FORMULRIO 14.1</td>
                                         </tr>
                                         <tr class="row2">
-                                            <td class="col1" colspan="2">DECLARAÃ‡ÃƒO DE DOAÃ‡ÃƒO DE BENS MÃ“VEIS</td>
+                                            <td class="col1" colspan="2">DECLARAO DE DOAO DE BENS MVEIS</td>
                                             <td class="col2" colspan="2">
-                                                <label for="">Data EmissÃ£o</label><br>
+                                                <label for="">Data Emisso</label><br>
                                                 <input type="text" name="data_emissao" id="data_emissao_<?php echo $row['id']; ?>" value="<?php echo date('d/m/Y'); ?>" readonly>
                                             </td>
                                         </tr>
@@ -141,7 +142,7 @@ ob_start();
                                     </table>
                                     <table>
                                         <tr class="row4">
-                                            <td class="col1">AdministraÃ§Ã£o</td>
+                                            <td class="col1">Administração</td>
                                             <td class="col2">CIDADE</td>
                                             <td class="col3">Setor</td>
                                         </tr>
@@ -157,9 +158,9 @@ ob_start();
                                             </td>
                                         </tr>
                                         <tr class="row6">
-                                            <td class="col1">CNPJ da AdministraÃ§Ã£o</td>
-                                            <td class="col2">NÂ° RelatÃ³rio</td>
-                                            <td class="col3">Casa de OraÃ§Ã£o</td>
+                                            <td class="col1">CNPJ da Administração</td>
+                                            <td class="col2">N° Relatório</td>
+                                            <td class="col3">Casa de Orao</td>
                                         </tr>
                                         <tr class="row7">
                                             <td class="col1">
@@ -176,7 +177,7 @@ ob_start();
                                     <table>
                                         <tr class="row8">
                                             <td class="col1">B</td>
-                                            <td class="col2" colspan="3">DESCRIÃ‡ÃƒO DO BEM</td>
+                                            <td class="col2" colspan="3">DESCRIO DO BEM</td>
                                         </tr>
                                     </table>
                                     <table>
@@ -188,8 +189,8 @@ ob_start();
                                     </table>
                                     <table>
                                         <tr class="row10">
-                                            <td class="col1">NÂ° Nota fiscal</td>
-                                            <td class="col2">Data de emissÃ£o</td>
+                                            <td class="col1">N° Nota fiscal</td>
+                                            <td class="col2">Data de emisso</td>
                                             <td class="col3">Valor</td>
                                             <td class="col4">Fornecedor</td>
                                         </tr>
@@ -209,20 +210,20 @@ ob_start();
                                         </tr>
                                         <tr class="row12">
                                             <td class="col1" colspan="4">
-                                                <p>Declaramos que estamos doando Ã  CONGREGAÃ‡ÃƒO CRISTÃƒ NO BRASIL o bem acima descrito, de nossa propriedade, livre e sesembaraÃ§ado de dÃ­vidas e Ã´nus, para uso na Casa de OraÃ§Ã£o acima identificada.</p><br>
+                                                <p>Declaramos que estamos doando  CONGREGAO CRIST NO BRASIL o bem acima descrito, de nossa propriedade, livre e sesembaraado de dvidas e nus, para uso na Casa de Orao acima identificada.</p><br>
                                                 <label>
                                                     <input type="checkbox" class="opcao-checkbox" name="opcao_1_<?php echo $row['id']; ?>" id="opcao_1_<?php echo $row['id']; ?>" data-page="<?php echo $index; ?>">
-                                                    O bem tem mais de cinco anos de uso e o documento fiscal de aquisiÃ§Ã£o estÃ¡ anexo.
+                                                    O bem tem mais de cinco anos de uso e o documento fiscal de aquisio est anexo.
                                                 </label><br>
                                                 <label>
                                                     <input type="checkbox" class="opcao-checkbox" name="opcao_2_<?php echo $row['id']; ?>" id="opcao_2_<?php echo $row['id']; ?>" data-page="<?php echo $index; ?>">
-                                                    O bem tem mais de cinco anos de uso, porÃ©m o documento fiscal de aquisiÃ§Ã£o foi extraviado.
+                                                    O bem tem mais de cinco anos de uso, porm o documento fiscal de aquisio foi extraviado.
                                                 </label><br>
                                                 <label>
                                                     <input type="checkbox" class="opcao-checkbox" name="opcao_3_<?php echo $row['id']; ?>" id="opcao_3_<?php echo $row['id']; ?>" data-page="<?php echo $index; ?>">
-                                                    O bem tem atÃ© cinco anos de uso e o documento fiscal de aquisiÃ§Ã£o estÃ¡ anexo.
+                                                    O bem tem at cinco anos de uso e o documento fiscal de aquisio est anexo.
                                                 </label><br><br>
-                                                <p>Por ser verdade firmamos esta declaraÃ§Ã£o.</p><br>
+                                                <p>Por ser verdade firmamos esta declarao.</p><br>
                                                 <label>Local e data: <input type="text" name="local_data" id="local_data_<?php echo $row['id']; ?>" value="<?php echo htmlspecialchars($comum_planilha); ?> ____/____/_______"></label>
                                             </td>
                                         </tr>
@@ -237,7 +238,7 @@ ob_start();
                                         <tr class="row14">
                                             <td class="col1"></td>
                                             <td class="col2">Dados do doador</td>
-                                            <td class="col3">Dados do cÃ´njuge</td>
+                                            <td class="col3">Dados do cnjuge</td>
                                         </tr>
                                         <tr class="row15">
                                             <td class="col1">Nome</td>
@@ -245,7 +246,7 @@ ob_start();
                                             <td class="col3"><input type="text" name="nome_conjuge" id="nome_conjuge_<?php echo $row['id']; ?>"></td>
                                         </tr>
                                         <tr class="row16">
-                                            <td class="col1">EndereÃ§o</td>
+                                            <td class="col1">Endereo</td>
                                             <td class="col2"><input type="text" name="endereco_doador" id="endereco_doador_<?php echo $row['id']; ?>"></td>
                                             <td class="col3"><input type="text" name="endereco_conjuge" id="endereco_conjuge_<?php echo $row['id']; ?>"></td>
                                         </tr>
@@ -268,12 +269,12 @@ ob_start();
                                     <table>
                                         <tr class="row20">
                                             <td class="col1">D</td>
-                                            <td class="col2" colspan="2">TERMO DE ACEITE DA DOAÃ‡ÃƒO</td>
+                                            <td class="col2" colspan="2">TERMO DE ACEITE DA DOAO</td>
                                         </tr>
                                     </table>
                                     <table>
                                         <tr class="row21">
-                                            <td class="col1" colspan="3"><p>A CongregaÃ§Ã£o CristÃ£ No Brasil aceita a presente doaÃ§Ã£o por atender necessidade do momento.</p></td>
+                                            <td class="col1" colspan="3"><p>A Congregao Crist No Brasil aceita a presente doao por atender necessidade do momento.</p></td>
                                         </tr>
                                         <tr class="row22">
                                             <td class="col1"></td>
@@ -313,7 +314,7 @@ ob_start();
 <?php else: ?>
 <div class="alert alert-warning">
     <i class="bi bi-exclamation-triangle me-2"></i>
-    Nenhum PRODUTO encontrado para impressÃ£o do relatÃ³rio 14.1.
+    Nenhum PRODUTO encontrado para impresso do relatrio 14.1.
 </div>
 <?php endif; ?>
 
@@ -334,7 +335,7 @@ function navegarCarrossel(direcao) {
     document.getElementById('btnNext').disabled = paginaAtual === totalPaginas - 1;
 }
 
-// Inicializar botÃµes
+// Inicializar botes
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnPrev').disabled = true;
     if (totalPaginas <= 1) document.getElementById('btnNext').disabled = true;
@@ -357,7 +358,7 @@ function atualizarTodos(tipo) {
     });
 }
 
-// Apenas 1 checkbox por pÃ¡gina
+// Apenas 1 checkbox por pgina
 document.querySelectorAll('.opcao-checkbox').forEach(chk => {
     chk.addEventListener('change', () => {
         if (chk.checked) {
@@ -376,7 +377,7 @@ window.addEventListener('beforeprint', () => {
         const checks = pages[i].querySelectorAll('.opcao-checkbox');
         const marcados = Array.from(checks).filter(c => c.checked).length;
         if (marcados !== 1) {
-            alert(`Selecione exatamente 1 opÃ§Ã£o na pÃ¡gina ${i + 1} antes de imprimir.`);
+            alert(`Selecione exatamente 1 opo na pgina ${i + 1} antes de imprimir.`);
             return false;
         }
     }

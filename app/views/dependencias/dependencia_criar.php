@@ -1,12 +1,7 @@
 <?php
+
 declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-
-
-if (!isAdmin()) {
-    header('Location: ../../../index.php');
-    exit;
-}
 
 include __DIR__ . '/../../../app/controllers/create/DependenciaCreateController.php';
 
@@ -48,15 +43,15 @@ ob_start();
         </form>
 
         <script>
-        // Validação do formulário (criar)
-        document.getElementById('formDependenciaCreate').addEventListener('submit', function(e) {
-            const descricao = document.getElementById('descricao').value.trim();
-            if (!descricao) {
-                e.preventDefault();
-                alert('<?php echo htmlspecialchars(to_uppercase("A descrição é obrigatória!"), ENT_QUOTES, 'UTF-8'); ?>');
-                return false;
-            }
-        });
+            // Validação do formulário (criar)
+            document.getElementById('formDependenciaCreate').addEventListener('submit', function(e) {
+                const descricao = document.getElementById('descricao').value.trim();
+                if (!descricao) {
+                    e.preventDefault();
+                    alert('<?php echo htmlspecialchars(to_uppercase("A descrição é obrigatória!"), ENT_QUOTES, 'UTF-8'); ?>');
+                    return false;
+                }
+            });
         </script>
     </div>
 </div>
@@ -69,5 +64,3 @@ $contentFile = $tempFile;
 include __DIR__ . '/../layouts/app_wrapper.php';
 unlink($tempFile);
 ?>
-
-

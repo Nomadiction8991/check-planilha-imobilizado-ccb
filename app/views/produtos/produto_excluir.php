@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AUTENTICAÇÃO
+ // AUTENTICAÇÁO
 include __DIR__ . '/../../../app/controllers/delete/PRODUTODeleteController.php';
 
 $pageTitle = 'Excluir PRODUTO';
@@ -10,7 +10,7 @@ ob_start();
 ?>
 
 <div class="alert alert-warning">
-  <strong>AtenÃ§Ã£o:</strong> Tem certeza que deseja excluir este PRODUTO? Esta aÃ§Ã£o NÃO pode ser desfeita.
+  <strong>Atenção:</strong> Tem certeza que deseja excluir este PRODUTO? Esta ação NÃO pode ser desfeita.
   <?php if (!empty($erros)): ?>
     <ul class="mb-0 mt-2">
       <?php foreach ($erros as $erro): ?>
@@ -63,7 +63,7 @@ ob_start();
 
   <button type="submit" class="btn btn-danger w-100">
     <i class="bi bi-trash me-2"></i>
-    Confirmar ExclusÃ£o
+    Confirmar Exclusão
   </button>
 </form>
 

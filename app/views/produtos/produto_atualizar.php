@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AUTENTICAÇÃO
+ // AUTENTICAÇÁO
 include __DIR__ . '/../../../app/controllers/update/PRODUTOPartialUpdateController.php';
 
 $pageTitle = 'EDITAR PRODUTO';
@@ -125,7 +125,7 @@ ob_start();
   selectTipoBen.addEventListener('change', atualizarOpcoesBem);
   document.addEventListener('DOMContentLoaded', atualizarOpcoesBem);
 
-  // ValidaÃ§Ã£o Bootstrap
+  // Validação Bootstrap
   (() => {
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');

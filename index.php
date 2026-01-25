@@ -26,8 +26,8 @@ if (isLoggedIn()) {
             </li>';
 }
 
-// Doador/Conjugue: adicionar opção "Editar Meu Usuário"
-if (isDoador() && isset($_SESSION['usuario_id'])) {
+// Editar Meu Usuário - para todos os usuários autenticados
+if (isLoggedIn() && isset($_SESSION['usuario_id'])) {
     $headerActions .= '
             <li>
                 <a class="dropdown-item" href="app/views/usuarios/usuario_editar.php?id=' . (int)$_SESSION['usuario_id'] . '">
@@ -193,7 +193,7 @@ ob_start();
     <div class="card-body">
         <form method="GET" class="row g-2">
             <div class="col-12">
-                <label for="busca" class="form-label">CÓDIGO OU DESCRIÇÃO</label>
+                <label for="busca" class="form-label">CÓDIGO OU DESCRIÇÁO</label>
                 <div class="input-group">
                     <input type="text" name="busca" id="busca" class="form-control text-uppercase"
                         value="<?php echo htmlspecialchars($buscaDisplay); ?>">
@@ -224,8 +224,8 @@ ob_start();
                 <thead>
                     <tr>
                         <th style="width: 40%">CÓDIGO</th>
-                        <th>DESCRIÇÃO</th>
-                        <th style="width: 140px">AÇÃO</th>
+                        <th>DESCRIÇÁO</th>
+                        <th style="width: 140px">AÇÁO</th>
                     </tr>
                 </thead>
                 <tbody id="comunsTbody">
@@ -276,7 +276,7 @@ ob_start();
     </div>
 </div>
 
-<nav id="comumPagination" class="mt-3" aria-label="PAGINAÇÃO COMUNS">
+<nav id="comumPagination" class="mt-3" aria-label="PAGINAÇÁO COMUNS">
     <ul class="pagination pagination-sm justify-content-center mb-0">
         <?php if ($pagina > 1): ?>
             <li class="page-item"><a class="page-link" href="#" data-page="<?php echo $pagina - 1; ?>">&laquo;</a></li>
@@ -314,7 +314,7 @@ require_once __DIR__ . '/app/views/layouts/app_wrapper.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
-                <p>COMPLETE OS DADOS DA COMUM (DESCRIÇÃO, CNPJ, ADMINISTRAÇÃO E CIDADE) PARA VISUALIZAR A PLANILHA.</p>
+                <p>COMPLETE OS DADOS DA COMUM (DESCRIÇÁO, CNPJ, ADMINISTRAÇÁO E CIDADE) PARA VISUALIZAR A PLANILHA.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary w-47" data-bs-dismiss="modal">DEIXAR PARA

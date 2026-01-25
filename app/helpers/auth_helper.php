@@ -38,8 +38,6 @@ if (!isset($_SESSION['usuario_id'])) {
         $allowed = [
             '/app/views/shared/menu_unificado.php',
             '/app/views/planilhas/relatorio141_view.php',
-            '/app/views/planilhas/relatorio141_assinatura.php',
-            '/app/views/planilhas/relatorio141_assinatura_form.php',
             '/app/views/planilhas/relatorio_imprimir_alteracao.php',
         ];
 
@@ -86,29 +84,15 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 // Verifica se o usuario é Administrador/Acessor
 function isAdmin(): bool
 {
-    // Prefer explicit session flag set at login
-    if (isset($_SESSION['is_admin'])) {
-        return (bool) $_SESSION['is_admin'];
-    }
-    // Fallback to legacy 'usuario_tipo' if present
-    if (isset($_SESSION['usuario_tipo'])) {
-        $tipo = (string) $_SESSION['usuario_tipo'];
-        return $tipo === 'Administrador/Acessor' || stripos($tipo, 'administrador') !== false;
-    }
-    // Default: not admin
-    return false;
+    // Todos os usuários autenticados serão tratados como administradores por decisão do projeto
+    return isLoggedIn();
 }
 
 // Verifica se o usuario é Doador/Cônjuge
 function isDoador(): bool
 {
-    if (isset($_SESSION['is_doador'])) {
-        return (bool) $_SESSION['is_doador'];
-    }
-    if (isset($_SESSION['usuario_tipo'])) {
-        return $_SESSION['usuario_tipo'] === 'Doador/Conjuge' || stripos($_SESSION['usuario_tipo'], 'doador') !== false;
-    }
-    return false;
+    // Compatibilidade: tratar doador como usuário autenticado também (para exibir opções que antes eram apenas para doadores)
+    return isLoggedIn();
 }
 
 // Verifica se o usuario esta autenticado

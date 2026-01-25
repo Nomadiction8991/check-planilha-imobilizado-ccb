@@ -1,50 +1,50 @@
-﻿# Guia de Reprocessamento de Produtos
+# Guia de Reprocessamento de Produtos
 
-Este guia explica como usar o script de reprocessamento para aplicar o parser atualizado em produtos jÃ¡ existentes no banco de dados.
+Este guia explica como usar o script de reprocessamento para aplicar o parser atualizado em produtos já existentes no banco de dados.
 
-## ðŸ“‹ O que o script faz?
+##  O que o script faz?
 
 O script `scripts/reprocessar_produtos.php` reprocessa produtos existentes aplicando as melhorias do parser:
 
-- âœ… DetecÃ§Ã£o inteligente de BEN (detecta repetiÃ§Ãµes como "ESTANTE ESTANTE")
-- âœ… Fuzzy matching para plural/singular (EQUIPAMENTO â†” EQUIPAMENTOS)
-- âœ… ExtraÃ§Ã£o precisa de complemento (preserva acentos e espaÃ§os)
-- âœ… RemoÃ§Ã£o inteligente do tipo desc quando necessÃ¡rio
+-  Detecção inteligente de BEN (detecta repetições como "ESTANTE ESTANTE")
+-  Fuzzy matching para plural/singular (EQUIPAMENTO  EQUIPAMENTOS)
+-  Extração precisa de complemento (preserva acentos e espaços)
+-  Remoção inteligente do tipo desc quando necessário
 
-## ðŸš€ Como usar
+##  Como usar
 
-### 1. Modo Dry-Run (SimulaÃ§Ã£o - RECOMENDADO PRIMEIRO)
+### 1. Modo Dry-Run (Simulação - RECOMENDADO PRIMEIRO)
 
-Execute primeiro em modo simulaÃ§Ã£o para ver o que serÃ¡ alterado SEM salvar no banco:
+Execute primeiro em modo simulação para ver o que será alterado SEM salvar no banco:
 
 ```bash
 php scripts/reprocessar_produtos.php --dry-run
 ```
 
 Este modo mostra:
-- Quais produtos serÃ£o alterados
-- O que mudarÃ¡ em cada campo (BEN, complemento, descriÃ§Ã£o)
-- Quantos produtos serÃ£o afetados
+- Quais produtos serão alterados
+- O que mudará em cada campo (BEN, complemento, descrição)
+- Quantos produtos serão afetados
 
-### 2. Modo ProduÃ§Ã£o (Salva no Banco)
+### 2. Modo Produção (Salva no Banco)
 
-ApÃ³s verificar o dry-run, execute sem a flag para aplicar as mudanÃ§as:
+Após verificar o dry-run, execute sem a flag para aplicar as mudanças:
 
 ```bash
 php scripts/reprocessar_produtos.php
 ```
 
-âš ï¸ **ATENÃ‡ÃƒO**: Este modo ALTERA o banco de dados! FaÃ§a backup antes.
+️ **ATENO**: Este modo ALTERA o banco de dados! Faça backup antes.
 
-## ðŸŽ¯ OpÃ§Ãµes AvanÃ§adas
+##  Opções Avançadas
 
-### Processar apenas uma planilha especÃ­fica
+### Processar apenas uma planilha específica
 
 ```bash
 php scripts/reprocessar_produtos.php --planilha-id=15 --dry-run
 ```
 
-### Limitar nÃºmero de produtos processados
+### Limitar número de produtos processados
 
 ```bash
 php scripts/reprocessar_produtos.php --limit=100 --dry-run
@@ -56,26 +56,26 @@ php scripts/reprocessar_produtos.php --limit=100 --dry-run
 php scripts/reprocessar_produtos.php --verbose --dry-run
 ```
 
-### Combinar opÃ§Ãµes
+### Combinar opções
 
 ```bash
 php scripts/reprocessar_produtos.php --planilha-id=15 --limit=50 --verbose --dry-run
 ```
 
-## ðŸ“Š Exemplo de SaÃ­da
+##  Exemplo de Saída
 
 ```
 === REPROCESSAMENTO DE PRODUTOS ===
-Modo: DRY-RUN (simulaÃ§Ã£o)
+Modo: DRY-RUN (simulação)
 Limite: 100 produtos
 
-âœ“ Carregados 68 tipos de bens
-âœ“ Aliases construÃ­dos
+ Carregados 68 tipos de bens
+ Aliases construídos
 
 Produtos a processar: 100
 ================================================================================
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+
 Produto ID: 1234
 Tipo: [58] ESTANTES MUSICAIS E DE PARTITURAS / QUADRO MUSICAL
 
@@ -87,35 +87,35 @@ COMPLEMENTO:
   Antes: 'PARTITURAS / QUADRO MUSICAL QUADRO MUSICAL LOUSA BRANCA'
   Depois: 'LOUSA BRANCA'
 
-DESCRIÃ‡ÃƒO:
-  Antes: 1x [58 - ESTANTES MUSICAIS E DE PARTITURAS / QUADRO MUSICAL] ESTANTES MUSICAIS E DE PARTITURAS - PARTITURAS / QUADRO MUSICAL QUADRO MUSICAL LOUSA BRANCA (SALA DE MÃšSICA)
-  Depois: 1x [58 - ESTANTES MUSICAIS E DE PARTITURAS / QUADRO MUSICAL] QUADRO MUSICAL - LOUSA BRANCA (SALA DE MÃšSICA)
+DESCRIO:
+  Antes: 1x [58 - ESTANTES MUSICAIS E DE PARTITURAS / QUADRO MUSICAL] ESTANTES MUSICAIS E DE PARTITURAS - PARTITURAS / QUADRO MUSICAL QUADRO MUSICAL LOUSA BRANCA (SALA DE MSICA)
+  Depois: 1x [58 - ESTANTES MUSICAIS E DE PARTITURAS / QUADRO MUSICAL] QUADRO MUSICAL - LOUSA BRANCA (SALA DE MSICA)
 
-âŠ˜ NÃ£o salvo (modo dry-run)
+ Não salvo (modo dry-run)
 
-â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+
 
 ================================================================================
-=== RELATÃ“RIO FINAL ===
+=== RELATRIO FINAL ===
 ================================================================================
 Total processados: 100
 Alterados: 23
-Sem mudanÃ§a: 77
+Sem mudança: 77
 Erros: 0
 
-âš  MODO DRY-RUN - Nenhuma alteraÃ§Ã£o foi salva no banco!
-Execute sem --dry-run para aplicar as mudanÃ§as.
+ MODO DRY-RUN - Nenhuma alteração foi salva no banco!
+Execute sem --dry-run para aplicar as mudanças.
 ```
 
-## ðŸ”§ SoluÃ§Ã£o de Problemas
+##  Solução de Problemas
 
 ### Erro: "Table 'produtos' doesn't exist"
 
-Verifique a conexÃ£o com o banco em `config/database.php`.
+Verifique a conexão com o banco em `config/database.php`.
 
 ### Erro: "Call to undefined function pp_extrair_ben_complemento"
 
-Certifique-se de que `app/functions/produto_parser.php` estÃ¡ no lugar correto.
+Certifique-se de que `app/functions/produto_parser.php` está no lugar correto.
 
 ### Script muito lento
 
@@ -125,34 +125,34 @@ Use `--limit=N` para processar em lotes menores:
 php scripts/reprocessar_produtos.php --limit=1000
 ```
 
-## âš ï¸ Importante
+## ️ Importante
 
-1. **SEMPRE faÃ§a backup do banco antes de executar em modo produÃ§Ã£o**
-2. **Execute primeiro com --dry-run para revisar as mudanÃ§as**
+1. **SEMPRE faça backup do banco antes de executar em modo produção**
+2. **Execute primeiro com --dry-run para revisar as mudanças**
 3. **Teste em uma planilha pequena primeiro** (use --planilha-id)
 4. O script preserva os valores originais nos campos `editado_*` para auditoria
 
-## ðŸ“ Campos Alterados
+##  Campos Alterados
 
 O script atualiza os seguintes campos na tabela `produtos`:
 
-- `ben` - Nome do bem extraÃ­do
-- `complemento` - DescriÃ§Ã£o complementar
-- `descricao` - DescriÃ§Ã£o final formatada
+- `ben` - Nome do bem extraído
+- `complemento` - Descrição complementar
+- `descricao` - Descrição final formatada
 - `editado_tipo_ben_id` - Backup do tipo original
 - `editado_ben` - Backup do BEN original
 - `editado_complemento` - Backup do complemento original
-- `editado_dependencia_id` - Backup da dependÃªncia original
+- `editado_dependencia_id` - Backup da dependência original
 
-## ðŸŽ¯ Casos de Uso
+##  Casos de Uso
 
-### Corrigir produtos de uma importaÃ§Ã£o especÃ­fica
+### Corrigir produtos de uma importação específica
 
 ```bash
-# 1. Ver o que serÃ¡ alterado
+# 1. Ver o que será alterado
 php scripts/reprocessar_produtos.php --planilha-id=15 --dry-run
 
-# 2. Aplicar as correÃ§Ãµes
+# 2. Aplicar as correções
 php scripts/reprocessar_produtos.php --planilha-id=15
 ```
 
@@ -172,10 +172,10 @@ php scripts/reprocessar_produtos.php --limit=1000
 php scripts/reprocessar_produtos.php
 ```
 
-## ðŸ“ž Suporte
+##  Suporte
 
 Em caso de problemas, verifique:
 1. Logs de erro do PHP
-2. SaÃ­da do modo `--verbose --dry-run`
-3. RelatÃ³rio final de estatÃ­sticas
+2. Saída do modo `--verbose --dry-run`
+3. Relatório final de estatísticas
 

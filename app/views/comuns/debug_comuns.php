@@ -15,13 +15,29 @@ header('Content-Type: text/html; charset=utf-8');
 <head>
     <meta charset="utf-8">
     <title>Debug Comuns</title>
+    
     <style>
-        body {
+body {
             font-family: system-ui, Arial, Helvetica, sans-serif;
             padding: 16px;
         }
 
-        pre {
+
+        body pre {
+            background: #f6f8fa;
+            padding: 12px;
+            border-radius: 6px;
+            overflow: auto
+        }
+
+
+body {
+            font-family: system-ui, Arial, Helvetica, sans-serif;
+            padding: 16px;
+        }
+
+
+        body pre {
             background: #f6f8fa;
             padding: 12px;
             border-radius: 6px;

@@ -1,5 +1,5 @@
 <?php
-// AutenticaÃ§Ã£o
+// Autenticação
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 $id_produto = $_GET['id_produto'] ?? null;
@@ -31,7 +31,7 @@ try {
     die("Erro ao carregar produto: " . $e->getMessage());
 }
 
-// Processar a exclusÃ£o quando confirmada
+// Processar a exclusão quando confirmada
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $sql_excluir = "DELETE FROM produtos WHERE id_produto = :id AND comum_id = :id_comum";
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_excluir->bindValue(':id_comum', $id_planilha);
         $stmt_excluir->execute();
 
-        // Gerar parÃ¢metros de retorno para manter os filtros
+        // Gerar parÁ¢metros de retorno para manter os filtros
         $parametros_retorno = gerarParametrosFiltro();
 
         // Redirecionar de volta para a lista (caminho relativo ao document root)
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// FunÃ§Ã£o para gerar parÃ¢metros de filtro
+// Função para gerar parÁ¢metros de filtro
 function gerarParametrosFiltro()
 {
     $params = '';

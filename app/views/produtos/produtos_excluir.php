@@ -1,8 +1,10 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// AUTENTICAÇÃO
+// AUTENTICAÇÁO
 
-header('Content-Type: application/json');
+if (function_exists('is_ajax_request') && is_ajax_request()) {
+    header('Content-Type: application/json');
+}
 
 // Verificar se é POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -38,7 +40,12 @@ try {
 
     // Executar
     if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Produtos excluídos com sucesso']);
+        $payload = ['success' => true, 'message' => 'Produtos excluídos com sucesso'];
+        if (function_exists('is_ajax_request') && !is_ajax_request()) {
+            header('Location: ./produtos_listar.php?comum_id=' . urlencode((string)$comum_id) . '&deleted=1');
+            exit;
+        }
+        echo json_encode($payload);
     } else {
         echo json_encode(['success' => false, 'message' => 'Erro ao excluir produtos']);
     }

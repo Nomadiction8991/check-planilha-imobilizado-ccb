@@ -1,5 +1,5 @@
 <?php
-// AutenticaÃ§Ã£o
+// Autenticação
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

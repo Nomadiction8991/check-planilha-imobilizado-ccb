@@ -93,11 +93,9 @@ ob_start();
                 <a href="../planilhas/produto_copiar_etiquetas.php?id=<?php echo $id_planilha; ?>" class="list-group-item list-group-item-action">
                     <i class="bi bi-tags me-2"></i><?php echo htmlspecialchars(to_uppercase('Copiar Etiquetas'), ENT_QUOTES, 'UTF-8'); ?>
                 </a>
-                <?php if (isAdmin()): ?>
-                    <a href="../planilhas/configuracao_importacao_editar.php?id=<?php echo $id_planilha; ?>" class="list-group-item list-group-item-action">
-                        <i class="bi bi-pencil me-2"></i><?php echo htmlspecialchars(to_uppercase('Editar Planilha'), ENT_QUOTES, 'UTF-8'); ?>
-                    </a>
-                <?php endif; ?>
+                <a href="../planilhas/configuracao_importacao_editar.php?id=<?php echo $id_planilha; ?>" class="list-group-item list-group-item-action">
+                    <i class="bi bi-pencil me-2"></i><?php echo htmlspecialchars(to_uppercase('Editar Planilha'), ENT_QUOTES, 'UTF-8'); ?>
+                </a>
             <?php endif; ?>
         <?php endif; ?>
 
@@ -108,16 +106,8 @@ ob_start();
             <a href="../planilhas/planilha_visualizar.php?id=<?php echo $id_planilha; ?>" class="list-group-item list-group-item-action">
                 <i class="bi bi-eye me-2"></i><?php echo htmlspecialchars(to_uppercase('Ver Planilha'), ENT_QUOTES, 'UTF-8'); ?>
             </a>
-            <?php if (isAdmin()): ?>
-                <a href="../planilhas/configuracao_importacao_editar.php?id=<?php echo $id_planilha; ?>" class="list-group-item list-group-item-action">
-                    <i class="bi bi-pencil me-2"></i>Editar Planilha
-                </a>
-            <?php endif; ?>
-            <div class="list-group-item bg-light text-muted small fw-semibold">
-                <i class="bi bi-pen me-1"></i> <?php echo htmlspecialchars(to_uppercase('Assinaturas'), ENT_QUOTES, 'UTF-8'); ?>
-            </div>
-            <a href="../planilhas/relatorio141_assinatura.php?id=<?php echo $id_planilha; ?>" class="list-group-item list-group-item-action">
-                <i class="bi bi-pen me-2"></i><?php echo htmlspecialchars(to_uppercase('Assinar Documentos'), ENT_QUOTES, 'UTF-8'); ?>
+            <a href="../planilhas/configuracao_importacao_editar.php?id=<?php echo $id_planilha; ?>" class="list-group-item list-group-item-action">
+                <i class="bi bi-pencil me-2"></i>Editar Planilha
             </a>
             <?php if (!$modo_publico): ?>
                 <div class="list-group-item bg-light text-muted small fw-semibold">

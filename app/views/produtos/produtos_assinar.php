@@ -9,11 +9,9 @@ if (!$id_planilha) {
 }
 
 $usuario_id = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 0;
-$is_admin = isAdmin();
-$is_doador = isDoador();
 
-// Determinar coluna de assinatura baseado no tipo de usuÃƒÂ¡rio
-$coluna_assinatura = $is_admin ? 'administrador_acessor_id' : 'doador_conjugue_id';
+// Todos os usuários assinam como administradores
+$coluna_assinatura = 'administrador_acessor_id';
 
 // BUSCAR PRODUTOS da planilha
 $sql = "SELECT 
@@ -42,7 +40,27 @@ ob_start();
 ?>
 
 <style>
-    .PRODUTO-card {
+.PRODUTO-card {
+        border-left: 4px solid #dee2e6;
+        transition: all 0.3s;
+    }
+
+    .PRODUTO-card.assinado {
+        border-left-color: #198754;
+        background-color: #f8fff8;
+    }
+
+    .PRODUTO-card.selecionado {
+        border-left-color: #0d6efd;
+        background-color: #f0f7ff;
+    }
+
+    .PRODUTO-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+
+.PRODUTO-card {
         border-left: 4px solid #dee2e6;
         transition: all 0.3s;
     }
@@ -62,23 +80,20 @@ ob_start();
     }
 </style>
 
+
+
+
 <div class="alert alert-info">
     <i class="bi bi-info-circle me-2"></i>
-    <strong>InstruÃƒÂ§ÃƒÂµes:</strong> Selecione os PRODUTOS que deseja assinar.
-    <?php if ($is_admin): ?>
-        VocÃª estÃ¡ assinando como <strong>Administrador/Acessor</strong>.
-    <?php elseif ($is_doador): ?>
-        VocÃª estÃ¡ assinando como <strong>Doador/Cônjuge</strong>.
-    <?php else: ?>
-        VocÃª estÃ¡ assinando como <strong>Usuário</strong>.
-    <?php endif; ?>
+    <strong>Instruções:</strong> Selecione os PRODUTOS que deseja assinar.
+    Você está assinando como <strong>Administrador/Acessor</strong>.
 </div>
 
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>
             <i class="bi bi-boxes me-2"></i>
-            PRODUTOS DisponÃƒÂ­veis
+            PRODUTOS Disponíveis
         </span>
         <div>
             <button type="button" class="btn btn-sm btn-outline-primary" onclick="selecionarTodos()">
@@ -91,7 +106,7 @@ ob_start();
     </div>
     <div class="card-body">
         <?php if (empty($PRODUTOS)): ?>
-            <p class="text-muted text-center mb-0">Nenhum PRODUTO disponível nesta comum.</p>
+            <p class="text-muted text-center mb-0">Nenhum PRODUTO disponvel nesta comum.</p>
         <?php else: ?>
             <div id="PRODUTOSContainer">
                 <?php foreach ($PRODUTOS as $PRODUTO): ?>
@@ -113,12 +128,12 @@ ob_start();
                                         <?php echo htmlspecialchars($PRODUTO['codigo'] ?? 'S/N'); ?>
                                         <?php if ($assinado_por_mim): ?>
                                             <span class="badge bg-success ms-2">
-                                                <i class="bi bi-check-circle"></i> Assinado por vocÃƒÂª
+                                                <i class="bi bi-check-circle"></i> Assinado por vocª
                                             </span>
                                         <?php endif; ?>
                                         <?php if ($PRODUTO['imprimir_14_1']): ?>
                                             <span class="badge bg-info ms-2">
-                                                <i class="bi bi-file-earmark-pdf"></i> No relatÃƒÂ³rio 14.1
+                                                <i class="bi bi-file-earmark-pdf"></i> No relat³rio 14.1
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -242,7 +257,7 @@ ob_start();
                 }
             })
             .catch(error => {
-                alert('Erro ao processar solicitaÃƒÂ§ÃƒÂ£o');
+                alert('Erro ao processar solicita§£o');
                 console.error(error);
             });
     }

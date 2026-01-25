@@ -1,10 +1,10 @@
 <?php
-// AutenticaÃ§Ã£o
+// Autenticação
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// FunÃ§Ãµes de montagem de descriÃ§Ã£o
+// FunçÁµes de montagem de descrição
 require_once dirname(__DIR__, 2) . '/services/produto_parser_service.php';
 
-// Receber parÃ¢metros
+// Receber parÁ¢metros
 $id_produto = $_GET['id_produto'] ?? null;
 $comum_id = $_GET['comum_id'] ?? $_GET['id'] ?? null;
 
@@ -15,7 +15,7 @@ $filtro_dependencia = $_GET['dependencia'] ?? '';
 $filtro_codigo = $_GET['filtro_codigo'] ?? '';
 $filtro_status = $_GET['status'] ?? '';
 
-// ValidaÃ§Ã£o
+// Validação
 if (!$id_produto || !$comum_id) {
     $query_string = http_build_query([
         'id' => $comum_id,
@@ -33,7 +33,7 @@ if (!$id_produto || !$comum_id) {
 
 $mensagem = '';
 $tipo_mensagem = '';
-// Valores do formulÃ¡rio (prÃ©-preenchidos com editados ou originais)
+// Valores do formulário (pré-preenchidos com editados ou originais)
 $novo_tipo_bem_id = '';
 $novo_bem = '';
 $novo_complemento = '';
@@ -52,11 +52,11 @@ try {
     $produto = $stmt_produto->fetch();
 
     if (!$produto) {
-        throw new Exception('Produto nÃ£o encontrado.');
+        throw new Exception('Produto não encontrado.');
     }
 
-    // PrÃ©-preencher com ediÃ§Ãµes se existirem (senÃ£o usa original)
-    // Tipo de bem: usar editado_tipo_bem_id se > 0, senÃ£o tipo_bem_id
+    // Pré-preencher com ediçÁµes se existirem (senão usa original)
+    // Tipo de bem: usar editado_tipo_bem_id se > 0, senão tipo_bem_id
     $novo_tipo_bem_id = 0;
     if (!empty($produto['editado_tipo_bem_id']) && (int)$produto['editado_tipo_bem_id'] > 0) {
         $novo_tipo_bem_id = (int)$produto['editado_tipo_bem_id'];
@@ -66,7 +66,7 @@ try {
 
     $novo_bem = $produto['editado_bem'] !== '' ? $produto['editado_bem'] : ($produto['bem'] ?? '');
     $novo_complemento = $produto['editado_complemento'] !== '' ? $produto['editado_complemento'] : ($produto['complemento'] ?? '');
-    // DependÃªncia: usar editado se > 0, senÃ£o usar original
+    // Dependência: usar editado se > 0, senão usar original
     $nova_dependencia_id = (!empty($produto['editado_dependencia_id']) && (int)$produto['editado_dependencia_id'] > 0)
         ? (int)$produto['editado_dependencia_id']
         : (int)($produto['dependencia_id'] ?? 0);
@@ -85,7 +85,7 @@ try {
     $tipos_bens = [];
 }
 
-// Buscar todas as dependÃªncias
+// Buscar todas as dependências
 try {
     $sql_dependencias = "SELECT id, descricao FROM dependencias ORDER BY descricao";
     $stmt_deps = $conexao->prepare($sql_dependencias);
@@ -95,14 +95,14 @@ try {
     $dependencias = [];
 }
 
-// Processar o formulÃ¡rio quando enviado
+// Processar o formulário quando enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $novo_tipo_bem_id = trim($_POST['novo_tipo_bem_id'] ?? '');
     $novo_bem = mb_strtoupper(trim($_POST['novo_bem'] ?? ''), 'UTF-8');
     $novo_complemento = mb_strtoupper(trim($_POST['novo_complemento'] ?? ''), 'UTF-8');
     $nova_dependencia_id = trim($_POST['nova_dependencia_id'] ?? '');
 
-    // Receber filtros do POST tambÃ©m
+    // Receber filtros do POST também
     $pagina = $_POST['pagina'] ?? 1;
     $filtro_nome = $_POST['nome'] ?? '';
     $filtro_dependencia = $_POST['dependencia'] ?? '';
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $filtro_status = $_POST['status'] ?? '';
 
     try {
-        // Determinar campos originais para fallback (usar editado se existir, senÃ£o original)
+        // Determinar campos originais para fallback (usar editado se existir, senão original)
         $orig_tipo_id = (!empty($produto['editado_tipo_bem_id']) && (int)$produto['editado_tipo_bem_id'] > 0)
             ? (int)$produto['editado_tipo_bem_id']
             : (int)$produto['tipo_bem_id'];
@@ -167,8 +167,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $params[':nova_dependencia_id'] = (int)$nova_dependencia_id;
         }
 
-        // Montar descriÃ§Ã£o completa editada usando fallback para originais se campo editado em branco
-        // Determinar valores finais (se nÃ£o enviados, usa original)
+        // Montar descrição completa editada usando fallback para originais se campo editado em branco
+        // Determinar valores finais (se não enviados, usa original)
         $final_tipo_id = ($novo_tipo_bem_id !== '') ? (int)$novo_tipo_bem_id : $orig_tipo_id;
         $final_bem = ($novo_bem !== '') ? $novo_bem : strtoupper($orig_bem);
         $final_comp = ($novo_complemento !== '') ? $novo_complemento : strtoupper($orig_comp);
@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             }
         }
-        // Buscar descriÃ§Ã£o da dependÃªncia
+        // Buscar descrição da dependência
         $dep_desc = '';
         foreach ($dependencias as $dep) {
             if ((int)$dep['id'] === (int)$final_dep_id) {
@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dep_desc = $produto['dependencia_descricao'];
         }
 
-        // Usar funÃ§Ã£o de montagem (quantidade padrÃ£o 1)
+        // Usar função de montagem (quantidade padrão 1)
         $descricao_editada = pp_montar_descricao(1, $tipo_codigo, $tipo_desc, $final_ben, $final_comp, $dep_desc, []);
         $sql_update .= ", editado_descricao_completa = :editado_desc";
         $params[':editado_desc'] = mb_strtoupper($descricao_editada, 'UTF-8');
@@ -230,12 +230,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ' . getReturnUrl($comum_id, $pagina, $filtro_nome, $filtro_dependencia, $filtro_codigo, $filtro_status));
         exit;
     } catch (Exception $e) {
-        $mensagem = "Erro ao salvar alteraÃ§Ãµes: " . $e->getMessage();
+        $mensagem = "Erro ao salvar alteraçÁµes: " . $e->getMessage();
         $tipo_mensagem = 'error';
     }
 }
 
-// FunÃ§Ã£o para gerar URL de retorno com filtros
+// Função para gerar URL de retorno com filtros
 function getReturnUrl($comum_id, $pagina, $filtro_nome, $filtro_dependencia, $filtro_codigo, $filtro_status)
 {
     $params = [

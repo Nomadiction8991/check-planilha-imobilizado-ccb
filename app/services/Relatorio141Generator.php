@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Gerador de RelatÃ³rios 14.1
+ * Gerador de Relatórios 14.1
  * 
- * Classe helper para preencher o template do RelatÃ³rio 14.1
+ * Classe helper para preencher o template do Relatório 14.1
  * com dados da planilha e produtos automaticamente
  */
 
@@ -18,7 +18,7 @@ class Relatorio141Generator
     }
 
     /**
-     * Gera relatÃ³rio para uma planilha especÃ­fica
+     * Gera relatório para uma planilha específica
      * 
      * @param int $id_planilha ID da planilha
      * @return array Dados formatados para o template
@@ -29,7 +29,7 @@ class Relatorio141Generator
         $planilha = $this->buscarPlanilha($id_comum);
 
         if (!$planilha) {
-            throw new Exception("Comum nÃ£o encontrada");
+            throw new Exception("Comum não encontrada");
         }
 
         // Buscar produtos da comum
@@ -93,7 +93,7 @@ class Relatorio141Generator
     {
         $dados = $this->gerarRelatorio($id_planilha);
 
-        // Extrair variÃ¡veis para o template
+        // Extrair variáveis para o template
         extract($dados);
 
         // Incluir o template
@@ -103,7 +103,7 @@ class Relatorio141Generator
     }
 
     /**
-     * Gera relatÃ³rio em branco para preenchimento manual
+     * Gera relatório em branco para preenchimento manual
      */
     public function gerarEmBranco($num_paginas = 1)
     {

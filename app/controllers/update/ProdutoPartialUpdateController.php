@@ -1,5 +1,5 @@
 <?php
-// AutenticaÃ§Ã£o
+// Autenticação
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 $id_produto = $_GET['id_produto'] ?? null;
@@ -27,19 +27,19 @@ try {
     die("Erro ao carregar produto: " . $e->getMessage());
 }
 
-// Buscar tipos de bens disponÃ­veis
+// Buscar tipos de bens disponíveis
 $sql_tipos_bens = "SELECT id, codigo, descricao FROM tipos_bens ORDER BY codigo";
 $stmt_tipos = $conexao->prepare($sql_tipos_bens);
 $stmt_tipos->execute();
 $tipos_bens = $stmt_tipos->fetchAll();
 
-// Buscar dependÃªncias disponÃ­veis
+// Buscar dependências disponíveis
 $sql_dependencias = "SELECT id, descricao FROM dependencias ORDER BY descricao";
 $stmt_deps = $conexao->prepare($sql_dependencias);
 $stmt_deps->execute();
 $dependencias = $stmt_deps->fetchAll();
 
-// Processar o formulÃ¡rio quando enviado
+// Processar o formulário quando enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $codigo = $_POST['codigo'] ?? ''; // Novo campo opcional
     $id_tipo_ben = $_POST['id_tipo_ben'] ?? '';
@@ -49,29 +49,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $imprimir_14_1 = isset($_POST['imprimir_14_1']) ? 1 : 0;
 
-    // ValidaÃ§Ãµes bÃ¡sicas
+    // ValidaçÁµes básicas
     $erros = [];
 
     if (empty($id_tipo_ben)) {
-        $erros[] = "O tipo de bem Ã© obrigatÃ³rio";
+        $erros[] = "O tipo de bem é obrigatório";
     }
 
     if (empty($tipo_ben)) {
-        $erros[] = "O bem Ã© obrigatÃ³rio";
+        $erros[] = "O bem é obrigatório";
     }
 
     if (empty($complemento)) {
-        $erros[] = "O complemento Ã© obrigatÃ³rio";
+        $erros[] = "O complemento é obrigatório";
     }
 
     if (empty($id_dependencia)) {
-        $erros[] = "A dependÃªncia Ã© obrigatÃ³ria";
+        $erros[] = "A dependência é obrigatória";
     }
 
-    // Se nÃ£o hÃ¡ erros, atualizar no banco
+    // Se não há erros, atualizar no banco
     if (empty($erros)) {
         try {
-            // Buscar dados para montar a descriÃ§Ã£o completa
+            // Buscar dados para montar a descrição completa
             $sql_tipo = "SELECT codigo, descricao FROM tipos_bens WHERE id = :id_tipo_ben";
             $stmt_tipo = $conexao->prepare($sql_tipo);
             $stmt_tipo->bindValue(':id_tipo_ben', $id_tipo_ben);
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_dep->execute();
             $dependencia = $stmt_dep->fetch();
 
-            // Montar descriÃ§Ã£o completa (mantendo quantidade = 1)
+            // Montar descrição completa (mantendo quantidade = 1)
             $descricao_completa = "1x [" . $tipo_bem['codigo'] . " - " . $tipo_bem['descricao'] . "] " . $tipo_ben . " - " . $complemento . " - (" . $dependencia['descricao'] . ")";
 
             $sql_atualizar = "UPDATE produtos 
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt_atualizar->execute();
 
-            // Gerar parÃ¢metros de retorno para manter os filtros
+            // Gerar parÁ¢metros de retorno para manter os filtros
             $parametros_retorno = gerarParametrosFiltro();
 
             // Redirecionar de volta para a lista (caminho relativo ao document root)
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// FunÃ§Ã£o para gerar parÃ¢metros de filtro
+// Função para gerar parÁ¢metros de filtro
 function gerarParametrosFiltro()
 {
     $params = '';

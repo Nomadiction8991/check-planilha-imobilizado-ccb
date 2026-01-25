@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// Detectar ambiente (produÃ§Ã£o ou desenvolvimento)
-$ambiente_manifest = 'prod'; // padrÃ£o produÃ§Ã£o
+// Detectar ambiente (produção ou desenvolvimento)
+$ambiente_manifest = 'prod'; // padrão produção
 if (strpos($_SERVER['REQUEST_URI'], '/dev/') !== false) {
     $ambiente_manifest = 'dev';
 } elseif (strpos($_SERVER['HTTP_HOST'], 'dev.') !== false || strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
@@ -14,7 +14,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title><?php echo $pageTitle ?? 'Anvy - GestÃ£o de Planilhas'; ?></title>
+    <title><?php echo $pageTitle ?? 'Anvy - Gestão de Planilhas'; ?></title>
     
     <!-- PWA - Progressive Web App -->
     <link rel="manifest" href="<?php echo $manifest_path; ?>">
@@ -30,12 +30,15 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
-    <!-- Mobile-First Global CSS - REMOVIDO: contradiz objetivo de CSS Ãºnico para todos dispositivos -->
+    <!-- Mobile-First Global CSS - REMOVIDO: contradiz objetivo de CSS único para todos dispositivos -->
     <!-- <link rel="stylesheet" href="<?php echo ($ambiente_manifest === 'dev') ? '/dev/public/assets/css/mobile-first.css' : '/public/assets/css/mobile-first.css'; ?>"> -->
     
     <!-- Custom CSS -->
     <style>
-        /* ===== LAYOUT MOBILE 400px CENTRALIZADO ===== */
+/* Ensure header titles display uppercase visually too */
+                        .app-title { text-transform: uppercase; }
+
+/* ===== LAYOUT MOBILE 400px CENTRALIZADO ===== */
         body {
             margin: 0;
             padding: 0;
@@ -44,7 +47,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
-        /* Campos em maiÃºsculas por padrÃ£o */
+        /* Campos em maiúsculas por padrão */
         input.form-control:not([type="password"]),
         textarea.form-control,
         select.form-select,
@@ -153,7 +156,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             transform: scale(1.1);
         }
         
-        /* BotÃ£o PWA com animaÃ§Ã£o de pulso */
+        /* Botão PWA com animação de pulso */
         #installPwaBtn {
             position: relative;
             animation: pulsePwa 2s infinite;
@@ -173,7 +176,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             background: rgba(255, 255, 255, 0.4) !important;
         }
         
-        /* ConteÃºdo principal */
+        /* Conteúdo principal */
         .app-content {
             flex: 1;
             padding: 12px 16px;
@@ -237,7 +240,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             overflow: hidden;
         }
 
-        /* Largura dos botÃµes do modal */
+        /* Largura dos botões do modal */
         .w-47 {
             width: 47%;
         }
@@ -251,7 +254,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             padding: 12px 16px;
         }
         
-        /* BotÃµes personalizados */
+        /* Botões personalizados */
         .btn {
             border-radius: 8px;
             font-weight: 500;
@@ -269,7 +272,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
         
-        /* ExceÃ§Ã£o: botÃµes dentro de input-group nÃ£o devem se mover */
+        /* Exceção: botões dentro de input-group não devem se mover */
         .input-group .btn:hover,
         .input-group .btn:focus,
         .input-group .btn:active {
@@ -349,7 +352,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             border-width: 0.15em;
         }
         
-        /* PaginaÃ§Ã£o */
+        /* Paginação */
         .pagination {
             gap: 4px;
         }
@@ -384,7 +387,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             }
         }
         
-        /* UtilitÃ¡rios */
+        /* Utilitários */
         .text-gradient {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
@@ -396,7 +399,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
         }
         
-        /* AnimaÃ§Ãµes */
+        /* Animações */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -412,8 +415,10 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             animation: fadeIn 0.3s ease-out;
         }
     </style>
-    
-    <?php if (isset($customCss)): ?>
+
+    <?php if (isset($customCssPath) && file_exists(__DIR__ . '/../../../' . ltrim($customCssPath, '/'))): ?>
+        <link rel="stylesheet" href="<?php echo $customCssPath; ?>">
+    <?php elseif (isset($customCss)): ?>
         <style><?php echo $customCss; ?></style>
     <?php endif; ?>
 </head>
@@ -437,10 +442,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
                             </small>
                         <?php endif; ?>
                     </div>
-                    <style>
-                        /* Ensure header titles display uppercase visually too */
-                        .app-title { text-transform: uppercase; }
-                    </style>
+                    
                 </div>
                 <div class="header-actions">
                     <?php if (isset($headerActions)): ?>
@@ -451,13 +453,15 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             
             <!-- Content -->
             <main class="app-content fade-in">
-                <?php if (isset($contentFile)): ?>
+                <?php if (isset($contentHtml) && $contentHtml !== ''): ?>
+                    <?php echo $contentHtml; ?>
+                <?php elseif (isset($contentFile)): ?>
                     <?php include $contentFile; ?>
                 <?php else: ?>
-                    <!-- ConteÃºdo padrÃ£o aqui -->
+                    <!-- Conteúdo padrão aqui -->
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-2"></i>
-                        ConteÃºdo nÃ£o definido
+                        Conteúdo não definido
                     </div>
                 <?php endif; ?>
             </main>
@@ -467,7 +471,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Ajuste dinÃ¢mico do espaÃ§amento do conteÃºdo baseado na altura do header -->
+    <!-- Ajuste dinâmico do espaçamento do conteúdo baseado na altura do header -->
     <script>
         (function() {
             function setHeaderHeightVar() {
@@ -481,7 +485,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
             window.addEventListener('load', setHeaderHeightVar);
             window.addEventListener('resize', setHeaderHeightVar);
 
-            // Pequeno debounce para mudanÃ§as de layout dinÃ¢micas
+            // Pequeno debounce para mudanças de layout dinâmicas
             var ro;
             if ('ResizeObserver' in window) {
                 ro = new ResizeObserver(setHeaderHeightVar);
@@ -491,7 +495,7 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
         })();
     </script>
     
-    <!-- Bloqueio de zoom global (pinch/double-tap) fora do viewer do relatÃ³rio -->
+    <!-- Bloqueio de zoom global (pinch/double-tap) fora do viewer do relatório -->
     <script>
         (function(){
             const isViewerOpen = () => {
@@ -618,4 +622,3 @@ $manifest_path = ($ambiente_manifest === 'dev') ? '/dev/manifest-dev.json' : '/m
     </script>
 </body>
 </html>
-

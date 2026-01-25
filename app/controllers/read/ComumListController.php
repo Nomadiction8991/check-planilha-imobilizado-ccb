@@ -1,8 +1,8 @@
 <?php
-// AutenticaÃ§Ã£o
+// Autenticação
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
-// ParÃ¢metros da paginaÃ§Ã£o
+// ParÁ¢metros da paginação
 $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
 $limite = 20;
 $offset = ($pagina - 1) * $limite;
@@ -10,7 +10,7 @@ $offset = ($pagina - 1) * $limite;
 // Filtros
 $filtro_comum = isset($_GET['comum']) ? $_GET['comum'] : '';
 $filtro_status = isset($_GET['status']) ? $_GET['status'] : '';
-$filtro_ativo = isset($_GET['ativo']) ? $_GET['ativo'] : '1'; // PadrÃ£o: apenas ativos
+$filtro_ativo = isset($_GET['ativo']) ? $_GET['ativo'] : '1'; // Padrão: apenas ativos
 $filtro_data_inicio = isset($_GET['data_inicio']) ? $_GET['data_inicio'] : '';
 $filtro_data_fim = isset($_GET['data_fim']) ? $_GET['data_fim'] : '';
 
@@ -27,7 +27,7 @@ if (!empty($filtro_comum)) {
     $params[':comum'] = '%' . $filtro_comum . '%';
 }
 
-// Filtro de status serÃ¡ aplicado apÃ³s calcular status_calc (nÃ£o mais na query SQL)
+// Filtro de status será aplicado após calcular status_calc (não mais na query SQL)
 
 // Aplicar filtro de ativo/inativo
 if ($filtro_ativo !== 'todos') {
@@ -46,7 +46,7 @@ if (!empty($filtro_data_fim)) {
     $params[':data_fim'] = $filtro_data_fim;
 }
 
-// Contar total de registros (para paginaÃ§Ã£o)
+// Contar total de registros (para paginação)
 $sql_count = "SELECT COUNT(*) as total FROM ($sql) as count_table";
 $stmt_count = $conexao->prepare($sql_count);
 foreach ($params as $key => $value) {
@@ -56,7 +56,7 @@ $stmt_count->execute();
 $total_registros = $stmt_count->fetch()['total'];
 $total_paginas = ceil($total_registros / $limite);
 
-// Adicionar ordenaÃ§Ã£o e paginaÃ§Ã£o Ã  query principal
+// Adicionar ordenação e paginação Á  query principal
 $sql .= " ORDER BY data_posicao DESC, id DESC LIMIT :limite OFFSET :offset";
 $params[':limite'] = $limite;
 $params[':offset'] = $offset;
@@ -73,19 +73,19 @@ foreach ($params as $key => $value) {
 $stmt->execute();
 $planilhas = $stmt->fetchAll();
 
-// Status calculados (nÃ£o mais do banco, mas opÃ§Ãµes fixas para filtro)
-$status_options = ['Pendente', 'Em ExecuÃ§Ã£o', 'ConcluÃ­do'];
+// Status calculados (não mais do banco, mas opçÁµes fixas para filtro)
+$status_options = ['Pendente', 'Em Execução', 'Concluído'];
 
-// Calcular status dinÃ¢mico por planilha
+// Calcular status dinÁ¢mico por planilha
 foreach ($planilhas as &$pl) {
     $total_produtos = (int)($pl['total_produtos'] ?? 0);
     $total_pendentes = (int)($pl['total_pendentes'] ?? 0);
     if ($total_produtos > 0 && $total_pendentes === $total_produtos) {
         $pl['status_calc'] = 'Pendente';
     } elseif ($total_produtos > 0 && $total_pendentes === 0) {
-        $pl['status_calc'] = 'ConcluÃ­do';
+        $pl['status_calc'] = 'Concluído';
     } else {
-        $pl['status_calc'] = 'Em ExecuÃ§Ã£o';
+        $pl['status_calc'] = 'Em Execução';
     }
 }
 unset($pl);
@@ -95,6 +95,6 @@ if (!empty($filtro_status)) {
     $planilhas = array_filter($planilhas, function ($pl) use ($filtro_status) {
         return ($pl['status_calc'] ?? '') === $filtro_status;
     });
-    // Reindexar array apÃ³s filtro
+    // Reindexar array após filtro
     $planilhas = array_values($planilhas);
 }

@@ -1,11 +1,11 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// Detectar se Ã© registro pÃºblico via parÃ¢metro GET
+// Detectar se é registro público via parÁ¢metro GET
 if (isset($_GET['public']) && $_GET['public'] == '1') {
     define('PUBLIC_REGISTER', true);
 }
 
-// Apenas incluir AUTENTICAÇÃO se NÃƒO for registro pÃºblico
+// Apenas incluir AUTENTICAÇÃO se NÃO for registro público
 if (!defined('PUBLIC_REGISTER')) {
     // Require login (any authenticated user)
     if (!function_exists('isLoggedIn') || !isLoggedIn()) {
@@ -13,22 +13,12 @@ if (!defined('PUBLIC_REGISTER')) {
         exit;
     }
 } else {
-    // Registro pÃºblico - iniciar sessÃ£o se NÃO existir
+    // Registro público - iniciar sessão se NÃO existir
     if (session_STATUS() === PHP_SESSION_NONE) {
         session_start();
     }
     
-    // Definir funÃ§Ãµes auxiliares caso NÃO estejam disponÃ­veis (compatÃ­vel com novo esquema sem coluna `tipo`)
-    if (!function_exists('isAdmin')) {
-        function isAdmin() {
-            return !empty($_SESSION['is_admin']);
-        }
-    }
-    if (!function_exists('isDoador')) {
-        function isDoador() {
-            return !empty($_SESSION['is_doador']);
-        }
-    }
+    // Registro público - sem perfil específico
 }
 
 include __DIR__ . '/../../../app/controllers/create/UsuarioCreateController.php';
@@ -48,6 +38,18 @@ if (defined('PUBLIC_REGISTER')) {
 ob_start();
 ?>
 
+<style>
+.signature-preview-canvas {
+    pointer-events: none;
+}
+
+
+.signature-preview-canvas {
+    pointer-events: none;
+}
+</style>
+
+
 <?php if (!empty($mensagem)): ?>
     <div class="alert alert-<?php echo $tipo_mensagem === 'success' ? 'success' : 'danger'; ?> alert-dismissible fade show">
         <?php echo to_uppercase(\voku\helper\UTF8::fix_utf8(htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8'))); ?>
@@ -62,11 +64,7 @@ ob_start();
 <!-- SIGNATUREPAD -->
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
-<style>
-.signature-preview-canvas {
-    pointer-events: none;
-}
-</style>
+
 
 <form method="POST" id="formUsuario">
     <?php // Preserve filters when submitting the create form so controller can redirect back properly ?>
@@ -75,7 +73,7 @@ ob_start();
         <input type="hidden" name="status" value="<?php echo htmlspecialchars($_GET['status'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
         <input type="hidden" name="pagina" value="<?php echo htmlspecialchars($_GET['pagina'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
     <?php endif; ?>
-    <!-- CAMPO OCULTO: tipo de usuÃ¡rio (apenas para registro pÃºblico) -->
+    <!-- CAMPO OCULTO: tipo de usuário (apenas para registro público) -->
     <?php if (defined('PUBLIC_REGISTER')): ?>
         <input type="hidden" name="tipo" value="DOADOR/CÔNJUGE">
     <?php endif; ?>
@@ -197,7 +195,7 @@ ob_start();
     <div class="card mb-3">
         <div class="card-header">
             <i class="bi bi-geo-alt me-2"></i>
-            EndereÃ§o
+            Endereço
         </div>
         <div class="card-body">
             <div class="row g-3">

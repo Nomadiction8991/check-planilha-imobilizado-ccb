@@ -134,7 +134,7 @@ function garantir_comum_por_codigo($conexao, $codigo, $dados = [])
 /**
  * Extrai o código numérico do comum
  * Ex: "BR 09-0040 - SIBIPIRUNAS" retorna 90040
- * Ex: "BR 09-0944 - 3655 - CHÁCARA TALISMÃ" retorna 90944
+ * Ex: "BR 09-0944 - 3655 - CHÁCARA TALISMÁ" retorna 90944
  * 
  * @param string $comum_text Texto completo do comum
  * @return int Código numérico
@@ -157,7 +157,7 @@ function extrair_codigo_comum($comum_text)
 /**
  * Extrai a descrição do comum
  * Ex: "BR 09-0040 - SIBIPIRUNAS" retorna "SIBIPIRUNAS"
- * Ex: "BR 09-0944 - 3655 - CHÁCARA TALISMÃ" retorna "CHÁCARA TALISMÃ"
+ * Ex: "BR 09-0944 - 3655 - CHÁCARA TALISMÁ" retorna "CHÁCARA TALISMÁ"
  * 
  * @param string $comum_text Texto completo do comum
  * @return string Descrição

@@ -3,11 +3,6 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
-if (!isAdmin()) {
-    header('Location: ../../../index.php');
-    exit;
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../../index.php');
     exit;

@@ -1,0 +1,115 @@
+.valores-comuns { 
+    background: #f8f9fa; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.valores-comuns h6 { margin: 0 0 10px 0; font-size: 0.9rem; font-weight: 600; }
+.form-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.form-grid label { font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; display: block; }
+.form-grid input { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem; }
+
+/* Container de páginas */
+.paginas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 20px;
+}
+
+.pagina-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 15px;
+    position: relative;
+}
+
+.pagina-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+}
+
+.pagina-numero {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 1rem;
+}
+
+.pagina-info {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Wrapper da página A4 escalada */
+.a4-viewport {
+    width: 100%;
+    overflow: hidden;
+    background: #f8f9fa;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.a4-scaled {
+    transform: scale(0.46);
+    transform-origin: top center;
+    width: 217%; /* 100% / 0.46 */
+}
+
+/* Campos editados ficam vermelhos */
+.a4 input.editado,
+.a4 textarea.editado {
+    color: #dc3545 !important;
+}
+
+.a4 label:has(input[type="checkbox"].marcado) {
+    color: #dc3545 !important;
+}
+
+@media print {
+    .valores-comuns, .pagina-header { display: none !important; }
+    
+    .paginas-container {
+        display: block;
+        gap: 0;
+    }
+    
+    .pagina-card {
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        border-radius: 0;
+        page-break-after: always;
+    }
+    
+    .pagina-card:last-child {
+        page-break-after: auto;
+    }
+    
+    .a4-viewport {
+        background: transparent;
+        padding: 0;
+        overflow: visible;
+    }
+    
+    .a4-scaled {
+        transform: none !important;
+        width: 100% !important;
+    }
+    
+    /* Cores voltam para preto */
+    .a4 input.editado,
+    .a4 textarea.editado,
+    .a4 label:has(input[type="checkbox"].marcado) {
+        color: #000 !important;
+    }
+}

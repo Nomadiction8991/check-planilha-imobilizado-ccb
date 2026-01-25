@@ -10,7 +10,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 $arquivoTeste = sys_get_temp_dir() . '/checkplanilha_encoding_test.csv';
 $linhas = [
     ['codigo', 'dependencia'],
-    ['001', 'ADMINISTRAÇÃO'],
+    ['001', 'ADMINISTRAÇÁO'],
     ['002', 'DORMITÓRIO'],
 ];
 
@@ -26,7 +26,7 @@ $dependencia2 = (string) $aba->getCell('B3')->getValue();
 @unlink($arquivoTeste);
 
 $erro = '';
-if ($dependencia1 !== 'ADMINISTRAÇÃO' || $dependencia2 !== 'DORMITÓRIO') {
+if ($dependencia1 !== 'ADMINISTRAÇÁO' || $dependencia2 !== 'DORMITÓRIO') {
     $erro = sprintf('Dependências lidas: "%s", "%s"', $dependencia1, $dependencia2);
     fwrite(STDERR, "Falha no teste de encoding: {$erro}\n");
     exit(1);

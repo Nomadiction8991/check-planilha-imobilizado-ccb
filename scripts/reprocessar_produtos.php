@@ -1,29 +1,29 @@
 <?php
 
 /**
- * Script de MigraÃ§Ã£o: Reprocessar Produtos com Parser Atualizado
+ * Script de Migração: Reprocessar Produtos com Parser Atualizado
  * 
  * Este script reprocessa produtos existentes aplicando as melhorias do parser:
- * - DetecÃ§Ã£o inteligente de BEN (com repetiÃ§Ã£o de aliases)
+ * - Detecção inteligente de BEN (com repetição de aliases)
  * - Fuzzy matching para plural/singular
- * - ExtraÃ§Ã£o precisa de complemento
+ * - Extração precisa de complemento
  * 
  * USO:
  *   php scripts/reprocessar_produtos.php [--dry-run] [--limit=N] [--comum-id=N]
  * 
- * OPÃ‡Ã•ES:
+ * OPÁ‡Á•ES:
  *   --dry-run          Simula sem salvar no banco (apenas mostra o que seria alterado)
  *   --limit=N          Processa apenas N produtos
- *   --comum-id=N       Processa apenas produtos da comum especÃ­fica (aceita --planilha-id por compatibilidade)
+ *   --comum-id=N       Processa apenas produtos da comum específica (aceita --planilha-id por compatibilidade)
  *   --verbose          Mostra detalhes de cada produto processado
  */
 
 require_once __DIR__ . '/../app/bootstrap.php';
 require_once __DIR__ . '/../app/services/produto_parser_service.php';
 
-// Verificar se conexÃ£o estÃ¡ disponÃ­vel
+// Verificar se conexão está disponível
 if (!$conexao) {
-    die("ERRO: NÃ£o foi possÃ­vel conectar ao banco de dados.\n");
+    die("ERRO: Não foi possível conectar ao banco de dados.\n");
 }
 
 // Parse argumentos da linha de comando
@@ -52,12 +52,12 @@ foreach ($argv as $arg) {
 }
 
 echo "=== REPROCESSAMENTO DE PRODUTOS ===\n";
-echo "Modo: " . ($options['dry_run'] ? "DRY-RUN (simulaÃ§Ã£o)" : "PRODUÃ‡ÃƒO (vai salvar)") . "\n";
+echo "Modo: " . ($options['dry_run'] ? "DRY-RUN (simulação)" : "PRODUÁ‡ÁƒO (vai salvar)") . "\n";
 if ($options['limit']) echo "Limite: {$options['limit']} produtos\n";
 if (!empty($options['comum_id'])) echo "Comum ID: {$options['comum_id']}\n";
 echo "\n";
 
-// Carregar configuraÃ§Ã£o do parser
+// Carregar configuração do parser
 $pp_config = require __DIR__ . '/../config/parser/produto_parser_config.php';
 
 // Carregar todos os tipos de bens
@@ -68,7 +68,7 @@ echo "âœ“ Carregados " . count($tipos_bens) . " tipos de bens\n";
 
 // Construir aliases
 $tipos_aliases = pp_construir_aliases_tipos($tipos_bens);
-echo "âœ“ Aliases construÃ­dos\n\n";
+echo "âœ“ Aliases construídos\n\n";
 
 // Buscar produtos para reprocessar
 $sql_produtos = "
@@ -151,13 +151,13 @@ foreach ($produtos as $produto) {
     }
 
     if (!$aliases_tipo_atual) {
-        echo "  âš  AVISO: Tipo nÃ£o encontrado nos aliases\n\n";
+        echo "  âš  AVISO: Tipo não encontrado nos aliases\n\n";
         $stats['erros']++;
         continue;
     }
 
-    // Reprocessar: usar COMPLEMENTO como texto base (Ã© o mais prÃ³ximo do texto original do CSV)
-    // porque BEN pode estar errado. Se o tipo desc aparecer no inÃ­cio do complemento, o parser vai lidar com isso.
+    // Reprocessar: usar COMPLEMENTO como texto base (é o mais próximo do texto original do CSV)
+    // porque BEN pode estar errado. Se o tipo desc aparecer no início do complemento, o parser vai lidar com isso.
     $texto_completo = trim($complemento_atual);
 
     // Fallback: se complemento vazio mas tem BEN, usar BEN
@@ -194,7 +194,7 @@ foreach ($produtos as $produto) {
         }
     }
 
-    // Se BEN invÃ¡lido, forÃ§ar para um dos aliases
+    // Se BEN inválido, forçar para um dos aliases
     if (!$ben_valido && !empty($aliases_tipo_atual)) {
         foreach ($aliases_tipo_atual as $alias_norm) {
             if ($alias_norm !== '') {
@@ -205,7 +205,7 @@ foreach ($produtos as $produto) {
         }
     }
 
-    // Montar descriÃ§Ã£o nova
+    // Montar descrição nova
     $descricao_nova = pp_montar_descricao(
         1, // quantidade
         $tipo_codigo,
@@ -216,7 +216,7 @@ foreach ($produtos as $produto) {
         $pp_config
     );
 
-    // Verificar se houve mudanÃ§a
+    // Verificar se houve mudança
     $mudou = (
         $ben_novo !== $ben_atual ||
         $comp_novo !== $complemento_atual ||
@@ -243,12 +243,12 @@ foreach ($produtos as $produto) {
         }
 
         if ($descricao_nova !== $descricao_atual) {
-            echo "DESCRIÃ‡ÃƒO:\n";
+            echo "DESCRIÁ‡ÁƒO:\n";
             echo "  Antes: $descricao_atual\n";
             echo "  Depois: $descricao_nova\n\n";
         }
 
-        // Atualizar no banco (se nÃ£o for dry-run)
+        // Atualizar no banco (se não for dry-run)
         if (!$options['dry_run']) {
             $sql_update = "
                 UPDATE produtos 
@@ -277,32 +277,32 @@ foreach ($produtos as $produto) {
                 $stats['erros']++;
             }
         } else {
-            echo "âŠ˜ NÃ£o salvo (modo dry-run)\n\n";
+            echo "âŠ˜ Não salvo (modo dry-run)\n\n";
         }
     } else {
         $stats['sem_mudanca']++;
         if ($options['verbose']) {
-            echo "  âœ“ Sem mudanÃ§as necessÃ¡rias\n\n";
+            echo "  âœ“ Sem mudanças necessárias\n\n";
         }
     }
 }
 
-// RelatÃ³rio final
+// Relatório final
 echo "\n";
 echo str_repeat("=", 80) . "\n";
-echo "=== RELATÃ“RIO FINAL ===\n";
+echo "=== RELATÁ“RIO FINAL ===\n";
 echo str_repeat("=", 80) . "\n";
 echo "Total processados: {$stats['processados']}\n";
 echo "Alterados: {$stats['alterados']}\n";
-echo "Sem mudanÃ§a: {$stats['sem_mudanca']}\n";
+echo "Sem mudança: {$stats['sem_mudanca']}\n";
 echo "Erros: {$stats['erros']}\n";
 echo "\n";
 
 if ($options['dry_run']) {
-    echo "âš  MODO DRY-RUN - Nenhuma alteraÃ§Ã£o foi salva no banco!\n";
-    echo "Execute sem --dry-run para aplicar as mudanÃ§as.\n";
+    echo "âš  MODO DRY-RUN - Nenhuma alteração foi salva no banco!\n";
+    echo "Execute sem --dry-run para aplicar as mudanças.\n";
 } else {
-    echo "âœ“ AlteraÃ§Ãµes salvas no banco de dados.\n";
+    echo "âœ“ AlteraçÁµes salvas no banco de dados.\n";
 }
 
-// Fechar conexÃ£o nÃ£o Ã© necessÃ¡rio com PDO (fecha automaticamente)
+// Fechar conexão não é necessário com PDO (fecha automaticamente)

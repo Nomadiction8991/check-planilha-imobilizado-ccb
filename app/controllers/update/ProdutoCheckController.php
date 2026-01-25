@@ -1,5 +1,5 @@
 <?php
-// AutenticaÃ§Ã£o
+// Autenticação
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -47,7 +47,7 @@ try {
     $stmt_verifica->execute();
     $status = $stmt_verifica->fetch();
 
-    // Regras de validaÃ§Ã£o
+    // Regras de validação
     if ($checado === 1 && $status && $status['ativo'] == 0) {
         $msg = 'NÃO É POSSÍVEL MARCAR COMO CHECADO ENQUANTO O PRODUTO ESTIVER NO DR';
         if (is_ajax_request()) {

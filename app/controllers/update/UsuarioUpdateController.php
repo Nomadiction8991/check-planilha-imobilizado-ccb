@@ -11,12 +11,7 @@ if (!$id) {
     exit;
 }
 
-// Nova regra: qualquer usuário só pode alterar o PRÓPRIO cadastro
-$loggedId = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 0;
-if ((int)$id !== $loggedId) {
-    header('Location: ../../../index.php');
-    exit;
-}
+// Nova regra: qualquer usuário autenticado pode alterar qualquer cadastro
 
 // Buscar usuário
 try {
@@ -48,11 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rg_igual_cpf = isset($_POST['rg_igual_cpf']) ? 1 : 0;
     $telefone = trim($_POST['telefone'] ?? '');
     $casado = isset($_POST['casado']) ? 1 : 0;
-    $nome_conjuge = trim($_POST['nome_conjuge'] ?? '');
-    $cpf_conjuge = trim($_POST['cpf_conjuge'] ?? '');
-    $rg_conjuge = trim($_POST['rg_conjuge'] ?? '');
-    $rg_conjuge_igual_cpf = isset($_POST['rg_conjuge_igual_cpf']) ? 1 : 0;
-    $telefone_conjuge = trim($_POST['telefone_conjuge'] ?? '');
+    $nome_cônjuge = trim($_POST['nome_cônjuge'] ?? '');
+    $cpf_cônjuge = trim($_POST['cpf_cônjuge'] ?? '');
+    $rg_cônjuge = trim($_POST['rg_cônjuge'] ?? '');
+    $rg_cônjuge_igual_cpf = isset($_POST['rg_cônjuge_igual_cpf']) ? 1 : 0;
+    $telefone_cônjuge = trim($_POST['telefone_cônjuge'] ?? '');
     
     // Endereço
     $endereco_cep = trim($_POST['endereco_cep'] ?? '');
@@ -119,32 +114,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Se casado, validar e formatar dados do cônjuge (agora obrigatórios quando casado)
         if ($casado) {
-            if (empty($nome_conjuge)) {
+            if (empty($nome_cônjuge)) {
                 throw new Exception('O nome do cônjuge é obrigatório.');
             }
-            if (empty($cpf_conjuge)) {
+            if (empty($cpf_cônjuge)) {
                 throw new Exception('O CPF do cônjuge é obrigatório.');
             }
-            $cpf_conjuge_numeros = preg_replace('/\D/', '', $cpf_conjuge);
-            if (strlen($cpf_conjuge_numeros) !== 11) {
+            $cpf_cônjuge_numeros = preg_replace('/\D/', '', $cpf_cônjuge);
+            if (strlen($cpf_cônjuge_numeros) !== 11) {
                 throw new Exception('CPF do cônjuge inválido. Deve conter 11 dígitos.');
             }
-            if (empty($telefone_conjuge)) {
+            if (empty($telefone_cônjuge)) {
                 throw new Exception('O telefone do cônjuge é obrigatório.');
             }
-            $telefone_conjuge_numeros = preg_replace('/\D/', '', $telefone_conjuge);
-            if (strlen($telefone_conjuge_numeros) < 10 || strlen($telefone_conjuge_numeros) > 11) {
+            $telefone_cônjuge_numeros = preg_replace('/\D/', '', $telefone_cônjuge);
+            if (strlen($telefone_cônjuge_numeros) < 10 || strlen($telefone_cônjuge_numeros) > 11) {
                 throw new Exception('Telefone do cônjuge inválido. Deve conter 10 ou 11 dígitos.');
             }
 
-            if ($rg_conjuge_igual_cpf && !empty($cpf_conjuge)) { 
-                $rg_conjuge = $cpf_conjuge; 
-            } else if (!empty($rg_conjuge)) { 
-                $rg_conjuge = $formatarRg($rg_conjuge); 
+            if ($rg_cônjuge_igual_cpf && !empty($cpf_cônjuge)) { 
+                $rg_cônjuge = $cpf_cônjuge; 
+            } else if (!empty($rg_cônjuge)) { 
+                $rg_cônjuge = $formatarRg($rg_cônjuge); 
             }
         } else {
-            $nome_conjuge = $cpf_conjuge = $rg_conjuge = $telefone_conjuge = '';
-            $rg_conjuge_igual_cpf = 0;
+            $nome_cônjuge = $cpf_cônjuge = $rg_cônjuge = $telefone_cônjuge = '';
+            $rg_cônjuge_igual_cpf = 0;
         }
 
         // Verificar se email já existe (exceto o próprio usuário)
@@ -185,11 +180,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     endereco_cidade = :endereco_cidade,
                     endereco_estado = :endereco_estado,
                     casado = :casado,
-                    nome_conjuge = :nome_conjuge,
-                    cpf_conjuge = :cpf_conjuge,
-                    rg_conjuge = :rg_conjuge,
-                    telefone_conjuge = :telefone_conjuge,
-                    rg_conjuge_igual_cpf = :rg_conjuge_igual_cpf
+                    nome_cônjuge = :nome_cônjuge,
+                    cpf_cônjuge = :cpf_cônjuge,
+                    rg_cônjuge = :rg_cônjuge,
+                    telefone_cônjuge = :telefone_cônjuge,
+                    rg_cônjuge_igual_cpf = :rg_cônjuge_igual_cpf
                     WHERE id = :id";
             $stmt = $conexao->prepare($sql);
             $stmt->bindValue(':senha', $senha_hash);
@@ -211,11 +206,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     endereco_cidade = :endereco_cidade,
                     endereco_estado = :endereco_estado,
                     casado = :casado,
-                    nome_conjuge = :nome_conjuge,
-                    cpf_conjuge = :cpf_conjuge,
-                    rg_conjuge = :rg_conjuge,
-                    telefone_conjuge = :telefone_conjuge,
-                    rg_conjuge_igual_cpf = :rg_conjuge_igual_cpf
+                    nome_cônjuge = :nome_cônjuge,
+                    cpf_cônjuge = :cpf_cônjuge,
+                    rg_cônjuge = :rg_cônjuge,
+                    telefone_cônjuge = :telefone_cônjuge,
+                    rg_cônjuge_igual_cpf = :rg_cônjuge_igual_cpf
                     WHERE id = :id";
             $stmt = $conexao->prepare($sql);
         }
@@ -235,11 +230,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindValue(':endereco_cidade', $endereco_cidade);
         $stmt->bindValue(':endereco_estado', $endereco_estado);
         $stmt->bindValue(':casado', $casado, PDO::PARAM_INT);
-        $stmt->bindValue(':nome_conjuge', $nome_conjuge);
-        $stmt->bindValue(':cpf_conjuge', $cpf_conjuge);
-        $stmt->bindValue(':rg_conjuge', $rg_conjuge);
-        $stmt->bindValue(':telefone_conjuge', $telefone_conjuge);
-        $stmt->bindValue(':rg_conjuge_igual_cpf', $rg_conjuge_igual_cpf, PDO::PARAM_INT);
+        $stmt->bindValue(':nome_cônjuge', $nome_cônjuge);
+        $stmt->bindValue(':cpf_cônjuge', $cpf_cônjuge);
+        $stmt->bindValue(':rg_cônjuge', $rg_cônjuge);
+        $stmt->bindValue(':telefone_cônjuge', $telefone_cônjuge);
+        $stmt->bindValue(':rg_cônjuge_igual_cpf', $rg_cônjuge_igual_cpf, PDO::PARAM_INT);
         $stmt->bindValue(':id', $id);
         $stmt->execute();
 

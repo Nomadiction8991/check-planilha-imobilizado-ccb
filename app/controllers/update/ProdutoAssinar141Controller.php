@@ -13,7 +13,7 @@ $condicao_14_1 = $_POST['condicao_14_1'] ?? null;
 
 if (empty($ids_produtos) || !$id_planilha || !$condicao_14_1) {
     $_SESSION['erro'] = 'Dados incompletos para assinatura.';
-    header('Location: ../../views/planilhas/relatorio141_assinatura.php?id=' . urlencode($id_planilha));
+    header('Location: ../../views/planilhas/relatorio141_view.php?id=' . urlencode($id_planilha) . '&comum_id=' . urlencode($id_planilha));
     exit;
 }
 
@@ -21,7 +21,7 @@ $condicao = intval($condicao_14_1);
 $id_usuario = $_SESSION['usuario_id'] ?? null;
 
 if (!$id_usuario) {
-    $_SESSION['erro'] = 'UsuÃ¡rio nÃ£o autenticado.';
+    $_SESSION['erro'] = 'Usuário não autenticado.';
     header('Location: ../../login.php');
     exit;
 }
@@ -34,7 +34,7 @@ try {
     foreach ($ids_produtos as $id_produto) {
         $id_produto = intval($id_produto);
         
-        // Se a condiÃ§Ã£o for 2 (sem nota), limpar campos de nota
+        // Se a condição for 2 (sem nota), limpar campos de nota
         if ($condicao == 2) {
             $sql = "UPDATE produtos SET 
                     condicao_14_1 = :condicao,
@@ -55,7 +55,7 @@ try {
                 $produtos_assinados++;
             }
         } 
-        // Se for condiÃ§Ã£o 1 ou 3 (com nota), validar e salvar campos de nota
+        // Se for condição 1 ou 3 (com nota), validar e salvar campos de nota
         else {
             $nota_numero = $_POST['nota_numero'] ?? null;
             $nota_data = $_POST['nota_data'] ?? null;
@@ -63,7 +63,7 @@ try {
             $nota_fornecedor = $_POST['nota_fornecedor'] ?? null;
             
             if (!$nota_numero || !$nota_data || !$nota_valor || !$nota_fornecedor) {
-                throw new Exception('Todos os campos da nota fiscal sÃ£o obrigatÃ³rios.');
+                throw new Exception('Todos os campos da nota fiscal são obrigatórios.');
             }
             
             $sql = "UPDATE produtos SET 
@@ -102,7 +102,7 @@ try {
         : "{$produtos_assinados} produtos assinados com sucesso!";
     
     $_SESSION['sucesso'] = $mensagem;
-    header('Location: ../../views/planilhas/relatorio141_assinatura.php?id=' . urlencode($id_planilha));
+    header('Location: ../../views/planilhas/relatorio141_view.php?id=' . urlencode($id_planilha) . '&comum_id=' . urlencode($id_planilha));
     exit;
     
 } catch (Exception $e) {
@@ -110,7 +110,7 @@ try {
     $_SESSION['erro'] = 'Erro ao assinar produto(s): ' . $e->getMessage();
     
     $redirect_ids = implode(',', $ids_produtos);
-    header('Location: ../../views/planilhas/relatorio141_assinatura_form.php?ids=' . urlencode($redirect_ids) . '&id_planilha=' . urlencode($id_planilha));
+    header('Location: ../../views/planilhas/relatorio141_view.php?id=' . urlencode($id_planilha) . '&comum_id=' . urlencode($id_planilha));
     exit;
 }
 ?>

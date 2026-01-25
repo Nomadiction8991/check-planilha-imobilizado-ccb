@@ -1,13 +1,8 @@
 <?php
 declare(strict_types=1);
-// CRUD/READ/dependencia.php - implementaÃ§Ã£o limpa
+// CRUD/READ/dependencia.php - implementação limpa
 
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-
-if (!isAdmin()) {
-    header('Location: ../../../index.php');
-    exit;
-}
 
 $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
 $limite = 10; // limit 10 registros por página

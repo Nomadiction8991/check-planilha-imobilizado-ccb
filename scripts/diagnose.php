@@ -40,7 +40,7 @@ $files = [
     __DIR__ . '/../vendor/autoload.php',
 ];
 foreach ($files as $f) {
-    $status = file_exists($f) ? '✓ existe' : '✗ NÃO EXISTE';
+    $status = file_exists($f) ? '✓ existe' : '✗ NÁO EXISTE';
     echo "   - " . basename($f) . ": $status\n";
 }
 
@@ -82,7 +82,7 @@ echo "\n7. Testando uppercase_helper:\n";
 try {
     if (function_exists('to_uppercase')) {
         $test = to_uppercase('ação');
-        echo "   - to_uppercase('ação') = '$test' " . ($test === 'AÇÃO' ? '✓' : '✗') . "\n";
+        echo "   - to_uppercase('ação') = '$test' " . ($test === 'AÇÁO' ? '✓' : '✗') . "\n";
     } else {
         echo "   - to_uppercase: ✗ função não existe\n";
     }

@@ -2,12 +2,6 @@
 declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
-
-if (!isAdmin()) {
-    header('Location: ../../../index.php');
-    exit;
-}
-
 $idParam = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($idParam <= 0) {
     header('Location: ./dependencias_listar.php');
@@ -56,7 +50,7 @@ ob_start();
 </form>
 
 <script>
-// ValidaÃ§Ã£o do formulÃ¡rio
+// Validação do formulário
 document.getElementById('formDependencia').addEventListener('submit', function(e) {
     const descricao = document.getElementById('descricao').value.trim();
     

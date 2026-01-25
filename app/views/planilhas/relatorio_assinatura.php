@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AUTENTICAÇÃO
-// PÃ¡gina dedicada para captura de assinatura em modo paisagem.
+ // AUTENTICAÇÁO
+// Página dedicada para captura de assinatura em modo paisagem.
 // Salva o resultado em localStorage['signature_temp'] e retorna via history.back()
 
 ob_start();
@@ -22,7 +22,7 @@ ob_start();
         <canvas id="sign_canvas" style="background:#fff; border:1px solid #ddd; display:block;"></canvas>
     </div>
 
-    <div class="mt-2 small text-muted">Dica: apÃ³s salvar vocÃª SERÁ levado de volta Ã  pÃ¡gina anterior.</div>
+    <div class="mt-2 small text-muted">Dica: após salvar você SERÁ levado de volta Á  página anterior.</div>
 </div>
 
 <script>

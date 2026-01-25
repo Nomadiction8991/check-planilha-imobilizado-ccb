@@ -2,7 +2,7 @@
 define('SKIP_AUTH', true);
 require_once __DIR__ . '/app/bootstrap.php';
 
-// Se jÃ¡ estÃ¡ logado, redireciona para o index
+// Se já está logado, redireciona para o index
 if (isset($_SESSION['usuario_id'])) {
     header('Location: index.php');
     exit;
@@ -13,7 +13,7 @@ $sucesso = '';
 
 // Mensagem de sucesso ao registrar
 if (isset($_GET['registered'])) {
-    $sucesso = 'Cadastro realizado com sucesso! FaÃ§a login para continuar.';
+    $sucesso = 'Cadastro realizado com sucesso! Faça login para continuar.';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('E-mail e senha são obrigatórios.');
         }
 
-            // Buscar usuÃ¡rio por email (comparacao em UPPER para ser robusto a case)
+            // Buscar usuário por email (comparacao em UPPER para ser robusto a case)
             // Não filtramos por ativo aqui para permitir mostrar mensagem específica quando inativo
             $stmt = $conexao->prepare('SELECT * FROM usuarios WHERE UPPER(email) = :email LIMIT 1');
             $stmt->bindValue(':email', to_uppercase($email));

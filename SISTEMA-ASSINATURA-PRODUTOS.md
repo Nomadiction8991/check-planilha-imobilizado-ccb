@@ -1,7 +1,7 @@
-﻿# Sistema de Assinatura de Produtos - ImplementaÃ§Ã£o
+# Sistema de Assinatura de Produtos - Implementação
 
-## VisÃ£o Geral
-Sistema que permite administradores e doadores assinarem produtos diretamente, sem formulÃ¡rios. As assinaturas sÃ£o armazenadas nos campos `administrador_acessor_id` e `doador_conjugue_id` da tabela `produtos`.
+## Visão Geral
+Sistema que permite administradores e doadores assinarem produtos diretamente, sem formulários. As assinaturas são armazenadas nos campos `administrador_acessor_id` e `doador_conjugue_id` da tabela `produtos`.
 
 ## Estrutura do Banco de Dados
 
@@ -12,37 +12,37 @@ Sistema que permite administradores e doadores assinarem produtos diretamente, s
 ```
 
 ### Tabela: `usuarios`
-ContÃ©m todos os dados necessÃ¡rios:
+Contém todos os dados necessários:
 - nome, cpf, rg, assinatura (base64)
-- dados do cÃ´njuge: nome_conjuge, cpf_conjuge, rg_conjuge, assinatura_conjuge
+- dados do cônjuge: nome_conjuge, cpf_conjuge, rg_conjuge, assinatura_conjuge
 - casado (boolean)
 
 ## Arquivos Criados/Modificados
 
 ### 1. app/controllers/update/ProdutosAssinarController.php
-**FunÃ§Ã£o:** Backend para assinar/desassinar produtos
+**Função:** Backend para assinar/desassinar produtos
 **Recursos:**
-- Identifica tipo de usuÃ¡rio logado (Admin ou Doador)
+- Identifica tipo de usuário logado (Admin ou Doador)
 - Atualiza campo correspondente na tabela produtos
-- Suporta mÃºltiplos produtos em batch
-- AÃ§Ãµes: `assinar` (define ID) ou `desassinar` (limpa para 0)
+- Suporta múltiplos produtos em batch
+- Ações: `assinar` (define ID) ou `desassinar` (limpa para 0)
 
 ### 2. app/views/produtos/produtos_assinar.php
-**FunÃ§Ã£o:** Interface de seleÃ§Ã£o de produtos
+**Função:** Interface de seleção de produtos
 **Recursos:**
 - Lista produtos da planilha
-- Checkbox para seleÃ§Ã£o mÃºltipla
-- Indica produtos jÃ¡ assinados pelo usuÃ¡rio
-- BotÃµes: Assinar / Remover Assinatura
+- Checkbox para seleção múltipla
+- Indica produtos já assinados pelo usuário
+- Botões: Assinar / Remover Assinatura
 - Visual diferenciado para produtos assinados
-- BotÃµes "Selecionar Todos" / "Nenhum"
+- Botões "Selecionar Todos" / "Nenhum"
 
 ### 3. app/controllers/read/Relatorio141DataController.php (atualizado)
-**ModificaÃ§Ãµes:**
+**Modificações:**
 - Query agora faz JOIN com tabela `usuarios`
 - Busca dados do administrador via `administrador_acessor_id`
 - Busca dados do doador via `doador_conjugue_id`
-- Retorna: nomes, CPF, RG, assinaturas (incluindo cÃ´njuge)
+- Retorna: nomes, CPF, RG, assinaturas (incluindo cônjuge)
 
 ## Fluxo de Uso
 
@@ -53,33 +53,33 @@ ContÃ©m todos os dados necessÃ¡rios:
 4. Clica em "Assinar Selecionados"
 5. Sistema atualiza `administrador_acessor_id` com seu ID
 
-### Para Doador/CÃ´njuge:
+### Para Doador/Cônjuge:
 1. Mesmo fluxo do administrador
 2. Sistema atualiza `doador_conjugue_id` com seu ID
 
 ### Desassinar:
-1. Seleciona produtos jÃ¡ assinados por vocÃª
+1. Seleciona produtos já assinados por você
 2. Clica em "Remover Assinatura"
 3. Sistema limpa o campo (seta 0)
 
-## IntegraÃ§Ã£o com RelatÃ³rio 14.1
+## Integração com Relatório 14.1
 
-O relatÃ³rio agora busca automaticamente:
+O relatório agora busca automaticamente:
 - **Administrador:** nome, CPF, RG, assinatura
 - **Doador:** nome, CPF, RG, assinatura
-- **CÃ´njuge do doador** (se casado): nome, CPF, RG, assinatura
+- **Cônjuge do doador** (se casado): nome, CPF, RG, assinatura
 
-Todos os dados vÃªm da tabela `usuarios` via JOIN, eliminando necessidade de formulÃ¡rios separados.
+Todos os dados vêm da tabela `usuarios` via JOIN, eliminando necessidade de formulários separados.
 
 ## Vantagens da Nova Abordagem
 
 1. **Dados Centralizados:** Tudo na tabela usuarios
-2. **Sem DuplicaÃ§Ã£o:** NÃ£o precisa preencher dados mÃºltiplas vezes
+2. **Sem Duplicação:** Não precisa preencher dados múltiplas vezes
 3. **Rastreabilidade:** Sabe exatamente quem assinou cada produto
 4. **Flexibilidade:** Pode assinar/desassinar a qualquer momento
-5. **SeguranÃ§a:** Sistema identifica automaticamente o usuÃ¡rio logado
+5. **Segurança:** Sistema identifica automaticamente o usuário logado
 
-## PrÃ³ximos Passos
+## Próximos Passos
 
 ### Adicionar link no menu da planilha:
 ```php
@@ -88,21 +88,21 @@ Todos os dados vÃªm da tabela `usuarios` via JOIN, eliminando necessidade de f
 </a>
 ```
 
-### Exibir assinaturas no relatÃ³rio 14.1:
-O relatÃ³rio jÃ¡ recebe os dados, basta usar no template:
+### Exibir assinaturas no relatório 14.1:
+O relatório já recebe os dados, basta usar no template:
 ```php
 <?php echo htmlspecialchars($produto['administrador_nome']); ?>
 <img src="<?php echo $produto['administrador_assinatura']; ?>" alt="Assinatura">
 ```
 
-## SeguranÃ§a
+## Segurança
 
-- âœ… AutenticaÃ§Ã£o obrigatÃ³ria
-- âœ… Identifica tipo de usuÃ¡rio via sessÃ£o
-- âœ… Permite desassinar apenas prÃ³prias assinaturas
-- âœ… ValidaÃ§Ã£o de dados no backend
-- âœ… TransaÃ§Ãµes SQL para integridade
+-  Autenticação obrigatória
+-  Identifica tipo de usuário via sessão
+-  Permite desassinar apenas próprias assinaturas
+-  Validação de dados no backend
+-  Transações SQL para integridade
 
-## Status: âœ… Implementado e Pronto para Uso
+## Status:  Implementado e Pronto para Uso
 
 

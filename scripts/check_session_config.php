@@ -32,14 +32,14 @@ if (strpos($save_path, ';') !== false) {
 echo "Verificando: $save_path\n";
 
 if (!is_dir($save_path)) {
-    echo "❌ ERRO: Diretório NÃO EXISTE!\n";
+    echo "❌ ERRO: Diretório NÁO EXISTE!\n";
 } else {
     echo "✅ Diretório existe\n";
     
     if (is_writable($save_path)) {
         echo "✅ Diretório é GRAVÁVEL\n";
     } else {
-        echo "❌ ERRO: Diretório NÃO É GRAVÁVEL!\n";
+        echo "❌ ERRO: Diretório NÁO É GRAVÁVEL!\n";
         echo "   Permissões: " . substr(sprintf('%o', fileperms($save_path)), -4) . "\n";
     }
     
@@ -73,6 +73,6 @@ if (isset($_SESSION['test'])) {
     echo "✅ Session LIDA COM SUCESSO após write_close\n";
     echo "   test value = " . $_SESSION['test'] . "\n";
 } else {
-    echo "❌ ERRO: Session NÃO FOI LIDA!\n";
+    echo "❌ ERRO: Session NÁO FOI LIDA!\n";
     echo "   Session vars: " . implode(', ', array_keys($_SESSION)) . "\n";
 }

@@ -33,13 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $setor = isset($_POST['setor']) && $_POST['setor'] !== '' ? (int)$_POST['setor'] : null;
 
         if ($administracao === '' || $cidade === '') {
-            throw new Exception('AdministraÃƒÂ§ÃƒÂ£o e CIDADE sÃƒÂ£o obrigatÃƒÂ³rios.');
+            throw new Exception('Administra§£o e CIDADE s£o obrigat³rios.');
         }
 
         // Obter comum_id pela planilha
         $planilha_atual = carregar_planilha($conexao, $id_planilha);
         if (!$planilha_atual) {
-            throw new Exception('Planilha nÃƒÂ£o encontrada.');
+            throw new Exception('Planilha n£o encontrada.');
         }
 
         $conexao->beginTransaction();
@@ -73,10 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Dados atualizados para exibiÃƒÂ§ÃƒÂ£o
+// Dados atualizados para exibi§£o
 $planilha = carregar_planilha($conexao, $id_planilha);
 if (!$planilha) { 
-    die('Planilha nÃƒÂ£o encontrada.');
+    die('Planilha n£o encontrada.');
 }
 
 $pageTitle = 'EDITAR Planilha';
@@ -102,12 +102,12 @@ ob_start();
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label for="administracao" class="form-label">AdministraÃƒÂ§ÃƒÂ£o <span class="text-danger">*</span></label>
+                    <label for="administracao" class="form-label">Administra§£o <span class="text-danger">*</span></label>
                     <?php 
-                        // AdministraÃƒÂ§ÃƒÂ£o e cidade armazenadas como 'MT - NomeDaCIDADE'
+                        // Administra§£o e cidade armazenadas como 'MT - NomeDaCIDADE'
                         $administracao_atual = $planilha['administracao'] ?? '';
                         $cidade_atual = $planilha['cidade'] ?? '';
-                        // Extrair somente nome apÃƒÂ³s ' - '
+                        // Extrair somente nome ap³s ' - '
                         $nome_cidade_adm = '';
                         if (strpos($administracao_atual,' - ') !== false) {
                             $parts = explode(' - ',$administracao_atual,2);
@@ -120,7 +120,7 @@ ob_start();
                         }
                         // Definir base de cidades de MT (pode ser ampliado depois ou carregado de tabela auxiliar)
                         $cidades_mt = [
-                            'CuiabÃƒÂ¡','VÃƒÂ¡rzea Grande','RondonÃƒÂ³polis','Sinop','Sorriso','Barra do GarÃƒÂ§as','TangarÃƒÂ¡ da Serra','Lucas do Rio Verde','Primavera do Leste','Alta Floresta','Campo Verde','CÃƒÂ¡ceres','ColÃƒÂ­der','GuarantÃƒÂ£ do Norte','JuÃƒÂ­na','Mirassol dÃ¢â‚¬â„¢Oeste','Nova Mutum','Pontes e Lacerda','SÃƒÂ£o FÃƒÂ©lix do Araguaia','Peixoto de Azevedo'
+                            'Cuiab¡','V¡rzea Grande','Rondon³polis','Sinop','Sorriso','Barra do Gar§as','Tangar¡ da Serra','Lucas do Rio Verde','Primavera do Leste','Alta Floresta','Campo Verde','C¡ceres','Col­der','Guarant£ do Norte','Ju­na','Mirassol dOeste','Nova Mutum','Pontes e Lacerda','S£o F©lix do Araguaia','Peixoto de Azevedo'
                         ];
                         sort($cidades_mt);
                     ?>
@@ -163,7 +163,7 @@ ob_start();
         </div>
     </div>
 
-    <!-- Card: Dados da Planilha (apenas ativaÃƒÂ§ÃƒÂ£o) -->
+    <!-- Card: Dados da Planilha (apenas ativa§£o) -->
     <div class="card mb-3">
         <div class="card-header">
             <i class="bi bi-gear me-2"></i>
@@ -190,9 +190,9 @@ ob_start();
 $contentHtml = ob_get_clean();
 
 // Script para captura de assinaturas e carregar assinaturas existentes
-// Reutiliza a mesma lÃƒÂ³gica do importar-planilha para modal, estados e cidades
+// Reutiliza a mesma l³gica do importar-planilha para modal, estados e cidades
 // Pre-encode any server values used by the script to avoid parsing issues
-// Render direto sem JS (prefill jÃƒÂ¡ feito via PHP)
+// Render direto sem JS (prefill j¡ feito via PHP)
 $contentHtmlFinal = $contentHtml;
 $tempFile = __DIR__ . '/../../../temp_editar_planilha_' . uniqid() . '.php';
 file_put_contents($tempFile, $contentHtmlFinal);

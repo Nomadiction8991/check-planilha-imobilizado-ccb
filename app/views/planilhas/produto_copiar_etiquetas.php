@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// AutenticaÃƒÂ§ÃƒÂ£o
+// Autenticao
 
 $id_planilha = $_GET['id'] ?? null;
 if (!$id_planilha) {
@@ -17,7 +17,7 @@ try {
   $stmt_planilha->bindValue(':id', $id_planilha);
   $stmt_planilha->execute();
   $planilha = $stmt_planilha->fetch();
-  if (!$planilha) throw new Exception('Planilha não encontrada.');
+  if (!$planilha) throw new Exception('Planilha no encontrada.');
 } catch (PDOException $e) {
   if ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false) {
     // Tabela 'planilhas' ausente: tentar usar 'comums' como fallback
@@ -30,7 +30,7 @@ try {
         $planilha = ['id' => (int)$comum['id'], 'comum' => $comum['comum'], 'comum_id' => (int)$comum['id'], 'ativo' => 1];
         $using_comum_fallback = true;
       } else {
-        die('Comum não encontrada.');
+        die('Comum no encontrada.');
       }
     } catch (Exception $ex) {
       die('Erro ao carregar planilha/comum: ' . $ex->getMessage());
@@ -42,7 +42,7 @@ try {
   die('Erro ao carregar planilha: ' . $e->getMessage());
 }
 
-// Dependências disponíveis (todas que têm produtos marcados para imprimir)
+// Dependncias disponveis (todas que tm produtos marcados para imprimir)
 try {
   $sql_dependencias = "
         SELECT DISTINCT 
@@ -85,8 +85,8 @@ try {
   $stmt_PRODUTOS->execute();
   $PRODUTOS = $stmt_PRODUTOS->fetchAll(PDO::FETCH_ASSOC);
 
-  // BUSCAR tambÃƒÂ©m PRODUTOS cadastrados (novos) com cÃƒÂ³digo preenchido
-  // Nota: tabela PRODUTOS_cadastro nÃƒÂ£o existe no schema atual, entÃƒÂ£o comentado
+  // BUSCAR tamb©m PRODUTOS cadastrados (novos) com c³digo preenchido
+  // Nota: tabela PRODUTOS_cadastro n£o existe no schema atual, ent£o comentado
   // $sql_novos = "SELECT pc.codigo, d.descricao as dependencia
   // FROM produtos_cadastro pc
   // LEFT JOIN dependencias d ON pc.id_dependencia = d.id
@@ -103,7 +103,7 @@ try {
   // $stmt_novos->execute();
   // $PRODUTOS_novos = $stmt_novos->fetchAll(PDO::FETCH_ASSOC);
 
-  $PRODUTOS_novos = []; // Temporariamente vazio atÃƒÂ© tabela existir
+  $PRODUTOS_novos = []; // Temporariamente vazio at© tabela existir
 
   // Combinar PRODUTOS checados e novos
   $PRODUTOS = array_merge($PRODUTOS, $PRODUTOS_novos);
@@ -114,11 +114,11 @@ try {
 } catch (Exception $e) {
   $codigos_concatenados = '';
   $PRODUTOS = [];
-  // Tratar erro de tabela ausente de forma amigável e em UPPERCASE
+  // Tratar erro de tabela ausente de forma amigvel e em UPPERCASE
   if ($e instanceof PDOException && ($e->getCode() === '42S02' || stripos($e->getMessage(), '1146') !== false || stripos($e->getMessage(), "doesn't exist") !== false)) {
-    $mensagem = to_uppercase("Erro ao carregar produtos (comum_id: " . $comum_id . "): tabela 'produtos' não encontrada no banco de dados. Verifique a instalação ou migrações e contate o administrador.");
+    $mensagem = to_uppercase("Erro ao carregar produtos (comum_id: " . $comum_id . "): tabela 'produtos' no encontrada no banco de dados. Verifique a instalao ou migraes e contate o administrador.");
   } else {
-    // Evitar vazar SQL cru — mostrar a mensagem em uppercase
+    // Evitar vazar SQL cru  mostrar a mensagem em uppercase
     $mensagem = to_uppercase('Erro ao carregar produtos (comum_id: ' . $comum_id . '): ' . $e->getMessage());
   }
 }
@@ -157,7 +157,7 @@ ob_start();
 <div class="card mb-3">
   <div class="card-header">
     <i class="bi bi-tag me-2"></i>
-    <?php echo htmlspecialchars(to_uppercase('Códigos para impressão de etiquetas'), ENT_QUOTES, 'UTF-8'); ?>
+    <?php echo htmlspecialchars(to_uppercase('Cdigos para impresso de etiquetas'), ENT_QUOTES, 'UTF-8'); ?>
     <?php if (!empty($_GET['debug'])): ?>
       <div class="small text-muted mt-1">DEBUG: COMUM_ID =
         <?php echo htmlspecialchars($comum_id, ENT_QUOTES, 'UTF-8'); ?></div>
@@ -171,11 +171,11 @@ ob_start();
     <?php if (!empty($dependencias)): ?>
       <div class="mb-3">
         <label for="filtroDependencia"
-          class="form-label"><?php echo htmlspecialchars(to_uppercase('Filtrar por dependência'), ENT_QUOTES, 'UTF-8'); ?></label>
+          class="form-label"><?php echo htmlspecialchars(to_uppercase('Filtrar por dependncia'), ENT_QUOTES, 'UTF-8'); ?></label>
         <div class="input-group">
           <select class="form-select" id="filtroDependencia">
             <option value="">
-              <?php echo htmlspecialchars(to_uppercase('Todas as dependências'), ENT_QUOTES, 'UTF-8'); ?></option>
+              <?php echo htmlspecialchars(to_uppercase('Todas as dependncias'), ENT_QUOTES, 'UTF-8'); ?></option>
             <?php foreach ($dependencias as $dep): ?>
               <option value="<?php echo (int)$dep['id']; ?>"
                 <?php echo ((string)$dependencia_selecionada === (string)$dep['id']) ? 'selected' : ''; ?>>
@@ -204,7 +204,7 @@ ob_start();
           <div class="card-body text-center">
             <div class="h4 mb-0"><?php echo count(array_unique($PRODUTOS_sem_espacos ?? [])); ?></div>
             <div class="text-muted">
-              <?php echo htmlspecialchars(to_uppercase('Códigos únicos'), ENT_QUOTES, 'UTF-8'); ?></div>
+              <?php echo htmlspecialchars(to_uppercase('Cdigos nicos'), ENT_QUOTES, 'UTF-8'); ?></div>
           </div>
         </div>
       </div>
@@ -213,12 +213,12 @@ ob_start();
     <?php if (!empty($PRODUTOS)): ?>
       <div class="mt-3 position-relative">
         <label for="codigosField"
-          class="form-label"><?php echo htmlspecialchars(to_uppercase('Códigos'), ENT_QUOTES, 'UTF-8'); ?></label>
+          class="form-label"><?php echo htmlspecialchars(to_uppercase('Cdigos'), ENT_QUOTES, 'UTF-8'); ?></label>
         <textarea id="codigosField" class="form-control" rows="6" readonly
           onclick="this.select()"><?php echo htmlspecialchars($codigos_concatenados, ENT_QUOTES, 'UTF-8'); ?></textarea>
         <button class="btn btn-primary btn-sm mt-2 w-100" onclick="copiarCodigos()">
           <i class="bi bi-clipboard-check me-2"></i>
-          <?php echo htmlspecialchars(to_uppercase('Copiar para área de transferência'), ENT_QUOTES, 'UTF-8'); ?>
+          <?php echo htmlspecialchars(to_uppercase('Copiar para rea de transferncia'), ENT_QUOTES, 'UTF-8'); ?>
         </button>
         <div class="form-text">
           <?php echo htmlspecialchars(to_uppercase('Clique no campo para selecionar tudo rapidamente.'), ENT_QUOTES, 'UTF-8'); ?>
@@ -226,10 +226,10 @@ ob_start();
       </div>
     <?php else: ?>
       <div class="alert alert-warning mt-3 text-center">
-        <strong><?php echo htmlspecialchars(to_uppercase('Nenhum produto disponível para etiquetas.'), ENT_QUOTES, 'UTF-8'); ?></strong>
+        <strong><?php echo htmlspecialchars(to_uppercase('Nenhum produto disponvel para etiquetas.'), ENT_QUOTES, 'UTF-8'); ?></strong>
         <?php if (!empty($dependencia_selecionada)): ?>
           <?php
-          // Buscar nome da dependência selecionada
+          // Buscar nome da dependncia selecionada
           $dep_nome = '';
           foreach ($dependencias as $d) {
             if ($d['id'] == $dependencia_selecionada) {
@@ -239,7 +239,7 @@ ob_start();
           }
           ?>
           <div class="small">
-            <?php echo htmlspecialchars(to_uppercase('Não há produtos marcados para etiqueta na dependência "' . $dep_nome . '".'), ENT_QUOTES, 'UTF-8'); ?>
+            <?php echo htmlspecialchars(to_uppercase('No h produtos marcados para etiqueta na dependncia "' . $dep_nome . '".'), ENT_QUOTES, 'UTF-8'); ?>
           </div>
         <?php else: ?>
           <div class="small">

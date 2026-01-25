@@ -7,7 +7,7 @@ require_once __DIR__ . '/../app/bootstrap.php';
 
 /**
  * Corrige os textos armazenados no banco que exibem caracteres corrompidos
- * ao serem renderizados (p.ex. "ADMINISTRA��O" ou "DORMIT�RIO").
+ * ao serem renderizados (p.ex. "ADMINISTRAO" ou "DORMITRIO").
  */
 $tables = [
     ['name' => 'dependencias', 'pk' => 'id', 'cols' => ['descricao']],
@@ -63,7 +63,7 @@ try {
     }
 
     $conexao->commit();
-    echo "Correção concluída.\n";
+    echo "Correo concluda.\n";
 } catch (Throwable $e) {
     $conexao->rollBack();
     echo "Erro: " . $e->getMessage() . "\n";

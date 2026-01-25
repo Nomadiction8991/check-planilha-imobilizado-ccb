@@ -1,12 +1,12 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AutenticaÃ§Ã£o
-// Preenche o PDF relatorios/relatorio-14-1.pdf (ou variaÃ§Ãµes) com o campo de formulÃ¡rio "dataemissao"
+ // Autenticação
+// Preenche o PDF relatorios/relatorio-14-1.pdf (ou variaçÁµes) com o campo de formulário "dataemissao"
 // Modos de uso:
 // - Via GET:  preencher-relatorio-14-1.php?dataemissao=26/10/2025
-// - Sem parÃ¢metro: usa a data atual
+// - Sem parÁ¢metro: usa a data atual
 
-// 1) Localizar o PDF (aceita variaÃ§Ãµes de nome informadas)
+// 1) Localizar o PDF (aceita variaçÁµes de nome informadas)
 $baseDir = realpath(__DIR__ . '/../../relatorios');
 $possiveisArquivos = [
     'relatorio-14-1.pdf',
@@ -26,7 +26,7 @@ foreach ($possiveisArquivos as $nome) {
 
 if (!$pdfPath) {
     http_response_code(404);
-    echo 'PDF do relatÃ³rio nÃ£o encontrado na pasta relatorios/. Verifique o nome do arquivo.';
+    echo 'PDF do relatório não encontrado na pasta relatorios/. Verifique o nome do arquivo.';
     exit;
 }
 
@@ -57,7 +57,7 @@ function gerarFdf($fields, $pdfUrl = null) {
     return $fdf;
 }
 
-// Construir URL absoluto do PDF para uso em FDF, caso o usuÃ¡rio abra o FDF no Acrobat
+// Construir URL absoluto do PDF para uso em FDF, caso o usuário abra o FDF no Acrobat
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
@@ -101,7 +101,7 @@ if (comandoExiste('pdftk')) {
 }
 
 // 5) Fallback: entregar o FDF para abrir no Acrobat Reader
-// ObservaÃ§Ã£o: abra o FDF no Acrobat/Reader (nÃ£o no visualizador do navegador) para que ele carregue o PDF e aplique os dados.
+// Observação: abra o FDF no Acrobat/Reader (não no visualizador do navegador) para que ele carregue o PDF e aplique os dados.
 header('Content-Type: application/vnd.fdf');
 header('Content-Disposition: attachment; filename="relatorio-14-1-dados.fdf"');
 header('Content-Length: ' . strlen($fdfContent));

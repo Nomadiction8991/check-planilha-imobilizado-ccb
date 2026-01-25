@@ -1,11 +1,11 @@
 <?php
- // AutenticaÃ§Ã£o
+ // Autenticação
 /**
- * Gera o RelatÃ³rio 14.1 em PDF 100% via Composer (mPDF), sem depender de pdftk
+ * Gera o Relatório 14.1 em PDF 100% via Composer (mPDF), sem depender de pdftk
  * 
  * Uso:
  * - download-pdf-14-1.php?id_planilha=123   -> Gera com dados da planilha
- * - download-pdf-14-1.php?em_branco=5       -> Gera 5 pÃ¡ginas em branco
+ * - download-pdf-14-1.php?em_branco=5       -> Gera 5 páginas em branco
  */
 
 // Autoload de bibliotecas (composer)
@@ -17,10 +17,10 @@ if (file_exists($autoloadPath)) {
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 require_once __DIR__ . '/../../services/Relatorio141Generator.php';
 
-// VerificaÃ§Ã£o de mPDF
+// Verificação de mPDF
 if (!class_exists('\\Mpdf\\Mpdf')) {
     http_response_code(500);
-    echo "mPDF nÃ£o encontrado. Instale com: <pre>composer require mpdf/mpdf</pre>";
+    echo "mPDF não encontrado. Instale com: <pre>composer require mpdf/mpdf</pre>";
     exit;
 }
 
@@ -39,7 +39,7 @@ try {
         $html = ob_get_clean();
     }
 
-    // Carregar CSS do relatÃ³rio (preferir CSS inline do template HTML unificado)
+    // Carregar CSS do relatório (preferir CSS inline do template HTML unificado)
     $css = '';
     $templateHtmlPath = __DIR__ . '/../../relatorios/14-1.html';
     if (file_exists($templateHtmlPath)) {
@@ -73,7 +73,7 @@ try {
     }
         $mpdf->WriteHTML($html, 2);
 
-    // SaÃ­da inline
+    // Saída inline
     $nome = isset($id_planilha) ? "relatorio-14-1-planilha-{$id_planilha}.pdf" : 'relatorio-14-1-em-branco.pdf';
     $mpdf->Output($nome, 'I');
 

@@ -1,14 +1,14 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// AUTENTICAÇÃO
-// Endpoint pÃºblico para processar o check do PRODUTO
-// Inclui a lÃ³gica do CRUD e ajusta os redirecionamentos para o contexto correto
+// AUTENTICAÇÁO
+// Endpoint público para processar o check do PRODUTO
+// Inclui a lógica do CRUD e ajusta os redirecionamentos para o contexto correto
 
 // Capturar dados antes de incluir
 $_POST_BACKUP = $_POST;
 $_REQUEST_METHOD = $_SERVER['REQUEST_METHOD'];
 
-// Incluir conexÃ£o
+// Incluir conexão
 
 if ($_REQUEST_METHOD === 'POST') {
     $PRODUTO_id = $_POST_BACKUP['PRODUTO_id'] ?? null;

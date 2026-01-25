@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// AutenticaÃƒÂ§ÃƒÂ£o
+// Autenticação
 
 // Parâmetros
 // Aceitar tanto id_PRODUTO (legacy) quanto id_produto (mais comum) para compatibilidade

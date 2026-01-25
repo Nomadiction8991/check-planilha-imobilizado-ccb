@@ -2,13 +2,7 @@
 declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
-
-if (!isAdmin()) {
-    header('Location: ../../../index.php');
-    exit;
-}
-
-// Incluir lÃ³gica de leitura (preparada em CRUD)
+// Incluir lógica de leitura (preparada em CRUD)
 try {
     include __DIR__ . '/../../../app/controllers/read/DependenciaListController.php';
 } catch (Throwable $e) {
@@ -39,7 +33,7 @@ if (!function_exists('dep_corrigir_encoding')) {
         if ($enc && $enc !== 'UTF-8') {
             $texto = mb_convert_encoding($texto, 'UTF-8', $enc);
         }
-        if (preg_match('/Ãƒ|Ã‚|ï¿½/', $texto)) {
+        if (preg_match('/Áƒ|Á‚|ï¿½/', $texto)) {
             $t1 = @utf8_decode($texto);
             if ($t1 !== false && mb_detect_encoding($t1, 'UTF-8', true)) {
                 $texto = $t1;

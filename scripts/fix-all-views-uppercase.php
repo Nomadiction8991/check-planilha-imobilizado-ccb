@@ -7,7 +7,7 @@
 $basePath = __DIR__ . '/../app/views';
 $replacements = [
     // Autenticação
-    'Autenticação' => 'AUTENTICAÇÃO',
+    'Autenticação' => 'AUTENTICAÇÁO',
     
     // Dados e Seções
     'Dados Básicos' => 'DADOS BÁSICOS',
@@ -57,7 +57,7 @@ $replacements = [
     // Mensagens
     'Campo obrigatório' => 'CAMPO OBRIGATÓRIO',
     'Campo oculto' => 'CAMPO OCULTO',
-    'Botão' => 'BOTÃO',
+    'Botão' => 'BOTÁO',
     
     // Seções de formulário
     'Assinatura Digital' => 'ASSINATURA DIGITAL',

@@ -1,13 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-
-if (!isAdmin()) {
-    header('Location: ../../../index.php');
-    exit;
-}
 
 $mensagem = '';
 $tipo_mensagem = '';
@@ -51,8 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Preserve filters when returning to list
         $retQ = [];
-        if (!empty($_GET['busca'])) { $retQ['busca'] = $_GET['busca']; }
-        if (!empty($_GET['pagina'])) { $retQ['pagina'] = $_GET['pagina']; }
+        if (!empty($_GET['busca'])) {
+            $retQ['busca'] = $_GET['busca'];
+        }
+        if (!empty($_GET['pagina'])) {
+            $retQ['pagina'] = $_GET['pagina'];
+        }
         $retQ['success'] = 1;
         header('Location: dependencias_listar.php?' . http_build_query($retQ));
         exit;
@@ -61,4 +61,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tipo_mensagem = 'danger';
     }
 }
-

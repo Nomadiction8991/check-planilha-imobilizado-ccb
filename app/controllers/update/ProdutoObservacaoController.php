@@ -1,8 +1,8 @@
 <?php
-// AutenticaÃ§Ã£o
+// Autenticação
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
-// Receber parÃ¢metros via GET - AGORA USANDO ID
+// Receber parâmetros via GET - AGORA USANDO ID
 $id_produto = isset($_GET['id_produto']) ? (int) $_GET['id_produto'] : null;
 $comum_id = isset($_GET['comum_id']) ? (int) $_GET['comum_id'] : (isset($_GET['id']) ? (int) $_GET['id'] : null);
 
@@ -13,7 +13,7 @@ $filtro_dependencia = $_GET['dependencia'] ?? '';
 $filtro_codigo = $_GET['filtro_codigo'] ?? '';
 $filtro_status = $_GET['status'] ?? '';
 
-// ValidaÃ§Ã£o dos parÃ¢metros obrigatÃ³rios
+// Validação dos parâmetros obrigatórios
 if (!$id_produto || !$comum_id) {
     $query_string = http_build_query([
         'id' => $comum_id,
@@ -23,13 +23,13 @@ if (!$id_produto || !$comum_id) {
         'dependencia' => $filtro_dependencia,
         'codigo' => $filtro_codigo,
         'status' => $filtro_status,
-        'erro' => 'ParÃ¢metros invÃ¡lidos para acessar a pÃ¡gina'
+        'erro' => 'Parâmetros inválidos para acessar a página'
     ]);
     header('Location: ../planilhas/planilha_visualizar.php?' . $query_string);
     exit;
 }
 
-// Inicializar variÃ¡veis
+// Inicializar variáveis
 $mensagem = '';
 $tipo_mensagem = '';
 $produto = [];
@@ -60,10 +60,10 @@ try {
     $produto = $stmt_produto->fetch();
 
     if (!$produto) {
-        throw new Exception('Produto nÃ£o encontrado na planilha.');
+        throw new Exception('Produto não encontrado na planilha.');
     }
 
-    // Preencher informaÃ§Ãµes do check com dados da prÃ³pria tabela produtos
+    // Preencher informações do check com dados da própria tabela produtos
     $check = [
         'checado' => $produto['checado'] ?? 0,
         'observacoes' => $produto['observacao'] ?? '',
@@ -76,7 +76,7 @@ try {
     $tipo_mensagem = 'error';
 }
 
-// Processar o formulÃ¡rio quando enviado
+// Processar o formulário quando enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $observacoes = trim($_POST['observacoes'] ?? '');
     $observacoes = to_uppercase($observacoes);
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $filtro_status = $_POST['status'] ?? '';
 
     try {
-        // Atualizar observaÃ§Ãµes diretamente na tabela produtos - USANDO id_produto
+        // Atualizar observações diretamente na tabela produtos - USANDO id_produto
         $sql_update = "UPDATE produtos SET observacao = :observacao WHERE id_produto = :id_produto AND comum_id = :comum_id";
         $stmt_update = $conexao->prepare($sql_update);
         $stmt_update->bindValue(':observacao', $observacoes);
@@ -117,14 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'dependencia' => $filtro_dependencia,
             'codigo' => $filtro_codigo,
             'status' => $filtro_status,
-            'sucesso' => 'ObservaÃ§Ãµes salvas com sucesso!'
+            'sucesso' => 'Observações salvas com sucesso!'
         ]);
         header('Location: ../planilhas/planilha_visualizar.php?' . $query_string);
         exit;
     } catch (Exception $e) {
-        $mensagem = "Erro ao salvar observaÃ§Ãµes: " . $e->getMessage();
+        $mensagem = "Erro ao salvar observações: " . $e->getMessage();
         $tipo_mensagem = 'error';
-        error_log("ERRO SALVAR OBSERVAÃ‡Ã•ES: " . $e->getMessage());
+        error_log("ERRO SALVAR OBSERVAÇÕES: " . $e->getMessage());
     }
 }
 

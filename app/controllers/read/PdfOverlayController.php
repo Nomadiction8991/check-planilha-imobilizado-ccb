@@ -1,8 +1,8 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AutenticaÃ§Ã£o
+ // Autenticação
 /**
- * SobrepÃµe textos em um PDF existente usando FPDI (100% via Composer)
+ * SobrepÁµe textos em um PDF existente usando FPDI (100% via Composer)
  *
  * Requer:
  *   composer require setasign/fpdi setasign/fpdf
@@ -10,7 +10,7 @@ require_once dirname(__DIR__, 2) . '/bootstrap.php';
  * Uso simples (um campo):
  *   /CRUD/READ/overlay-pdf.php?file=relatorio-14-1.pdf&text=26/10/2025&x=160&y=25&size=10&page=1
  *
- * Uso avanÃ§ado (mÃºltiplos campos via JSON base64):
+ * Uso avançado (múltiplos campos via JSON base64):
  *   map = base64_encode(json_encode([
  *      {"text":"26/10/2025","x":160,"y":25,"size":10,"page":1},
  *      {"text":"12345678","x":30,"y":55,"size":10,"page":1}
@@ -21,7 +21,7 @@ require_once dirname(__DIR__, 2) . '/bootstrap.php';
 $autoloadPath = __DIR__ . '/../../vendor/autoload.php';
 if (!file_exists($autoloadPath)) {
     http_response_code(500);
-    echo "Autoloader do Composer nÃ£o encontrado. Instale as dependÃªncias com:\n";
+    echo "Autoloader do Composer não encontrado. Instale as dependências com:\n";
     echo "composer require setasign/fpdi setasign/fpdf\n";
     exit;
 }
@@ -33,20 +33,20 @@ use setasign\Fpdi\Fpdi;
 $baseDir = realpath(__DIR__ . '/../../relatorios');
 if (!$baseDir) {
     http_response_code(404);
-    echo 'Pasta relatorios/ nÃ£o encontrada.';
+    echo 'Pasta relatorios/ não encontrada.';
     exit;
 }
 
 $file = $_GET['file'] ?? '';
 if (!$file) {
     http_response_code(400);
-    echo 'ParÃ¢metro "file" Ã© obrigatÃ³rio (ex.: relatorio-14-1.pdf).';
+    echo 'ParÁ¢metro "file" é obrigatório (ex.: relatorio-14-1.pdf).';
     exit;
 }
 $pdfPath = $baseDir . DIRECTORY_SEPARATOR . $file;
 if (!file_exists($pdfPath)) {
     http_response_code(404);
-    echo 'Arquivo nÃ£o encontrado em relatorios/: ' . htmlspecialchars($file);
+    echo 'Arquivo não encontrado em relatorios/: ' . htmlspecialchars($file);
     exit;
 }
 
@@ -60,7 +60,7 @@ if (!empty($_GET['map'])) {
     }
 }
 
-// Fallback: um Ãºnico campo via query (text,x,y,size,page)
+// Fallback: um único campo via query (text,x,y,size,page)
 if (empty($map) && isset($_GET['text'], $_GET['x'], $_GET['y'])) {
     $map[] = [
         'text' => (string)$_GET['text'],
@@ -81,7 +81,7 @@ if (empty($map)) {
 $pdf = new Fpdi('P', 'mm', 'A4');
 $pageCount = $pdf->setSourceFile($pdfPath);
 
-// Indexar mapa por pÃ¡gina
+// Indexar mapa por página
 $porPagina = [];
 foreach ($map as $item) {
     $p = max(1, min($pageCount, (int)($item['page'] ?? 1)));
@@ -105,7 +105,7 @@ for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
     }
 }
 
-// SaÃ­da inline
+// Saída inline
 header('Content-Type: application/pdf');
 header('Content-Disposition: inline; filename="overlay.pdf"');
 $pdf->Output('I', 'overlay.pdf');

@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// AUTENTICAÇÃO
+// AUTENTICAO
 require_once __DIR__ . '/../../../app/controllers/read/Relatorio141DataController.php';
 
 // Carregar template completo com CSS inline
@@ -8,7 +8,7 @@ $templatePath = __DIR__ . '/../../../relatorios/14-1.html';
 $templateCompleto = '';
 if (file_exists($templatePath)) {
     $templateCompleto = file_get_contents($templatePath);
-    // Extrair apenas o conteÃºdo entre <!-- A4-START --> e <!-- A4-END -->
+    // Extrair apenas o conteúdo entre <!-- A4-START --> e <!-- A4-END -->
     $start = strpos($templateCompleto, '<!-- A4-START -->');
     $end   = strpos($templateCompleto, '<!-- A4-END -->');
     if ($start !== false && $end !== false && $end > $start) {
@@ -38,11 +38,6 @@ $headerActions = '
                     <i class="bi bi-printer me-2"></i>Imprimir
                 </button>
             </li>
-            <li>
-                <a href="relatorio141_assinatura.php?id=' . urlencode($id_planilha) . '" class="dropdown-item">
-                    <i class="bi bi-pen me-2"></i>Assinaturas
-                </a>
-            </li>
             <li><hr class="dropdown-divider"></li>
             <li>
                 <a class="dropdown-item" href="../../../logout.php">
@@ -53,31 +48,133 @@ $headerActions = '
     </div>
 ';
 
-// CSS customizado para a interface da aplicaÃ§Ã£o (NÃO do formulÃ¡rio)
+// CSS customizado para a interface da aplicação (não do formulário)
 $customCss = '';
 $customCssPath = __DIR__ . '/style/relatorio141.css';
 if (file_exists($customCssPath)) {
     $customCss .= file_get_contents($customCssPath);
 }
+$customCss .= "\n.r141-root textarea, .r141-root input{pointer-events:none; -webkit-user-select:none; user-select:none; cursor: default;}";
+$customCss .= "\n.r141-root textarea{background:transparent; border:none; outline:none;}";
+$customCss .= "\n.r141-root input[disabled]{opacity:1; filter:none;}";
 
 // (removed previous @media print rules - printing will open a clean window with the A4 content)
+
+if (!function_exists('r141_safe_strlen')) {
+    function r141_safe_strlen(string $text): int
+    {
+        if (function_exists('mb_strlen')) {
+            return mb_strlen($text, 'UTF-8');
+        }
+        return strlen($text);
+    }
+}
+
+if (!function_exists('r141_safe_substr')) {
+    function r141_safe_substr(string $text, int $start, int $length): string
+    {
+        if (function_exists('mb_substr')) {
+            return mb_substr($text, $start, $length, 'UTF-8');
+        }
+        return substr($text, $start, $length);
+    }
+}
+
+if (!function_exists('r141_dom_available')) {
+    function r141_dom_available(): bool
+    {
+        return class_exists('DOMDocument') && class_exists('DOMXPath');
+    }
+}
+
+if (!function_exists('r141_safe_html')) {
+    function r141_safe_html(string $text): string
+    {
+        return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('r141_fillFieldByIdRegex')) {
+    function r141_fillFieldByIdRegex(string $html, string $id, string $text): string
+    {
+        $safe = r141_safe_html($text);
+        $idPattern = preg_quote($id, '/');
+
+        $textareaPattern = "/(<textarea[^>]*\\bid\\s*=\\s*(\"|'){$idPattern}\\2[^>]*>)(.*?)(<\\/textarea>)/is";
+        if (preg_match($textareaPattern, $html)) {
+            return preg_replace_callback($textareaPattern, function ($m) use ($safe) {
+                return $m[1] . $safe . $m[4];
+            }, $html, 1);
+        }
+
+        $inputPattern = "/(<input[^>]*\\bid\\s*=\\s*(\"|'){$idPattern}\\2[^>]*)(>)/i";
+        if (preg_match($inputPattern, $html)) {
+            return preg_replace_callback($inputPattern, function ($m) use ($safe) {
+                $tag = $m[1];
+                if (preg_match('/\\bvalue\\s*=\\s*(\"|\\\')(.*?)\\1/i', $tag)) {
+                    $tag = preg_replace('/\\bvalue\\s*=\\s*(\"|\\\')(.*?)\\1/i', 'value="' . $safe . '"', $tag);
+                } else {
+                    $tag .= ' value="' . $safe . '"';
+                }
+                return $tag . $m[3];
+            }, $html, 1);
+        }
+
+        return $html;
+    }
+}
+
+if (!function_exists('r141_setCheckboxByIdRegex')) {
+    function r141_setCheckboxByIdRegex(string $html, string $id, bool $checked): string
+    {
+        $idPattern = preg_quote($id, '/');
+        $inputPattern = "/(<input[^>]*\\bid\\s*=\\s*(\"|'){$idPattern}\\2[^>]*)(>)/i";
+        if (!preg_match($inputPattern, $html)) {
+            return $html;
+        }
+
+        return preg_replace_callback($inputPattern, function ($m) use ($checked) {
+            $tag = $m[1];
+            $tag = preg_replace('/\\schecked(\\s*=\\s*(\"|\\\')checked\\2)?/i', '', $tag);
+            if ($checked) {
+                $tag .= ' checked="checked"';
+            }
+            return $tag . $m[3];
+        }, $html, 1);
+    }
+}
+
+if (!function_exists('r141_insertSignatureImageRegex')) {
+    function r141_insertSignatureImageRegex(string $html, string $textareaId, string $base64Image): string
+    {
+        $safe = r141_safe_html($base64Image);
+        $idPattern = preg_quote($textareaId, '/');
+        $img = '<img src="' . $safe . '" alt="Assinatura" style="max-width: 100%; height: auto; display: block; max-height: 9mm; margin: 0 auto; object-fit: contain;">';
+        $pattern = "/<textarea[^>]*\\bid\\s*=\\s*(\"|'){$idPattern}\\1[^>]*>.*?<\\/textarea>/is";
+        return preg_replace($pattern, $img, $html, 1) ?? $html;
+    }
+}
 
 // Helper para preencher campos no template (suporta textarea e input)
 if (!function_exists('r141_fillFieldById')) {
     function r141_fillFieldById(string $html, string $id, string $text): string
     {
-        // VersÃ£o segura usando DOMDocument (substitui manipulaÃ§Ã£o por regex)
-        // - NÃ£o altera arquivos no disco
+        // Versão segura usando DOMDocument (substitui manipulação por regex)
+        // - Não altera arquivos no disco
         // - Preenche <textarea id="..."> ou <input id="..."> quando existir
-        // - NÃ£o faz fallbacks agressivos por padrÃ£o (mantÃ©m o template intacto em caso de ausÃªncia)
+        // - Não faz fallbacks agressivos por padrão (mantém o template intacto em caso de ausência)
 
         $text = trim((string)$text);
         $maxLen = 10000;
-        if (mb_strlen($text, 'UTF-8') > $maxLen) {
-            $text = mb_substr($text, 0, $maxLen, 'UTF-8');
+        if (r141_safe_strlen($text) > $maxLen) {
+            $text = r141_safe_substr($text, 0, $maxLen);
         }
 
-        $prev = libxml_use_internal_errors(true);
+        if (!r141_dom_available()) {
+            return r141_fillFieldByIdRegex($html, $id, $text);
+        }
+
+        $prev = function_exists('libxml_use_internal_errors') ? libxml_use_internal_errors(true) : null;
         $doc = new \DOMDocument('1.0', 'UTF-8');
         // Wrap para garantir parse correto
         $wrapped = '<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body>' . $html . '</body></html>';
@@ -85,36 +182,81 @@ if (!function_exists('r141_fillFieldById')) {
         $doc->loadHTML($wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $xpath = new \DOMXPath($doc);
 
-        // 1) Procurar textarea com o id e preencher seu conteÃºdo
+        // 1) Procurar textarea com o id e preencher seu conteúdo
         $textarea = $xpath->query('//textarea[@id="' . $id . '"]')->item(0);
         if ($textarea) {
-            // limpar nÃ³s filhos e inserir texto seguro
+            // limpar ns filhos e inserir texto seguro
             while ($textarea->firstChild) {
                 $textarea->removeChild($textarea->firstChild);
             }
             $textarea->appendChild($doc->createTextNode($text));
-            libxml_clear_errors();
-            libxml_use_internal_errors($prev);
-            return r141_inner_html($doc->getElementsByTagName('body')->item(0));
+            if (function_exists('libxml_clear_errors')) {
+                libxml_clear_errors();
+            }
+            if ($prev !== null) {
+                libxml_use_internal_errors($prev);
+            }
+            $body = $doc->getElementsByTagName('body')->item(0);
+            return $body ? r141_inner_html($body) : $html;
         }
 
         // 2) Procurar input com o id e definir atributo value
         $input = $xpath->query('//input[@id="' . $id . '"]')->item(0);
         if ($input) {
             $input->setAttribute('value', $text);
-            libxml_clear_errors();
-            libxml_use_internal_errors($prev);
-            return r141_inner_html($doc->getElementsByTagName('body')->item(0));
+            if (function_exists('libxml_clear_errors')) {
+                libxml_clear_errors();
+            }
+            if ($prev !== null) {
+                libxml_use_internal_errors($prev);
+            }
+            $body = $doc->getElementsByTagName('body')->item(0);
+            return $body ? r141_inner_html($body) : $html;
         }
 
-        // 3) NÃ£o modificar se NÃO encontrou elementos alvo
-        libxml_clear_errors();
-        libxml_use_internal_errors($prev);
+        // 3) Não modificar se no encontrou elementos alvo
+        if (function_exists('libxml_clear_errors')) {
+            libxml_clear_errors();
+        }
+        if ($prev !== null) {
+            libxml_use_internal_errors($prev);
+        }
         return $html;
     }
 }
 
-// helper: extrai innerHTML de um nÃ³ DOM
+if (!function_exists('r141_setCheckboxById')) {
+    function r141_setCheckboxById(string $html, string $id, bool $checked): string
+    {
+        if (!r141_dom_available()) {
+            return r141_setCheckboxByIdRegex($html, $id, $checked);
+        }
+
+        $prev = function_exists('libxml_use_internal_errors') ? libxml_use_internal_errors(true) : null;
+        $doc = new \DOMDocument('1.0', 'UTF-8');
+        $wrapped = '<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body>' . $html . '</body></html>';
+        $doc->loadHTML($wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $xpath = new \DOMXPath($doc);
+        $input = $xpath->query('//input[@id="' . $id . '"]')->item(0);
+        if ($input) {
+            if ($checked) {
+                $input->setAttribute('checked', 'checked');
+            } else {
+                $input->removeAttribute('checked');
+            }
+        }
+        if (function_exists('libxml_clear_errors')) {
+            libxml_clear_errors();
+        }
+        if ($prev !== null) {
+            libxml_use_internal_errors($prev);
+        }
+        $body = $doc->getElementsByTagName('body')->item(0);
+        return $body ? r141_inner_html($body) : $html;
+    }
+}
+
+// helper: extrai innerHTML de um n DOM
 if (!function_exists('r141_inner_html')) {
     function r141_inner_html(\DOMNode $element): string
     {
@@ -132,7 +274,11 @@ if (!function_exists('r141_insertSignatureImage')) {
     {
         if (empty($base64Image)) return $html;
 
-        $prev = libxml_use_internal_errors(true);
+        if (!r141_dom_available()) {
+            return r141_insertSignatureImageRegex($html, $textareaId, $base64Image);
+        }
+
+        $prev = function_exists('libxml_use_internal_errors') ? libxml_use_internal_errors(true) : null;
         $doc = new \DOMDocument('1.0', 'UTF-8');
         $wrapped = '<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head><body>' . $html . '</body></html>';
         $doc->loadHTML($wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
@@ -145,25 +291,34 @@ if (!function_exists('r141_insertSignatureImage')) {
             $img = $doc->createElement('img');
             $img->setAttribute('src', $base64Image);
             $img->setAttribute('alt', 'Assinatura');
-            // Altura aproximada de 2 linhas de textarea; ajuste fino se necessÃ¡rio
+            // Altura aproximada de 2 linhas de textarea; ajuste fino se necessrio
             // Centraliza a assinatura horizontalmente
             $img->setAttribute('style', 'max-width: 100%; height: auto; display: block; max-height: 9mm; margin: 0 auto; object-fit: contain;');
 
             // Substituir textarea pela imagem
             $textarea->parentNode->replaceChild($img, $textarea);
 
-            libxml_clear_errors();
-            libxml_use_internal_errors($prev);
-            return r141_inner_html($doc->getElementsByTagName('body')->item(0));
+            if (function_exists('libxml_clear_errors')) {
+                libxml_clear_errors();
+            }
+            if ($prev !== null) {
+                libxml_use_internal_errors($prev);
+            }
+            $body = $doc->getElementsByTagName('body')->item(0);
+            return $body ? r141_inner_html($body) : $html;
         }
 
-        libxml_clear_errors();
-        libxml_use_internal_errors($prev);
+        if (function_exists('libxml_clear_errors')) {
+            libxml_clear_errors();
+        }
+        if ($prev !== null) {
+            libxml_use_internal_errors($prev);
+        }
         return $html;
     }
 }
 
-// Compatibilidade: $produtos (minúsculo do controller) para $PRODUTOS (maiúsculo usado na view)
+// Compatibilidade: $produtos (minsculo do controller) para $PRODUTOS (maisculo usado na view)
 $PRODUTOS = $produtos ?? [];
 
 ob_start();
@@ -193,14 +348,17 @@ ob_start();
     ?>
 
     <!-- valores-comuns removido conforme solicitado -->
+    <?php if (!empty($styleContent)): ?>
+        <style><?php echo $styleContent; ?></style>
+    <?php endif; ?>
 
-    <!-- Container de pÃ¡ginas -->
+    <!-- Container de páginas -->
     <div class="paginas-container">
         <?php foreach ($PRODUTOS as $index => $row): ?>
             <div class="pagina-card">
                 <div class="pagina-header">
                     <span class="pagina-numero">
-                        <i class="bi bi-file-earmark-text"></i> PÃ¡gina <?php echo $index + 1; ?> de <?php echo count($PRODUTOS); ?>
+                        <i class="bi bi-file-earmark-text"></i> Pgina <?php echo $index + 1; ?> de <?php echo count($PRODUTOS); ?>
                     </span>
                     <div class="pagina-actions">
                         <!-- VISUALIZAR removido conforme solicitado -->
@@ -213,7 +371,7 @@ ob_start();
                         // Preencher dados do PRODUTO no template
                         $htmlPreenchido = $a4Block;
                         if (!empty($htmlPreenchido)) {
-                            // Preencher Data EmissÃ£o automaticamente com a data atual
+                            // Preencher Data Emisso automaticamente com a data atual
                             $dataEmissao = date('d/m/Y');
                             $descricaoBem = $row['descricao_completa'];
 
@@ -226,16 +384,16 @@ ob_start();
                                 }
                             }
                             $setor_auto = isset($row['dependencia_descricao']) ? trim((string)$row['dependencia_descricao']) : '';
-                            // NÃ£o incluir data automÃ¡tica no campo de local/data â€” ficarÃ¡ apenas o valor comum da planilha
+                            // No incluir data automtica no campo de local/data  ficar apenas o valor comum da planilha
                             $local_data_auto = trim(($comum_planilha ?? ''));
 
                             // Injetar valores nos campos por ID (textarea/input)
-                            // Preencher campo de Data EmissÃ£o com a data atual
+                            // Preencher campo de Data Emisso com a data atual
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input1', $dataEmissao);
-                            // Preencher AdministraÃ§Ã£o e CIDADE dos novos campos da planilha
+                            // Preencher Administração e CIDADE dos novos campos da planilha
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input2', $administracao_planilha ?? '');
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input3', $cidade_planilha ?? '');
-                            // NÃƒO preencher automaticamente o setor (input4) por solicitaÃ§Ã£o do usuÃ¡rio
+                            // NÃO preencher automaticamente o setor (input4) por solicitação do usuário
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input5', $cnpj_planilha ?? '');
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input6', $numero_relatorio_auto ?? '');
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input7', $casa_oracao_auto ?? '');
@@ -252,15 +410,15 @@ ob_start();
                             // Assinatura do administrador
                             $sigAdmin = (string)($row['administrador_assinatura'] ?? '');
                             if (!empty($sigAdmin)) {
-                                // Prefixar data URL se necessÃ¡rio
+                                // Prefixar data URL se necessrio
                                 if (stripos($sigAdmin, 'data:image') !== 0) {
                                     $sigAdmin = 'data:image/png;base64,' . $sigAdmin;
                                 }
                                 $htmlPreenchido = r141_insertSignatureImage($htmlPreenchido, 'input28', $sigAdmin);
                             }
 
-                            // Preencher campos do doador/cÃ´njuge diretamente do PRODUTO (doador_conjugue_id)
-                            // Montagem de endereÃ§o completo do doador: logradouro, nÃºmero, complemento, bairro - cidade/UF - CEP
+                            // Preencher campos do doador/cnjuge diretamente do PRODUTO (doador_conjugue_id)
+                            // Montagem de endereo completo do doador: logradouro, nmero, complemento, bairro - cidade/UF - CEP
                             $end_doador = trim(implode(' ', array_filter([
                                 $row['doador_endereco_logradouro'] ?? '',
                                 $row['doador_endereco_numero'] ?? ''
@@ -274,9 +432,9 @@ ob_start();
                                 trim(($row['doador_endereco_estado'] ?? ''))
                             ])));
                             $end_doador_cep = trim($row['doador_endereco_cep'] ?? '');
-                            // FormataÃ§Ã£o amigÃ¡vel: Partes principais separadas por vÃ­rgula; cidade-UF agrupadas; CEP no final se existir.
+                            // Formatao amigvel: Partes principais separadas por vrgula; cidade-UF agrupadas; CEP no final se existir.
                             $partesEnd = [];
-                            if ($end_doador) $partesEnd[] = $end_doador; // Rua + nÃºmero
+                            if ($end_doador) $partesEnd[] = $end_doador; // Rua + nmero
                             if ($end_doador_comp) $partesEnd[] = $end_doador_comp; // COMPLEMENTO - BAIRRO
                             if ($end_doador_local) $partesEnd[] = $end_doador_local; // CIDADE - UF
                             $endereco_doador_final = implode(', ', $partesEnd);
@@ -284,11 +442,11 @@ ob_start();
                                 $endereco_doador_final = rtrim($endereco_doador_final, ', ');
                                 $endereco_doador_final .= ($endereco_doador_final ? ' - ' : '') . $end_doador_cep;
                             } else {
-                                // Se NÃO houver CEP, remover traÃ§o final se existir
+                                // Se NO houver CEP, remover trao final se existir
                                 $endereco_doador_final = rtrim($endereco_doador_final, ' -');
                             }
 
-                            // Doador: nome, CPF, RG, EndereÃ§o
+                            // Doador: nome, CPF, RG, Endereo
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input17', (string)($row['doador_nome'] ?? ''));
                             $cpfDoador = (string)($row['doador_cpf'] ?? '');
                             $rgDoadorOriginal = (string)($row['doador_rg'] ?? '');
@@ -299,7 +457,7 @@ ob_start();
                             }
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input21', $cpfDoador);
                             $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input23', $rgDoador);
-                            // EndereÃ§o do doador
+                            // Endereo do doador
                             if (!empty($endereco_doador_final)) {
                                 $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input19', $endereco_doador_final);
                             }
@@ -312,13 +470,13 @@ ob_start();
                                 if (stripos($sigDoador, 'data:image') !== 0) {
                                     $sigDoador = 'data:image/png;base64,' . $sigDoador;
                                 }
-                                // Campo de assinatura do doador na seÃ§Ã£o C
+                                // Campo de assinatura do doador na seo C
                                 $htmlPreenchido = r141_insertSignatureImage($htmlPreenchido, 'input25', $sigDoador);
                                 // Campo de assinatura do doador no termo de aceite
                                 $htmlPreenchido = r141_insertSignatureImage($htmlPreenchido, 'input30', $sigDoador);
                             }
 
-                            // CÃ´njuge (se o doador for casado)
+                            // Cnjuge (se o doador for casado)
                             if (!empty($row['doador_casado']) && $row['doador_casado'] == 1) {
                                 $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input18', (string)($row['doador_nome_conjuge'] ?? ''));
                                 $cpfConj = (string)($row['doador_cpf_conjuge'] ?? '');
@@ -329,7 +487,7 @@ ob_start();
                                 }
                                 $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input22', $cpfConj);
                                 $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input24', $rgConj);
-                                // EndereÃ§o do cÃ´njuge (utiliza os mesmos campos do doador; se houver especÃ­ficos, ajustar aqui)
+                                // Endereo do cnjuge (utiliza os mesmos campos do doador; se houver especficos, ajustar aqui)
                                 $end_conj = trim(implode(' ', array_filter([
                                     $row['doador_endereco_logradouro'] ?? '',
                                     $row['doador_endereco_numero'] ?? ''
@@ -352,14 +510,14 @@ ob_start();
                                     $endereco_conjuge_final = rtrim($endereco_conjuge_final, ', ');
                                     $endereco_conjuge_final .= ($endereco_conjuge_final ? ' - ' : '') . $end_conj_cep;
                                 } else {
-                                    // Se NÃO houver CEP, remover traÃ§o final se existir
+                                    // Se NO houver CEP, remover trao final se existir
                                     $endereco_conjuge_final = rtrim($endereco_conjuge_final, ' -');
                                 }
                                 if (!empty($endereco_conjuge_final)) {
                                     $htmlPreenchido = r141_fillFieldById($htmlPreenchido, 'input20', $endereco_conjuge_final);
                                 }
 
-                                // Assinatura do cÃ´njuge
+                                // Assinatura do cnjuge
                                 $sigConjuge = (string)($row['doador_assinatura_conjuge'] ?? '');
                                 if (!empty($sigConjuge)) {
                                     if (stripos($sigConjuge, 'data:image') !== 0) {
@@ -383,25 +541,15 @@ ob_start();
                             if (!empty($bgUrl)) {
                                 $htmlIsolado = preg_replace('/(<div\s+class="a4"[^>]*>)/', '$1' . '<img class="page-bg" src="' . htmlspecialchars($bgUrl, ENT_QUOTES) . '" alt="">', $htmlIsolado, 1);
                             }
-                            // Montar srcdoc isolado com CSS do template
-                            $styleInline = !empty($styleContent) ? $styleContent : '';
-                            // CSS adicional: bloquear interaÃ§Ã£o do usuÃ¡rio nos campos
-                            $styleInline .= '\n.r141-root textarea, .r141-root input{pointer-events:none; -webkit-user-select:none; user-select:none; cursor: default;}';
-                            $styleInline .= '\n.r141-root textarea{background:transparent; border:none; outline:none;}';
-                            $styleInline .= '\n.r141-root input[disabled]{opacity:1; filter:none;}';
-                            $srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
-                                . '<style>html,body{margin:0;padding:0;background:#fff;} ' . $styleInline . '</style>'
-                                . '</head><body>' . $htmlIsolado . '</body></html>';
+                            // Marcar checkboxes no HTML (sem JS/iframe)
+                            $condicao = isset($row['condicao_14_1']) ? (int)$row['condicao_14_1'] : 0;
+                            $htmlIsolado = r141_setCheckboxById($htmlIsolado, 'input13', $condicao === 1);
+                            $htmlIsolado = r141_setCheckboxById($htmlIsolado, 'input14', $condicao === 2);
+                            $htmlIsolado = r141_setCheckboxById($htmlIsolado, 'input15', $condicao === 3);
 
-                            // Nota: removida gravaÃ§Ã£o de debug em disco (ambiente remoto).
-                            // Implementamos fallback de preview abaixo no helper quando necessÃ¡rio.
-
-                            // Gerar iframe de preview (VISUALIZAR removido â€” iframe permanece como miniatura)
-                            $title = 'VisualizaÃ§Ã£o da pÃ¡gina ' . ($index + 1);
-                            // adicionar allow-modals no sandbox para permitir que o iframe dispare dialogs/print em alguns navegadores
-                            echo '<iframe class="a4-frame" data-page-index="' . $index . '" title="' . htmlspecialchars($title, ENT_QUOTES) . '" aria-label="' . htmlspecialchars($title, ENT_QUOTES) . '" tabindex="0" sandbox="allow-same-origin allow-scripts allow-forms allow-modals" style="width:210mm;height:297mm;" srcdoc="' . htmlspecialchars($srcdoc, ENT_QUOTES) . '"></iframe>';
+                            echo $htmlIsolado;
                         } else {
-                            echo '<div class="r141-root"><div class="a4"><p style="padding:10mm;color:#900">Template 14-1 NÃO encontrado.</p></div></div>';
+                            echo '<div class="r141-root"><div class="a4"><p style="padding:10mm;color:#900">Template 14-1 NO encontrado.</p></div></div>';
                         }
                         ?>
                     </div>
@@ -413,22 +561,14 @@ ob_start();
 <?php else: ?>
     <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle me-2"></i>
-        Nenhum PRODUTO encontrado para impressÃ£o do relatÃ³rio 14.1.
+        Nenhum PRODUTO encontrado para impressão do relatório 14.1.
     </div>
 <?php endif;
-
-// Preparar dados dos produtos para JavaScript
-$PRODUTOSDataJS = json_encode(array_map(function ($p) {
-    return [
-        'id_produto' => (int)($p['id_produto'] ?? ($p['id'] ?? 0)),
-        'condicao_14_1' => isset($p['condicao_14_1']) ? (int)$p['condicao_14_1'] : 0
-    ];
-}, $PRODUTOS));
 
 $script = <<<JS
 <script>
 (function(){
-    // Calcula px a partir de mm usando elemento temporÃ¡rio
+    // Calcula px a partir de mm usando elemento temporrio
     function mmToPx(mm){ const el=document.createElement('div'); el.style.position='absolute'; el.style.left='-9999px'; el.style.width=mm+'mm'; document.body.appendChild(el); const px=el.getBoundingClientRect().width; document.body.removeChild(el); return px; }
 
     function fitAll(){
@@ -436,20 +576,19 @@ $script = <<<JS
         const a4h = mmToPx(297);
         document.querySelectorAll('.a4-viewport').forEach(vp=>{
             const scaled = vp.querySelector('.a4-scaled');
-            const frame = vp.querySelector('iframe.a4-frame');
-            if(!scaled || !frame) return;
+            if(!scaled) return;
             const rect = vp.getBoundingClientRect();
             const style = getComputedStyle(vp);
             const paddingLeft = parseFloat(style.paddingLeft) || 0;
             const paddingRight = parseFloat(style.paddingRight) || 0;
-            // largura Ãºtil dentro do viewport (inclui a Ã¡rea visÃ­vel menos paddings)
-            const available = rect.width - paddingLeft - paddingRight - 8; // 8px de margem de seguranÃ§a
+            // largura til dentro do viewport (inclui a rea visvel menos paddings)
+            const available = rect.width - paddingLeft - paddingRight - 8; // 8px de margem de segurana
             let scale = available / a4w;
             if(!isFinite(scale) || scale <= 0) scale = 0.5;
             // limitar entre 0.25 e 1
             scale = Math.max(0.25, Math.min(1, scale));
 
-            // definir dimensÃµes reais do wrapper scaled para que o transform seja aplicado sobre valores previsÃ­veis
+            // definir dimenses reais do wrapper scaled para que o transform seja aplicado sobre valores previsveis
             scaled.style.width = a4w + 'px';
             scaled.style.height = a4h + 'px';
             scaled.style.transformOrigin = 'top left';
@@ -459,7 +598,7 @@ $script = <<<JS
             const paddingTop = parseFloat(style.paddingTop) || 0;
             const targetH = Math.round(a4h * scale + paddingTop + 4); // +4px folga
             vp.style.height = targetH + 'px';
-            // assegurar overflow hidden para NÃO mostrar fundo alÃ©m do A4
+            // assegurar overflow hidden para NO mostrar fundo alm do A4
             vp.style.overflow = 'hidden';
         });
     }
@@ -469,61 +608,9 @@ $script = <<<JS
     window.addEventListener('load', fitAll);
     document.addEventListener('DOMContentLoaded', fitAll);
 
-    // PaginaÃ§Ã£o removida - todas as pÃ¡ginas serÃ£o exibidas em scroll
+    // Paginao removida - todas as páginas sero exibidas em scroll
 
-    // Marcar checkboxes 14.1 baseado em condicao_141 de cada PRODUTO
-    const PRODUTOSData = PRODUTOS_DATA_PLACEHOLDER;
-    
-    function marcarCheckboxes(){
-        document.querySelectorAll('iframe.a4-frame').forEach((iframe, idx) => {
-            try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                if(!iframeDoc) return;
-                
-                // Ajuste para novo nome da condiÃ§Ã£o
-                const condicao = PRODUTOSData[idx]?.condicao_14_1;
-                if(!condicao) return;
-                
-                // IDs dos checkboxes no template: input13, input14, input15
-                const check1 = iframeDoc.getElementById('input13'); // >5 anos com nota
-                const check2 = iframeDoc.getElementById('input14'); // >5 anos sem nota
-                const check3 = iframeDoc.getElementById('input15'); // <=5 anos com nota
-                
-                // Reset
-                if(check1){ check1.checked = false; check1.removeAttribute('checked'); }
-                if(check2){ check2.checked = false; check2.removeAttribute('checked'); }
-                if(check3){ check3.checked = false; check3.removeAttribute('checked'); }
-
-                // Set conforme condiÃ§Ã£o
-                if(condicao === 1 && check1){ check1.checked = true; check1.setAttribute('checked','checked'); }
-                if(condicao === 2 && check2){ check2.checked = true; check2.setAttribute('checked','checked'); }
-                if(condicao === 3 && check3){ check3.checked = true; check3.setAttribute('checked','checked'); }
-
-                // Desabilitar interaÃ§Ã£o nos campos dentro do iframe (inputs/textarea)
-                Array.from(iframeDoc.querySelectorAll('textarea')).forEach(t => { try{ t.readOnly = true; t.setAttribute('readonly','readonly'); }catch(e){} });
-                Array.from(iframeDoc.querySelectorAll('input')).forEach(inp => {
-                    try{
-                        if((inp.type||'').toLowerCase() === 'checkbox'){
-                            inp.disabled = true; inp.setAttribute('disabled','disabled');
-                        } else {
-                            inp.readOnly = true; inp.setAttribute('readonly','readonly');
-                        }
-                    }catch(e){}
-                });
-            } catch(err) {
-                console.error('Erro ao marcar checkboxes:', err);
-            }
-        });
-    }
-    
-    // Executar apÃ³s os iframes carregarem
-    document.querySelectorAll('iframe.a4-frame').forEach(iframe => {
-        iframe.addEventListener('load', marcarCheckboxes);
-    });
-    setTimeout(marcarCheckboxes, 500); // fallback
-
-
-    // FunÃ§Ã£o global de impressÃ£o simplificada: apenas chama o print do navegador
+    // Funo global de impressão simplificada: apenas chama o print do navegador
     window.validarEImprimir = function(){
         window.print();
     };
@@ -533,9 +620,7 @@ $script = <<<JS
 JS;
 
 // Substituir o placeholder pelos dados reais
-$script = str_replace('PRODUTOS_DATA_PLACEHOLDER', $PRODUTOSDataJS, $script);
-
-// Garantir que o botÃ£o de imprimir chame a FUNÇÃO (listener delegado, mais robusto)
+// Garantir que o boto de imprimir chame a FUNO (listener delegado, mais robusto)
 echo "<script>document.addEventListener('click', function(e){ var btn = e.target && e.target.closest && e.target.closest('#btnPrint'); if(btn){ e.preventDefault(); try{ console && console.log && console.log('print button clicked'); if(typeof window.validarEImprimir==='function'){ window.validarEImprimir(); } else { window.print(); } }catch(err){ console && console.error && console.error('print handler error', err); window.print(); } } });</script>\n";
 
 echo $script;
@@ -544,9 +629,5 @@ echo $script;
 
 <?php
 $contentHtml = ob_get_clean();
-$tempFile = __DIR__ . '/../../../temp_relatorio_14_1_' . uniqid() . '.php';
-file_put_contents($tempFile, $contentHtml);
-$contentFile = $tempFile;
 include __DIR__ . '/../layouts/app_wrapper.php';
-unlink($tempFile);
 ?>

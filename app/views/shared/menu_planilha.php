@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// AutenticaÃ§Ã£o
+// Autenticação
 $id_planilha = $_GET['id'] ?? null;
 
 if (!$id_planilha) {
@@ -8,16 +8,42 @@ if (!$id_planilha) {
     exit;
 }
 
-// ConfiguraÃ§Ãµes da pÃ¡gina
+// ConfiguraçÁµes da página
 $pageTitle = "Menu";
 $backUrl = '../planilhas/planilha_visualizar.php?id=' . $id_planilha;
 
-// Iniciar buffer para capturar o conteÃºdo
+// Iniciar buffer para capturar o conteúdo
 ob_start();
 ?>
 
 <style>
-    .menu-grid {
+.menu-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .menu-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+
+    .menu-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-card.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .menu-card.disabled:hover {
+        transform: none;
+    }
+
+
+.menu-grid {
         display: grid;
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -42,6 +68,9 @@ ob_start();
         transform: none;
     }
 </style>
+
+
+
 
 <div class="menu-grid">
     <a href="../produtos/produtos_listar.php?id=<?php echo $id_planilha; ?>" class="text-decoration-none">
@@ -75,7 +104,7 @@ ob_start();
                     <i class="bi bi-printer-fill me-2" style="color: #17a2b8;"></i>
                     <?php echo htmlspecialchars(to_uppercase('Imprimir 14.1'), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
-                <p class="card-text small text-muted">Gerar relatÃ³rio 14.1</p>
+                <p class="card-text small text-muted">Gerar relatório 14.1</p>
             </div>
         </div>
     </a>
@@ -99,7 +128,7 @@ ob_start();
                     <i class="bi bi-file-earmark-diff-fill me-2" style="color: #9c27b0;"></i>
                     <?php echo htmlspecialchars(to_uppercase('Imprimir Alterações'), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
-                <p class="card-text small text-muted">RelatÃ³rio de alteraÃ§Ãµes realizadas</p>
+                <p class="card-text small text-muted">Relatório de alteraçÁµes realizadas</p>
             </div>
         </div>
     </a>
@@ -116,10 +145,10 @@ ob_start();
 </div>
 
 <?php
-// Capturar o conteÃºdo
+// Capturar o conteúdo
 $contentHtml = ob_get_clean();
 
-// Criar arquivo temporÃ¡rio com o conteÃºdo
+// Criar arquivo temporário com o conteúdo
 $tempFile = __DIR__ . '/../../../temp_menu_content_' . uniqid() . '.php';
 file_put_contents($tempFile, $contentHtml);
 $contentFile = $tempFile;
@@ -127,6 +156,6 @@ $contentFile = $tempFile;
 // Renderizar o layout
 include __DIR__ . '/../layouts/app_wrapper.php';
 
-// Limpar arquivo temporÃ¡rio
+// Limpar arquivo temporário
 unlink($tempFile);
 ?>

@@ -1,10 +1,10 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
- // AUTENTICAÇÃO
-include __DIR__ . '/../../../app/controllers/create/PRODUTOCreateController.php';
+// AUTENTICAÇÁO
+include __DIR__ . '/../../../app/controllers/create/ProdutoCreateController.php';
 
 $pageTitle = 'CADASTRAR PRODUTO';
-$backUrl = './PRODUTOS_listar.php?comum_id=' . urlencode($comum_id) . '&' . gerarParametrosFiltro();
+$backUrl = './produtos_listar.php?comum_id=' . urlencode($comum_id) . '&' . gerarParametrosFiltro();
 
 ob_start();
 ?>
@@ -84,7 +84,7 @@ ob_start();
         </div>
       </div>
 
-      <!-- Campos de CONDIÇÃO 14.1 e Nota Fiscal removidos a pedido -->
+      <!-- Campos de CONDIÇÁO 14.1 e Nota Fiscal removidos a pedido -->
     </div>
   </div>
 
@@ -95,7 +95,7 @@ ob_start();
 </form>
 
 <script>
-  // DEPENDÊNCIA do select "Bem" em FUNÇÃO do "Tipos de Bens"
+  // DEPENDÊNCIA do select "Bem" em FUNÇÁO do "Tipos de Bens"
   const selectTipoBen = document.getElementById('id_tipo_ben');
   const selectBem = document.getElementById('tipo_ben');
 
@@ -118,9 +118,9 @@ ob_start();
         option.value = opcao;
         option.textContent = opcao;
         <?php if (isset($_POST['tipo_ben']) && isset($_POST['id_tipo_ben'])): ?>
-        if (opcao === '<?php echo $_POST['tipo_ben']; ?>' && selectTipoBen.value === '<?php echo $_POST['id_tipo_ben']; ?>') {
-          option.selected = true;
-        }
+          if (opcao === '<?php echo $_POST['tipo_ben']; ?>' && selectTipoBen.value === '<?php echo $_POST['id_tipo_ben']; ?>') {
+            option.selected = true;
+          }
         <?php endif; ?>
         selectBem.appendChild(option);
       });
@@ -137,7 +137,7 @@ ob_start();
   selectTipoBen.addEventListener('change', atualizarOpcoesBem);
   document.addEventListener('DOMContentLoaded', atualizarOpcoesBem);
 
-  // ValidaÃ§Ã£o Bootstrap
+  // Validação Bootstrap
   (() => {
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');
@@ -151,7 +151,6 @@ ob_start();
       }, false);
     });
   })();
-  
 </script>
 
 <?php
@@ -162,5 +161,3 @@ $contentFile = $tempFile;
 include __DIR__ . '/../layouts/app_wrapper.php';
 unlink($tempFile);
 ?>
-
-

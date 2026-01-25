@@ -3,7 +3,7 @@ define('SKIP_AUTH', true);
 session_start();
 require_once __DIR__ . '/../app/bootstrap.php';
 
-// Reset de sessÃ£o pÃºblica ao entrar nesta pÃ¡gina
+// Reset de sessão pública ao entrar nesta página
 unset($_SESSION['public_acesso'], $_SESSION['public_planilha_id'], $_SESSION['public_comum']);
 
 $erro = '';
@@ -58,11 +58,43 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assinar Documentos - Acesso PÃºblico</title>
+    <title>Assinar Documentos - Acesso Público</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
     <style>
-        body {
+body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .box {
+            max-width: 420px;
+            width: 100%;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .2);
+            overflow: hidden;
+        }
+
+        .box-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .box-body {
+            padding: 1.25rem 1.25rem 1.5rem;
+        }
+
+
+body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -99,7 +131,7 @@ try {
         <div class="box-header">
             <i class="bi bi-pen fs-1 d-block mb-2"></i>
             <h4 class="mb-0">Assinar Documentos</h4>
-            <small>Acesso pÃºblico</small>
+            <small>Acesso público</small>
         </div>
         <div class="box-body">
             <?php if (!empty($erro)): ?>

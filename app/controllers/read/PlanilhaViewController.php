@@ -22,9 +22,9 @@ $planilha = [
     'comum_id' => $comum_id,
     'comum_descricao' => $comum['descricao'] ?? ''
 ];
-$id_planilha = $comum_id; // compatibilidade com cÃ³digos legados que ainda usam id_planilha
+$id_planilha = $comum_id; // compatibilidade com códigos legados que ainda usam id_planilha
 
-// ConfiguraÃ§Ã£o global de importaÃ§Ã£o
+// Configuração global de importação
 $stmtCfg = $conexao->prepare("SELECT * FROM configuracoes LIMIT 1");
 $stmtCfg->execute();
 $configImport = $stmtCfg->fetch(PDO::FETCH_ASSOC) ?: [];
@@ -45,7 +45,7 @@ if ($acesso_bloqueado) {
     $dependencia_options = [];
     return;
 }
-// ParÃ¢metros de paginaÃ§Ã£o
+// ParÁ¢metros de paginação
 $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
 $pagina = $pagina > 0 ? $pagina : 1;
 $limite = 20;
@@ -78,7 +78,7 @@ $sql_base = "SELECT
                      COALESCE(p.imprimir_14_1, 0) AS imprimir_141,
                      COALESCE(p.novo, 0) AS novo,
                      COALESCE(p.ativo, 1) AS ativo,
-                     -- Infos extras para montar descriÃ§Ã£o editada on-the-fly
+                     -- Infos extras para montar descrição editada on-the-fly
                     t1.codigo AS tipo_codigo,
                     t1.descricao AS tipo_desc,
                      d1.descricao AS dependencia_desc,
@@ -92,14 +92,14 @@ $sql_base = "SELECT
 $params = [':comum_id' => $comum_id];
 
 if ($filtro_nome !== '') {
-    // Usar placeholders distintos: PDO nÃ‡Å“o aceita o mesmo nome repetido com ATTR_EMULATE_PREPARES desativado
+    // Usar placeholders distintos: PDO nÁ‡Å“o aceita o mesmo nome repetido com ATTR_EMULATE_PREPARES desativado
     $sql_base .= " AND (p.descricao_completa LIKE :nome1 OR p.editado_descricao_completa LIKE :nome2)";
     $params[':nome1'] = '%' . $filtro_nome . '%';
     $params[':nome2'] = '%' . $filtro_nome . '%';
 }
 
 if ($filtro_dependencia !== '') {
-    // Filtra por dependencia_id (considerar tanto original quanto editado) - placeholders distintos (PDO nativo nÃ£o aceita nome repetido)
+    // Filtra por dependencia_id (considerar tanto original quanto editado) - placeholders distintos (PDO nativo não aceita nome repetido)
     $sql_base .= " AND (p.dependencia_id = :dependencia1 OR p.editado_dependencia_id = :dependencia2)";
     $params[':dependencia1'] = $filtro_dependencia;
     $params[':dependencia2'] = $filtro_dependencia;
@@ -134,7 +134,7 @@ if ($filtro_status !== '') {
     }
 }
 
-// Total de registros para paginaÃ§Ã£o - query COUNT simplificada
+// Total de registros para paginação - query COUNT simplificada
 $sql_count = "SELECT COUNT(*) AS total 
               FROM produtos p 
               WHERE p.comum_id = :comum_id";
@@ -188,7 +188,7 @@ try {
         $offset = ($pagina - 1) * $limite;
     }
 
-    // Busca efetiva dos produtos com ordenaÃ§Ã£o e limites
+    // Busca efetiva dos produtos com ordenação e limites
     $sql_dados = $sql_base . " ORDER BY p.id_produto DESC LIMIT :limite OFFSET :offset";
     $stmt = $conexao->prepare($sql_dados);
     foreach ($params as $key => $value) {
@@ -205,9 +205,9 @@ try {
     $total_paginas = 0;
 }
 
-// DependÃªncias Ãºnicas para preencher o select de filtros
+// Dependências únicas para preencher o select de filtros
 try {
-    // Trazer ID e descriÃ§Ã£o da dependÃªncia (mostra descriÃ§Ã£o no select da view)
+    // Trazer ID e descrição da dependência (mostra descrição no select da view)
     $sql_filtros = "SELECT DISTINCT d.id, d.descricao
                     FROM (
                         SELECT p.dependencia_id AS dep

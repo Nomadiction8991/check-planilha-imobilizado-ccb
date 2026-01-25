@@ -1,9 +1,9 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
-// AutenticaÃƒÂ§ÃƒÂ£o
+// Autenticao
 
 
-// ConfiguraÃƒÂ§ÃƒÂµes da pÃƒÂ¡gina
+// Configura§µes da p¡gina
 $pageTitle = 'Gerenciar Comuns';
 $backUrl = '../shared/menu_planilha.php';
 // Preserve current filters (if any) when navigating to edit/create
@@ -21,12 +21,12 @@ $headerActions = '
     </a>
 ';
 
-// PaginaÃƒÂ§ÃƒÂ£o de comuns
+// Pagina§£o de comuns
 $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
 $limite = 20;
 $offset = ($pagina - 1) * $limite;
 
-// Obter total e página atual usando helpers (detectam tabela correta automaticamente)
+// Obter total e pgina atual usando helpers (detectam tabela correta automaticamente)
 try {
     $total_registros = (int) contar_comuns($conexao, '');
     $total_paginas = (int)ceil($total_registros / $limite);
@@ -36,7 +36,7 @@ try {
     $erro = "Erro ao contar comuns: " . $e->getMessage();
 }
 
-// Obter página atual
+// Obter pgina atual
 try {
     $comuns = buscar_comuns_paginated($conexao, '', $limite, $offset);
 } catch (Exception $e) {
@@ -44,7 +44,7 @@ try {
     $erro = "Erro ao carregar comuns: " . $e->getMessage();
 }
 
-// Iniciar buffer para capturar o conteÃƒÂºdo
+// Iniciar buffer para capturar o conteºdo
 ob_start();
 ?>
 
@@ -55,7 +55,7 @@ ob_start();
                 <i class="bi bi-building me-2"></i>
                 <?php echo htmlspecialchars(to_uppercase('Lista de Comuns'), ENT_QUOTES, 'UTF-8'); ?>
             </span>
-            <span class="badge bg-white text-dark"><?php echo (int)$total_registros; ?> ITENS (PÁG. <?php echo $pagina; ?>/<?php echo $total_paginas ?: 1; ?>)</span>
+            <span class="badge bg-white text-dark"><?php echo (int)$total_registros; ?> ITENS (PG. <?php echo $pagina; ?>/<?php echo $total_paginas ?: 1; ?>)</span>
         </div>
         <div class="card-body">
             <?php if (!empty($_SESSION['mensagem'])): ?>
@@ -83,10 +83,10 @@ ob_start();
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th width="15%">CÃƒÂ³digo</th>
-                                <th width="60%">DescriÃƒÂ§ÃƒÂ£o</th>
+                                <th width="15%">C³digo</th>
+                                <th width="60%">Descri§£o</th>
                                 <th width="15%" class="text-center">PRODUTOS</th>
-                                <th width="10%" class="text-center">AÃƒÂ§ÃƒÂµes</th>
+                                <th width="10%" class="text-center">A§µes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -130,12 +130,12 @@ ob_start();
                 <div class="mt-3 text-muted small d-flex justify-content-between align-items-center">
                     <span>
                         <i class="bi bi-info-circle me-1"></i>
-                        <?php echo htmlspecialchars(to_uppercase("Página {$pagina} de {$total_paginas} | Exibindo"), ENT_QUOTES, 'UTF-8'); ?> <strong><?php echo count($comuns); ?></strong> <?php echo htmlspecialchars(to_uppercase('de'), ENT_QUOTES, 'UTF-8'); ?> <strong><?php echo $total_registros; ?></strong>
+                        <?php echo htmlspecialchars(to_uppercase("Pgina {$pagina} de {$total_paginas} | Exibindo"), ENT_QUOTES, 'UTF-8'); ?> <strong><?php echo count($comuns); ?></strong> <?php echo htmlspecialchars(to_uppercase('de'), ENT_QUOTES, 'UTF-8'); ?> <strong><?php echo $total_registros; ?></strong>
                     </span>
                 </div>
 
                 <?php if ($total_paginas > 1): ?>
-                    <nav class="mt-2" aria-label="PaginaÃƒÂ§ÃƒÂ£o comuns">
+                    <nav class="mt-2" aria-label="Pagina§£o comuns">
                         <ul class="pagination pagination-sm justify-content-center mb-0">
                             <?php if ($pagina > 1): ?>
                                 <li class="page-item"><a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['pagina' => $pagina - 1])); ?>">&laquo;</a></li>

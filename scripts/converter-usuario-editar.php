@@ -8,16 +8,16 @@ $content = file_get_contents($srcFile);
 
 // 1. Corrigir encoding - substituições de caracteres mal codificados
 $corrections = [
-    'Autenticação' => 'AUTENTICAÇÃO',
-    'autenticação' => 'AUTENTICAÇÃO',
-    'Autenticação' => 'AUTENTICAÇÃO',
+    'Autenticação' => 'AUTENTICAÇÁO',
+    'autenticação' => 'AUTENTICAÇÁO',
+    'Autenticação' => 'AUTENTICAÇÁO',
     'Visualizar / Editar lógica:' => 'VISUALIZAR / EDITAR LÓGICA:',
     'lógica:' => 'LÓGICA:',
     'Visualizar / Editar lógica' => 'VISUALIZAR / EDITAR LÓGICA',
     
-    'Qualquer usuário acessa sua própria página em modo edição' => 'QUALQUER USUÁRIO ACESSA SUA PRÓPRIA PÁGINA EM MODO EDIÇÃO',
+    'Qualquer usuário acessa sua própria página em modo edição' => 'QUALQUER USUÁRIO ACESSA SUA PRÓPRIA PÁGINA EM MODO EDIÇÁO',
     'própria' => 'PRÓPRIA',
-    'edição' => 'EDIÇÃO',
+    'edição' => 'EDIÇÁO',
     
     'Administrador pode visualizar outros usuários em modo somente leitura' => 'ADMINISTRADOR PODE VISUALIZAR OUTROS USUÁRIOS EM MODO SOMENTE LEITURA',
     'Administrador' => 'ADMINISTRADOR',
@@ -26,21 +26,21 @@ $corrections = [
     'outros usuários' => 'OUTROS USUÁRIOS',
     'somente leitura' => 'SOMENTE LEITURA',
     
-    'Doador/Cônjuge não tem listagem, então só verá seu próprio usuário' => 'DOADOR/CÔNJUGE NÃO TEM LISTAGEM, ENTÃO SÓ VERÁ SEU PRÓPRIO USUÁRIO',
+    'Doador/Cônjuge não tem listagem, então só verá seu próprio usuário' => 'DOADOR/CÔNJUGE NÁO TEM LISTAGEM, ENTÁO SÓ VERÁ SEU PRÓPRIO USUÁRIO',
     'Doador' => 'DOADOR',
     'Cônjuge' => 'CÔNJUGE',
     'cônjuge' => 'CÔNJUGE',
     'conjuge' => 'CÔNJUGE',
-    'Cônjuge não tem' => 'CÔNJUGE NÃO TEM',
-    'listagem, então' => 'LISTAGEM, ENTÃO',
+    'Cônjuge não tem' => 'CÔNJUGE NÁO TEM',
+    'listagem, então' => 'LISTAGEM, ENTÁO',
     'verá seu' => 'VERÁ SEU',
     
-    'Se não for self e não for admin, bloquear' => 'SE NÃO FOR SELF E NÃO FOR ADMIN, BLOQUEAR',
-    'Se não' => 'SE NÃO',
+    'Se não for self e não for admin, bloquear' => 'SE NÁO FOR SELF E NÁO FOR ADMIN, BLOQUEAR',
+    'Se não' => 'SE NÁO',
     
-    'Voltar: self e admin vão para listagem; outros vão para index' => 'VOLTAR: SELF E ADMIN VÃO PARA LISTAGEM; OUTROS VÃO PARA INDEX',
+    'Voltar: self e admin vão para listagem; outros vão para index' => 'VOLTAR: SELF E ADMIN VÁO PARA LISTAGEM; OUTROS VÁO PARA INDEX',
     'Voltar:' => 'VOLTAR:',
-    'vão para' => 'VÃO PARA',
+    'vão para' => 'VÁO PARA',
     
     'jQuery e InputMask' => 'JQUERY E INPUTMASK',
     'jQuery' => 'JQUERY',
@@ -78,9 +78,9 @@ $corrections = [
     'Digite' => 'DIGITE',
     'dígitos' => 'DÍGITOS',
     
-    'FORMATAÇÃO AUTOMÁTICA' => 'FORMATAÇÃO AUTOMÁTICA',
-    'Formatação automática' => 'FORMATAÇÃO AUTOMÁTICA',
-    'Formatação' => 'FORMATAÇÃO',
+    'FORMATAÇÁO AUTOMÁTICA' => 'FORMATAÇÁO AUTOMÁTICA',
+    'Formatação automática' => 'FORMATAÇÁO AUTOMÁTICA',
+    'Formatação' => 'FORMATAÇÁO',
     'automática' => 'AUTOMÁTICA',
     
     'HÍFEN ANTES DO ÚLTIMO DÍGITO' => 'HÍFEN ANTES DO ÚLTIMO DÍGITO',
@@ -123,11 +123,11 @@ $corrections = [
     'Digital' => 'DIGITAL',
     'digital' => 'DIGITAL',
     
-    'CLIQUE NO BOTÃO ABAIXO' => 'CLIQUE NO BOTÃO ABAIXO PARA ATUALIZAR SUA ASSINATURA DIGITAL',
+    'CLIQUE NO BOTÁO ABAIXO' => 'CLIQUE NO BOTÁO ABAIXO PARA ATUALIZAR SUA ASSINATURA DIGITAL',
     'Clique' => 'CLIQUE',
-    'BOTÃO' => 'BOTÃO',
-    'Botão' => 'BOTÃO',
-    'botão' => 'BOTÃO',
+    'BOTÁO' => 'BOTÁO',
+    'Botão' => 'BOTÁO',
+    'botão' => 'BOTÁO',
     'abaixo' => 'ABAIXO',
     
     'CONTAINER DE PREVIEW' => 'CONTAINER DE PREVIEW DA ASSINATURA',
@@ -241,8 +241,8 @@ $corrections = [
     'ESPÍRITO SANTO' => 'ESPÍRITO SANTO',
     'GOIÁS' => 'GOIÁS',
     'goiás' => 'GOIÁS',
-    'MARANHÃO' => 'MARANHÃO',
-    'maranhão' => 'MARANHÃO',
+    'MARANHÁO' => 'MARANHÁO',
+    'maranhão' => 'MARANHÁO',
     'MATO GROSSO' => 'MATO GROSSO',
     'MATO GROSSO DO SUL' => 'MATO GROSSO DO SUL',
     'MINAS GERAIS' => 'MINAS GERAIS',
@@ -264,8 +264,8 @@ $corrections = [
     'RORAIMA' => 'RORAIMA',
     'roraima' => 'RORAIMA',
     'SANTA CATARINA' => 'SANTA CATARINA',
-    'SÃO PAULO' => 'SÃO PAULO',
-    'são paulo' => 'SÃO PAULO',
+    'SÁO PAULO' => 'SÁO PAULO',
+    'são paulo' => 'SÁO PAULO',
     'SERGIPE' => 'SERGIPE',
     'sergipe' => 'SERGIPE',
     'TOCANTINS' => 'TOCANTINS',
@@ -275,15 +275,15 @@ $corrections = [
     'Atualizar' => 'ATUALIZAR',
     'atualizar' => 'ATUALIZAR',
     
-    'MODO DE VISUALIZAÇÃO (SOMENTE LEITURA)' => 'MODO DE VISUALIZAÇÃO (SOMENTE LEITURA)',
-    'Modo de Visualização' => 'MODO DE VISUALIZAÇÃO',
+    'MODO DE VISUALIZAÇÁO (SOMENTE LEITURA)' => 'MODO DE VISUALIZAÇÁO (SOMENTE LEITURA)',
+    'Modo de Visualização' => 'MODO DE VISUALIZAÇÁO',
     
-    'AS SENHAS NÃO CONFEREM' => 'AS SENHAS NÃO CONFEREM!',
-    'As Senhas não conferem' => 'AS SENHAS NÃO CONFEREM!',
+    'AS SENHAS NÁO CONFEREM' => 'AS SENHAS NÁO CONFEREM!',
+    'As Senhas não conferem' => 'AS SENHAS NÁO CONFEREM!',
     'conferem' => 'CONFEREM',
     
-    'CEP NÃO ENCONTRADO' => 'CEP NÃO ENCONTRADO!',
-    'CEP não encontrado' => 'CEP NÃO ENCONTRADO!',
+    'CEP NÁO ENCONTRADO' => 'CEP NÁO ENCONTRADO!',
+    'CEP não encontrado' => 'CEP NÁO ENCONTRADO!',
     'encontrado' => 'ENCONTRADO',
     
     'ERRO AO BUSCAR CEP' => 'ERRO AO BUSCAR CEP',
@@ -304,7 +304,7 @@ $corrections = [
     
     'A ASSINATURA DO CÔNJUGE É OBRIGATÓRIA' => 'A ASSINATURA DO CÔNJUGE É OBRIGATÓRIA.',
     
-    'TODOS OS CAMPOS DE ENDEREÇO SÃO OBRIGATÓRIOS' => 'TODOS OS CAMPOS DE ENDEREÇO SÃO OBRIGATÓRIOS.',
+    'TODOS OS CAMPOS DE ENDEREÇO SÁO OBRIGATÓRIOS' => 'TODOS OS CAMPOS DE ENDEREÇO SÁO OBRIGATÓRIOS.',
     'Todos' => 'TODOS',
     'campos' => 'CAMPOS',
     'obrigatórios' => 'OBRIGATÓRIOS',

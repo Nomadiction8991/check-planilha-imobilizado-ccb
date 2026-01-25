@@ -1,0 +1,4 @@
+.btn-group { display: inline-flex !important; }
+.btn-group .btn { display: inline-block !important; visibility: visible !important; }
+.table td, .table th { font-size: 0.85rem; }
+.fw-semibold { font-size: 0.8rem; }
