@@ -5,55 +5,15 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
-concurrency:
-  group: ftp-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   publicar-prod:
-    name: Publicar (PROD)
-    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Enviar para PROD (FTP)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - uses: actions/checkout@v4
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.ANVY_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
           local-dir: ./
           server-dir: /checkplanilha.anvy.com.br/prod/
-          state-name: ftp-state-prod.json
-          log-level: verbose
-          dangerous-clean-slate: false
-          dry-run: false
-          exclude: |
-            **/.git/**
-            **/.git*
-            **/.github/**
-            **/.vscode/**
-            **/node_modules/**
-            **/*.md
-            **/.env*
-            **/docker-compose*
-            **/README*
-            **/LICENSE*
-            **/__legacy_backup__/**
-            **/__pending_review__/**
-            **/scripts/**
-            **/Dockerfiles/**
-            **/database/**
-            **/storage/**
-            **/storage/logs/**
-            **/*.sql
-            **/*.log
-            **/composer.lock
-            **/ftp-state*.json
-            **/.php
-            **/app/config/**
-            **/app/functions/**
